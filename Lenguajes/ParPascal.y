@@ -10,10 +10,6 @@ import ErrM
 
 %name pProgram Program
 %name pBlock Block
-%name pListInstruction ListInstruction
-%name pInstruction Instruction
-%name pListParms ListParms
-%name pParms Parms
 %name pParts Parts
 %name pConstants Constants
 %name pListConst ListConst
@@ -23,12 +19,25 @@ import ErrM
 %name pListListTypes ListListTypes
 %name pListTypes ListTypes
 %name pType Type
+%name pListListId ListListId
+%name pListId ListId
+%name pRangeType RangeType
+%name pListLType ListLType
+%name pLType LType
+%name pListFields ListFields
+%name pFields Fields
+%name pAccessRecord AccessRecord
 %name pVars Vars
 %name pListListVars ListListVars
 %name pListVars ListVars
-%name pListListId ListListId
-%name pListId ListId
 %name pFuncsProcs FuncsProcs
+%name pListInstruction ListInstruction
+%name pInstruction Instruction
+%name pSimpleInstruction SimpleInstruction
+%name pListParms ListParms
+%name pParms Parms
+%name pListExps ListExps
+%name pExps Exps
 -- no lexer declaration
 %monad { Err } { thenM } { returnM }
 %tokentype {Token}
@@ -36,38 +45,38 @@ import ErrM
   '(' { PT _ (TS _ 1) }
   ')' { PT _ (TS _ 2) }
   ',' { PT _ (TS _ 3) }
-  '..' { PT _ (TS _ 4) }
-  ':' { PT _ (TS _ 5) }
-  ';' { PT _ (TS _ 6) }
-  '=' { PT _ (TS _ 7) }
-  '[' { PT _ (TS _ 8) }
-  ']' { PT _ (TS _ 9) }
-  '^' { PT _ (TS _ 10) }
-  'array' { PT _ (TS _ 11) }
-  'begin' { PT _ (TS _ 12) }
-  'const' { PT _ (TS _ 13) }
-  'end' { PT _ (TS _ 14) }
-  'end.' { PT _ (TS _ 15) }
-  'of' { PT _ (TS _ 16) }
-  'program' { PT _ (TS _ 17) }
-  'readln(' { PT _ (TS _ 18) }
-  'record' { PT _ (TS _ 19) }
-  'type' { PT _ (TS _ 20) }
-  'var' { PT _ (TS _ 21) }
-  'writeln(' { PT _ (TS _ 22) }
+  '.' { PT _ (TS _ 4) }
+  '..' { PT _ (TS _ 5) }
+  ':' { PT _ (TS _ 6) }
+  ':=' { PT _ (TS _ 7) }
+  ';' { PT _ (TS _ 8) }
+  '=' { PT _ (TS _ 9) }
+  '[' { PT _ (TS _ 10) }
+  ']' { PT _ (TS _ 11) }
+  '^' { PT _ (TS _ 12) }
+  'array' { PT _ (TS _ 13) }
+  'begin' { PT _ (TS _ 14) }
+  'const' { PT _ (TS _ 15) }
+  'end' { PT _ (TS _ 16) }
+  'end.' { PT _ (TS _ 17) }
+  'of' { PT _ (TS _ 18) }
+  'program' { PT _ (TS _ 19) }
+  'record' { PT _ (TS _ 20) }
+  'type' { PT _ (TS _ 21) }
+  'var' { PT _ (TS _ 22) }
 
-L_quoted { PT _ (TL $$) }
 L_integ  { PT _ (TI $$) }
 L_doubl  { PT _ (TD $$) }
+L_quoted { PT _ (TL $$) }
 L_charac { PT _ (TC $$) }
 L_Id { PT _ (T_Id $$) }
 
 
 %%
 
-String  :: { String }  : L_quoted {  $1 }
 Integer :: { Integer } : L_integ  { (read ( $1)) :: Integer }
 Double  :: { Double }  : L_doubl  { (read ( $1)) :: Double }
+String  :: { String }  : L_quoted {  $1 }
 Char    :: { Char }    : L_charac { (read ( $1)) :: Char }
 Id    :: { Id} : L_Id { Id ($1)}
 
@@ -75,20 +84,6 @@ Program :: { Program }
 Program : 'program' Id ';' Block { AbsPascal.PProgram $2 $4 }
 Block :: { Block }
 Block : Parts 'begin' ListInstruction 'end.' { AbsPascal.PBlock $1 $3 }
-ListInstruction :: { [Instruction] }
-ListInstruction : {- empty -} { [] }
-                | Instruction { (:[]) $1 }
-                | Instruction ';' ListInstruction { (:) $1 $3 }
-Instruction :: { Instruction }
-Instruction : {- empty -} { AbsPascal.PListInstructionEmpty }
-            | 'writeln(' ListParms ')' { AbsPascal.PListInstructionWriteln $2 }
-            | 'readln(' ListParms ')' { AbsPascal.PListInstructionReadln $2 }
-ListParms :: { [Parms] }
-ListParms : {- empty -} { [] }
-          | Parms { (:[]) $1 }
-          | Parms ',' ListParms { (:) $1 $3 }
-Parms :: { Parms }
-Parms : String { AbsPascal.PWritelnParams $1 }
 Parts :: { Parts }
 Parts : Constants Types Vars FuncsProcs { AbsPascal.PPart $1 $2 $3 $4 }
 Constants :: { Constants }
@@ -115,12 +110,39 @@ ListListTypes : {- empty -} { [] }
 ListTypes :: { ListTypes }
 ListTypes : Id '=' Type { AbsPascal.PListTypes $1 $3 }
 Type :: { Type }
-Type : '(' ')' { AbsPascal.PTypeEnum }
-     | '..' { AbsPascal.PTypeSubRange }
+Type : '(' ListListId ')' { AbsPascal.PTypeEnum $2 }
+     | RangeType '..' RangeType { AbsPascal.PTypeSubRange $1 $3 }
      | '^' Id { AbsPascal.PTypePointer $2 }
-     | 'array' '[' ']' 'of' { AbsPascal.PTypeArray }
-     | 'record' 'end' { AbsPascal.PTypeRecord }
+     | 'array' '[' ListLType ']' 'of' Id { AbsPascal.PTypeArray $3 $6 }
+     | 'record' ListFields 'end' { AbsPascal.PTypeRecord $2 }
      | Id { AbsPascal.PTypeIdentifier $1 }
+ListListId :: { [ListId] }
+ListListId : {- empty -} { [] }
+           | ListId { (:[]) $1 }
+           | ListId ',' ListListId { (:) $1 $3 }
+           | {- empty -} { [] }
+           | ListId { (:[]) $1 }
+           | ListId ',' ListListId { (:) $1 $3 }
+ListId :: { ListId }
+ListId : Id { AbsPascal.PListId $1 } | Id { AbsPascal.PListId $1 }
+RangeType :: { RangeType }
+RangeType : Id { AbsPascal.PRangeTypeId $1 }
+          | Char { AbsPascal.PRangeTypeChar $1 }
+          | Integer { AbsPascal.PRangeTypeInteger $1 }
+ListLType :: { [LType] }
+ListLType : {- empty -} { [] }
+          | LType { (:[]) $1 }
+          | LType ',' ListLType { (:) $1 $3 }
+LType :: { LType }
+LType : Type { AbsPascal.PTypeArrayLType $1 }
+ListFields :: { [Fields] }
+ListFields : {- empty -} { [] }
+           | Fields { (:[]) $1 }
+           | Fields ';' ListFields { (:) $1 $3 }
+Fields :: { Fields }
+Fields : ListListId ':' Type { AbsPascal.PRecordFields $1 $3 }
+AccessRecord :: { AccessRecord }
+AccessRecord : Id '.' Id { AbsPascal.PAccessRecord $1 $3 }
 Vars :: { Vars }
 Vars : {- empty -} { AbsPascal.PPartVarsEmpty }
      | 'var' ListListVars { AbsPascal.PPartVars $2 }
@@ -130,14 +152,38 @@ ListListVars : {- empty -} { [] }
              | ListVars ';' ListListVars { (:) $1 $3 }
 ListVars :: { ListVars }
 ListVars : ListListId ':' Id { AbsPascal.PListVars $1 $3 }
-ListListId :: { [ListId] }
-ListListId : {- empty -} { [] }
-           | ListId { (:[]) $1 }
-           | ListId ',' ListListId { (:) $1 $3 }
-ListId :: { ListId }
-ListId : Id { AbsPascal.PListId $1 }
 FuncsProcs :: { FuncsProcs }
 FuncsProcs : {- empty -} { AbsPascal.PPartFuncsProcs }
+ListInstruction :: { [Instruction] }
+ListInstruction : {- empty -} { [] }
+                | Instruction { (:[]) $1 }
+                | Instruction ';' ListInstruction { (:) $1 $3 }
+Instruction :: { Instruction }
+Instruction : {- empty -} { AbsPascal.PListInstructionEmpty }
+            | SimpleInstruction { AbsPascal.PListSimpleInstruction $1 }
+            | {- empty -} { AbsPascal.PListCompositeInstruction }
+SimpleInstruction :: { SimpleInstruction }
+SimpleInstruction : {- empty -} { AbsPascal.PSimpleInstructionEmpty }
+                  | Id ':=' Exps { AbsPascal.PSimpleInstructionAssignment $1 $3 }
+                  | AccessRecord ':=' Exps { AbsPascal.PSimpleInstructionAssignmentAccRecord $1 $3 }
+                  | Id Parms { AbsPascal.PSimpleInstructionProcFunc $1 $2 }
+ListParms :: { [Parms] }
+ListParms : {- empty -} { [] }
+          | Parms { (:[]) $1 }
+          | Parms ',' ListParms { (:) $1 $3 }
+Parms :: { Parms }
+Parms : {- empty -} { AbsPascal.PParmsEmpty }
+      | '(' ListExps ')' { AbsPascal.PParms $2 }
+ListExps :: { [Exps] }
+ListExps : {- empty -} { [] }
+         | Exps { (:[]) $1 }
+         | Exps ',' ListExps { (:) $1 $3 }
+Exps :: { Exps }
+Exps : {- empty -} { AbsPascal.PExpsEmpty }
+     | String { AbsPascal.PExpsString $1 }
+     | Id { AbsPascal.PExpsId $1 }
+     | Integer { AbsPascal.PExpsInteger $1 }
+     | AccessRecord { AbsPascal.PExpsAccRecord $1 }
 {
 
 returnM :: a -> Err a

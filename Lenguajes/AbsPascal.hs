@@ -14,15 +14,6 @@ data Program = PProgram Id Block
 data Block = PBlock Parts [Instruction]
   deriving (Eq, Ord, Show, Read)
 
-data Instruction
-    = PListInstructionEmpty
-    | PListInstructionWriteln [Parms]
-    | PListInstructionReadln [Parms]
-  deriving (Eq, Ord, Show, Read)
-
-data Parms = PWritelnParams String
-  deriving (Eq, Ord, Show, Read)
-
 data Parts = PPart Constants Types Vars FuncsProcs
   deriving (Eq, Ord, Show, Read)
 
@@ -46,12 +37,28 @@ data ListTypes = PListTypes Id Type
   deriving (Eq, Ord, Show, Read)
 
 data Type
-    = PTypeEnum
-    | PTypeSubRange
+    = PTypeEnum [ListId]
+    | PTypeSubRange RangeType RangeType
     | PTypePointer Id
-    | PTypeArray
-    | PTypeRecord
+    | PTypeArray [LType] Id
+    | PTypeRecord [Fields]
     | PTypeIdentifier Id
+  deriving (Eq, Ord, Show, Read)
+
+data ListId = PListId Id
+  deriving (Eq, Ord, Show, Read)
+
+data RangeType
+    = PRangeTypeId Id | PRangeTypeChar Char | PRangeTypeInteger Integer
+  deriving (Eq, Ord, Show, Read)
+
+data LType = PTypeArrayLType Type
+  deriving (Eq, Ord, Show, Read)
+
+data Fields = PRecordFields [ListId] Type
+  deriving (Eq, Ord, Show, Read)
+
+data AccessRecord = PAccessRecord Id Id
   deriving (Eq, Ord, Show, Read)
 
 data Vars = PPartVarsEmpty | PPartVars [ListVars]
@@ -60,9 +67,30 @@ data Vars = PPartVarsEmpty | PPartVars [ListVars]
 data ListVars = PListVars [ListId] Id
   deriving (Eq, Ord, Show, Read)
 
-data ListId = PListId Id
+data FuncsProcs = PPartFuncsProcs
   deriving (Eq, Ord, Show, Read)
 
-data FuncsProcs = PPartFuncsProcs
+data Instruction
+    = PListInstructionEmpty
+    | PListSimpleInstruction SimpleInstruction
+    | PListCompositeInstruction
+  deriving (Eq, Ord, Show, Read)
+
+data SimpleInstruction
+    = PSimpleInstructionEmpty
+    | PSimpleInstructionAssignment Id Exps
+    | PSimpleInstructionAssignmentAccRecord AccessRecord Exps
+    | PSimpleInstructionProcFunc Id Parms
+  deriving (Eq, Ord, Show, Read)
+
+data Parms = PParmsEmpty | PParms [Exps]
+  deriving (Eq, Ord, Show, Read)
+
+data Exps
+    = PExpsEmpty
+    | PExpsString String
+    | PExpsId Id
+    | PExpsInteger Integer
+    | PExpsAccRecord AccessRecord
   deriving (Eq, Ord, Show, Read)
 

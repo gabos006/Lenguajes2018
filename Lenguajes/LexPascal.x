@@ -21,7 +21,7 @@ $i = [$l $d _ ']          -- identifier character
 $u = [\0-\255]          -- universal: any character
 
 @rsyms =    -- symbols and non-identifier-like reserved words
-   \; | "end" \. | "writeln" \( | \) | "readln" \( | \, | \= | \( | \. \. | \^ | \[ | \] | \:
+   \; | "end" \. | \= | \( | \) | \, | \. \. | \^ | \[ | \] | \: | \. | \: \=
 
 :-
 "(*" ([$u # \*] | \*+ [$u # [\* \)]])* ("*")+ ")" ;
@@ -100,7 +100,7 @@ eitherResIdent tv s = treeFind resWords
                               | s == a = t
 
 resWords :: BTree
-resWords = b "begin" 12 (b ";" 6 (b "," 3 (b ")" 2 (b "(" 1 N N) N) (b ":" 5 (b ".." 4 N N) N)) (b "]" 9 (b "[" 8 (b "=" 7 N N) N) (b "array" 11 (b "^" 10 N N) N))) (b "readln(" 18 (b "end." 15 (b "end" 14 (b "const" 13 N N) N) (b "program" 17 (b "of" 16 N N) N)) (b "var" 21 (b "type" 20 (b "record" 19 N N) N) (b "writeln(" 22 N N)))
+resWords = b "^" 12 (b ":" 6 (b "," 3 (b ")" 2 (b "(" 1 N N) N) (b ".." 5 (b "." 4 N N) N)) (b "=" 9 (b ";" 8 (b ":=" 7 N N) N) (b "]" 11 (b "[" 10 N N) N))) (b "of" 18 (b "const" 15 (b "begin" 14 (b "array" 13 N N) N) (b "end." 17 (b "end" 16 N N) N)) (b "type" 21 (b "record" 20 (b "program" 19 N N) N) (b "var" 22 N N)))
    where b s n = let bs = id s
                   in B bs (TS bs n)
 

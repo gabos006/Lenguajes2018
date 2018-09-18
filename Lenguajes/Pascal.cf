@@ -2,19 +2,11 @@ comment "(*" "*)" ;
 
 token Id (letter (letter | digit)*) ;
 
-PProgram . Program ::= "program" Id ";" Block;
+PProgram . Program ::= "program" Id ";" Block ;
 
-PBlock . Block ::= Parts "begin" [Instruction] "end.";
+PBlock . Block ::= Parts "begin" [Instruction] "end." ;
 
-separator Instruction ";" ;
-PListInstructionEmpty . Instruction ::= ;
-PListInstructionWriteln . Instruction ::= "writeln(" [Parms] ")";
-PListInstructionReadln . Instruction ::= "readln(" [Parms] ")";
-
-separator Parms "," ;
-PWritelnParams . Parms ::= Id ;
-
-PPart . Parts ::=  Constants Types Vars FuncsProcs;
+PPart . Parts ::=  Constants Types Vars FuncsProcs ;
 
 PPartConstEmpty . Constants ::= ;
 PPartConst . Constants ::= "const" [Const] ;
@@ -28,23 +20,37 @@ PValString . Val ::= String ;
 PValChar . Val ::= Char ;
 
 PPartTypesEmpty . Types ::= ;
-PPartTypes . Types ::= "type" [ListTypes];
+PPartTypes . Types ::= "type" [ListTypes] ;
 
 separator ListTypes ";" ;
 PListTypes . ListTypes ::= Id "=" Type ;
 
-PTypeEnum . Type ::= "(" ")";
+PTypeEnum . Type ::= "(" [ListId] ")" ;
 
-PTypeSubRange . Type ::= "..";
+separator ListId "," ;
+PListId . ListId ::= Id ;
 
-PTypePointer . Type ::= "^" Id;
+PTypeSubRange . Type ::= RangeType ".." RangeType ;
 
-PTypeArray . Type ::= "array" "[" "]" "of";
+PRangeTypeId . RangeType ::= Id ;
+PRangeTypeChar . RangeType ::= Char ;
+PRangeTypeInteger . RangeType ::= Integer ;
 
-PTypeRecord . Type ::= "record" "end";
+PTypePointer . Type ::= "^" Id ;
+
+PTypeArray . Type ::= "array" "[" [LType] "]" "of" Id ;
+
+separator LType "," ;
+PTypeArrayLType . LType ::= Type ;
+
+PTypeRecord . Type ::= "record" [Fields] "end";
+
+separator Fields ";" ;
+PRecordFields . Fields ::= [ListId] ":" Type ;
+
+PAccessRecord . AccessRecord ::= Id "." Id ;
 
 PTypeIdentifier . Type ::= Id ;
-
 
 PPartVarsEmpty . Vars ::= ;
 PPartVars . Vars ::= "var" [ListVars] ;
@@ -57,3 +63,26 @@ PListId . ListId ::= Id ;
 
 PPartFuncsProcs . FuncsProcs ::= ;
 
+
+separator Instruction ";" ;
+PListInstructionEmpty . Instruction ::= ;
+
+PListSimpleInstruction . Instruction ::= SimpleInstruction ;
+
+PSimpleInstructionEmpty . SimpleInstruction ::= ;
+PSimpleInstructionAssignment . SimpleInstruction ::= Id ":=" Exps ;
+PSimpleInstructionAssignmentAccRecord . SimpleInstruction ::= AccessRecord ":=" Exps ;
+PSimpleInstructionProcFunc . SimpleInstruction ::= Id Parms ;
+
+separator Parms "," ;
+PParmsEmpty . Parms ::= ;
+PParms . Parms ::= "(" [Exps] ")" ;
+
+separator Exps "," ;
+PExpsEmpty . Exps ::= ;
+PExpsString . Exps ::= String ;
+PExpsId . Exps ::= Id ;
+PExpsInteger . Exps ::= Integer ;
+PExpsAccRecord . Exps ::= AccessRecord ;
+
+PListCompositeInstruction . Instruction ::= CompositeInstruction ;

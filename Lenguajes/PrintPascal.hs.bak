@@ -92,19 +92,6 @@ instance Print Block where
   prt i e = case e of
     PBlock parts instructions -> prPrec i 0 (concatD [prt 0 parts, doc (showString "begin"), prt 0 instructions, doc (showString "end.")])
 
-instance Print Instruction where
-  prt i e = case e of
-    PListInstructionEmpty -> prPrec i 0 (concatD [])
-    PListInstructionWriteln parmss -> prPrec i 0 (concatD [doc (showString "writeln("), prt 0 parmss, doc (showString ")")])
-  prtList _ [] = (concatD [])
-  prtList _ [x] = (concatD [prt 0 x])
-  prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
-instance Print Parms where
-  prt i e = case e of
-    PWritelnParams str -> prPrec i 0 (concatD [prt 0 str])
-  prtList _ [] = (concatD [])
-  prtList _ [x] = (concatD [prt 0 x])
-  prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
 instance Print Parts where
   prt i e = case e of
     PPart constants types vars funcsprocs -> prPrec i 0 (concatD [prt 0 constants, prt 0 types, prt 0 vars, prt 0 funcsprocs])
@@ -140,13 +127,40 @@ instance Print ListTypes where
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
 instance Print Type where
   prt i e = case e of
-    PTypeEnum -> prPrec i 0 (concatD [doc (showString "("), doc (showString ")")])
-    PTypeSubRange -> prPrec i 0 (concatD [doc (showString "..")])
+    PTypeEnum listids -> prPrec i 0 (concatD [doc (showString "("), prt 0 listids, doc (showString ")")])
+    PTypeSubRange rangetype1 rangetype2 -> prPrec i 0 (concatD [prt 0 rangetype1, doc (showString ".."), prt 0 rangetype2])
     PTypePointer id -> prPrec i 0 (concatD [doc (showString "^"), prt 0 id])
-    PTypeArray -> prPrec i 0 (concatD [doc (showString "array"), doc (showString "["), doc (showString "]"), doc (showString "of")])
-    PTypeRecord -> prPrec i 0 (concatD [doc (showString "record"), doc (showString "end")])
+    PTypeArray ltypes id -> prPrec i 0 (concatD [doc (showString "array"), doc (showString "["), prt 0 ltypes, doc (showString "]"), doc (showString "of"), prt 0 id])
+    PTypeRecord fieldss -> prPrec i 0 (concatD [doc (showString "record"), prt 0 fieldss, doc (showString "end")])
     PTypeIdentifier id -> prPrec i 0 (concatD [prt 0 id])
 
+instance Print ListId where
+  prt i e = case e of
+    PListId id -> prPrec i 0 (concatD [prt 0 id])
+  prtList _ [] = (concatD [])
+  prtList _ [] = (concatD [])
+  prtList _ [x] = (concatD [prt 0 x])
+  prtList _ [x] = (concatD [prt 0 x])
+  prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
+  prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
+instance Print RangeType where
+  prt i e = case e of
+    PRangeTypeId id -> prPrec i 0 (concatD [prt 0 id])
+    PRangeTypeChar c -> prPrec i 0 (concatD [prt 0 c])
+    PRangeTypeInteger n -> prPrec i 0 (concatD [prt 0 n])
+
+instance Print LType where
+  prt i e = case e of
+    PTypeArrayLType type_ -> prPrec i 0 (concatD [prt 0 type_])
+  prtList _ [] = (concatD [])
+  prtList _ [x] = (concatD [prt 0 x])
+  prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
+instance Print Fields where
+  prt i e = case e of
+    PRecordFields listids type_ -> prPrec i 0 (concatD [prt 0 listids, doc (showString ":"), prt 0 type_])
+  prtList _ [] = (concatD [])
+  prtList _ [x] = (concatD [prt 0 x])
+  prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
 instance Print Vars where
   prt i e = case e of
     PPartVarsEmpty -> prPrec i 0 (concatD [])
@@ -158,14 +172,38 @@ instance Print ListVars where
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
-instance Print ListId where
-  prt i e = case e of
-    PListId id -> prPrec i 0 (concatD [prt 0 id])
-  prtList _ [] = (concatD [])
-  prtList _ [x] = (concatD [prt 0 x])
-  prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
 instance Print FuncsProcs where
   prt i e = case e of
     PPartFuncsProcs -> prPrec i 0 (concatD [])
 
+instance Print Instruction where
+  prt i e = case e of
+    PListInstructionEmpty -> prPrec i 0 (concatD [])
+    PListSimpleInstruction simpleinstruction -> prPrec i 0 (concatD [prt 0 simpleinstruction])
+    PListCompositeInstruction -> prPrec i 0 (concatD [])
+  prtList _ [] = (concatD [])
+  prtList _ [x] = (concatD [prt 0 x])
+  prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
+instance Print SimpleInstruction where
+  prt i e = case e of
+    PSimpleInstructionEmpty -> prPrec i 0 (concatD [])
+    PSimpleInstructionAssignment id exps -> prPrec i 0 (concatD [prt 0 id, doc (showString ":="), prt 0 exps])
+    PSimpleInstructionProcFunc id parms -> prPrec i 0 (concatD [prt 0 id, prt 0 parms])
+
+instance Print Parms where
+  prt i e = case e of
+    PParmsEmpty -> prPrec i 0 (concatD [])
+    PParms expss -> prPrec i 0 (concatD [doc (showString "("), prt 0 expss, doc (showString ")")])
+  prtList _ [] = (concatD [])
+  prtList _ [x] = (concatD [prt 0 x])
+  prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
+instance Print Exps where
+  prt i e = case e of
+    PExpsEmpty -> prPrec i 0 (concatD [])
+    PExpsString str -> prPrec i 0 (concatD [prt 0 str])
+    PExpsId id -> prPrec i 0 (concatD [prt 0 id])
+    PExpsInteger n -> prPrec i 0 (concatD [prt 0 n])
+  prtList _ [] = (concatD [])
+  prtList _ [x] = (concatD [prt 0 x])
+  prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
 

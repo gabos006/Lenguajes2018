@@ -18,13 +18,6 @@ transProgram x = case x of
 transBlock :: Block -> Result
 transBlock x = case x of
   PBlock parts instructions -> failure x
-transInstruction :: Instruction -> Result
-transInstruction x = case x of
-  PListInstructionEmpty -> failure x
-  PListInstructionWriteln parmss -> failure x
-transParms :: Parms -> Result
-transParms x = case x of
-  PWritelnParams string -> failure x
 transParts :: Parts -> Result
 transParts x = case x of
   PPart constants types vars funcsprocs -> failure x
@@ -50,12 +43,26 @@ transListTypes x = case x of
   PListTypes id type_ -> failure x
 transType :: Type -> Result
 transType x = case x of
-  PTypeEnum -> failure x
-  PTypeSubRange -> failure x
+  PTypeEnum listids -> failure x
+  PTypeSubRange rangetype1 rangetype2 -> failure x
   PTypePointer id -> failure x
-  PTypeArray -> failure x
-  PTypeRecord -> failure x
+  PTypeArray ltypes id -> failure x
+  PTypeRecord fieldss -> failure x
   PTypeIdentifier id -> failure x
+transListId :: ListId -> Result
+transListId x = case x of
+  PListId id -> failure x
+transRangeType :: RangeType -> Result
+transRangeType x = case x of
+  PRangeTypeId id -> failure x
+  PRangeTypeChar char -> failure x
+  PRangeTypeInteger integer -> failure x
+transLType :: LType -> Result
+transLType x = case x of
+  PTypeArrayLType type_ -> failure x
+transFields :: Fields -> Result
+transFields x = case x of
+  PRecordFields listids type_ -> failure x
 transVars :: Vars -> Result
 transVars x = case x of
   PPartVarsEmpty -> failure x
@@ -63,10 +70,27 @@ transVars x = case x of
 transListVars :: ListVars -> Result
 transListVars x = case x of
   PListVars listids id -> failure x
-transListId :: ListId -> Result
-transListId x = case x of
-  PListId id -> failure x
 transFuncsProcs :: FuncsProcs -> Result
 transFuncsProcs x = case x of
   PPartFuncsProcs -> failure x
+transInstruction :: Instruction -> Result
+transInstruction x = case x of
+  PListInstructionEmpty -> failure x
+  PListSimpleInstruction simpleinstruction -> failure x
+  PListCompositeInstruction -> failure x
+transSimpleInstruction :: SimpleInstruction -> Result
+transSimpleInstruction x = case x of
+  PSimpleInstructionEmpty -> failure x
+  PSimpleInstructionAssignment id exps -> failure x
+  PSimpleInstructionProcFunc id parms -> failure x
+transParms :: Parms -> Result
+transParms x = case x of
+  PParmsEmpty -> failure x
+  PParms expss -> failure x
+transExps :: Exps -> Result
+transExps x = case x of
+  PExpsEmpty -> failure x
+  PExpsString string -> failure x
+  PExpsId id -> failure x
+  PExpsInteger integer -> failure x
 

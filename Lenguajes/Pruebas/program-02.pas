@@ -13,5 +13,5 @@ begin
   readln(name);
 
   (* write a greeting *)
-  (*writeln("Hello, ", name, "!");*)
+  writeln("Hello, ", name, "!");
 end.
