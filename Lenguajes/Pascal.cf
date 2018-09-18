@@ -1,0 +1,59 @@
+comment "(*" "*)" ;
+
+token Id (letter (letter | digit)*) ;
+
+PProgram . Program ::= "program" Id ";" Block;
+
+PBlock . Block ::= Parts "begin" [Instruction] "end.";
+
+separator Instruction ";" ;
+PListInstructionEmpty . Instruction ::= ;
+PListInstructionWriteln . Instruction ::= "writeln(" [Parms] ")";
+PListInstructionReadln . Instruction ::= "readln(" [Parms] ")";
+
+separator Parms "," ;
+PWritelnParams . Parms ::= Id ;
+
+PPart . Parts ::=  Constants Types Vars FuncsProcs;
+
+PPartConstEmpty . Constants ::= ;
+PPartConst . Constants ::= "const" [Const] ;
+
+separator Const ";" ;
+PListConst . Const ::= Id "=" Val ;
+
+PValInteger . Val ::= Integer ;
+PValDouble . Val ::= Double ;
+PValString . Val ::= String ;
+PValChar . Val ::= Char ;
+
+PPartTypesEmpty . Types ::= ;
+PPartTypes . Types ::= "type" [ListTypes];
+
+separator ListTypes ";" ;
+PListTypes . ListTypes ::= Id "=" Type ;
+
+PTypeEnum . Type ::= "(" ")";
+
+PTypeSubRange . Type ::= "..";
+
+PTypePointer . Type ::= "^" Id;
+
+PTypeArray . Type ::= "array" "[" "]" "of";
+
+PTypeRecord . Type ::= "record" "end";
+
+PTypeIdentifier . Type ::= Id ;
+
+
+PPartVarsEmpty . Vars ::= ;
+PPartVars . Vars ::= "var" [ListVars] ;
+
+separator ListVars ";" ;
+PListVars . ListVars ::= [ListId] ":" Id ;
+
+separator ListId "," ;
+PListId . ListId ::= Id ;
+
+PPartFuncsProcs . FuncsProcs ::= ;
+
