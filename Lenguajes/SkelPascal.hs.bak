@@ -63,6 +63,9 @@ transLType x = case x of
 transFields :: Fields -> Result
 transFields x = case x of
   PRecordFields listids type_ -> failure x
+transAccessRecord :: AccessRecord -> Result
+transAccessRecord x = case x of
+  PAccessRecord id1 id2 -> failure x
 transVars :: Vars -> Result
 transVars x = case x of
   PPartVarsEmpty -> failure x
@@ -77,11 +80,12 @@ transInstruction :: Instruction -> Result
 transInstruction x = case x of
   PListInstructionEmpty -> failure x
   PListSimpleInstruction simpleinstruction -> failure x
-  PListCompositeInstruction -> failure x
+  PListCompositeInstruction compositeinstruction -> failure x
 transSimpleInstruction :: SimpleInstruction -> Result
 transSimpleInstruction x = case x of
   PSimpleInstructionEmpty -> failure x
   PSimpleInstructionAssignment id exps -> failure x
+  PSimpleInstructionAssignmentAccRecord accessrecord exps -> failure x
   PSimpleInstructionProcFunc id parms -> failure x
 transParms :: Parms -> Result
 transParms x = case x of
@@ -90,7 +94,36 @@ transParms x = case x of
 transExps :: Exps -> Result
 transExps x = case x of
   PExpsEmpty -> failure x
-  PExpsString string -> failure x
-  PExpsId id -> failure x
-  PExpsInteger integer -> failure x
+  PExpsFactor factor -> failure x
+  PExpsTerms terms -> failure x
+  PExpsSimple simpleexp -> failure x
+  PExpGeneral generalexp -> failure x
+transFactor :: Factor -> Result
+transFactor x = case x of
+  PFactorString string -> failure x
+  PFactorId id -> failure x
+  PFactorInteger integer -> failure x
+  PFactorAccRecord accessrecord -> failure x
+transTerms :: Terms -> Result
+transTerms x = case x of
+  PTerms -> failure x
+transSimpleExp :: SimpleExp -> Result
+transSimpleExp x = case x of
+  PSimpleExpAdd add -> failure x
+  PSimpleExpEquals equals -> failure x
+transAdd :: Add -> Result
+transAdd x = case x of
+  PAdd factor1 factor2 -> failure x
+transEquals :: Equals -> Result
+transEquals x = case x of
+  PEquals factor1 factor2 -> failure x
+transGeneralExp :: GeneralExp -> Result
+transGeneralExp x = case x of
+  PGeneralExp -> failure x
+transCompositeInstruction :: CompositeInstruction -> Result
+transCompositeInstruction x = case x of
+  PCompositeInstructionRepeat listinstrss exps -> failure x
+transListInstrs :: ListInstrs -> Result
+transListInstrs x = case x of
+  PRepeatListInstrs instruction -> failure x
 

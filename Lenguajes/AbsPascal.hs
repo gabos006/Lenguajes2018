@@ -73,7 +73,7 @@ data FuncsProcs = PPartFuncsProcs
 data Instruction
     = PListInstructionEmpty
     | PListSimpleInstruction SimpleInstruction
-    | PListCompositeInstruction
+    | PListCompositeInstruction CompositeInstruction
   deriving (Eq, Ord, Show, Read)
 
 data SimpleInstruction
@@ -88,9 +88,46 @@ data Parms = PParmsEmpty | PParms [Exps]
 
 data Exps
     = PExpsEmpty
-    | PExpsString String
-    | PExpsId Id
-    | PExpsInteger Integer
-    | PExpsAccRecord AccessRecord
+    | PExpsFactor Factor
+    | PExpsTerms Terms
+    | PExpsSimple SimpleExp
+    | PExpGeneral GeneralExp
+  deriving (Eq, Ord, Show, Read)
+
+data Factor
+    = PFactorString String
+    | PFactorId Id
+    | PFactorInteger Integer
+    | PFactorAccRecord AccessRecord
+  deriving (Eq, Ord, Show, Read)
+
+data Terms = PTerms
+  deriving (Eq, Ord, Show, Read)
+
+data SimpleExp
+    = PSimpleExpAdd Add
+    | PSimpleExpEquals Equals
+    | PSimpleExpMinus Minus
+  deriving (Eq, Ord, Show, Read)
+
+data Add = PAdd Factor Factor
+  deriving (Eq, Ord, Show, Read)
+
+data Equals = PEquals Factor Factor
+  deriving (Eq, Ord, Show, Read)
+
+data Minus = PMinus Factor Factor
+  deriving (Eq, Ord, Show, Read)
+
+data GeneralExp = PGeneralExp
+  deriving (Eq, Ord, Show, Read)
+
+data CompositeInstruction
+    = PCompositeInstructionRepeat [ListInstrs] Exps
+    | PCompositeInstructionForTo Id Exps Exps Instruction
+    | PCompositeInstructionForDownTo Id Exps Exps Instruction
+  deriving (Eq, Ord, Show, Read)
+
+data ListInstrs = PRepeatListInstrs Instruction
   deriving (Eq, Ord, Show, Read)
 

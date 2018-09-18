@@ -184,7 +184,7 @@ instance Print Instruction where
   prt i e = case e of
     PListInstructionEmpty -> prPrec i 0 (concatD [])
     PListSimpleInstruction simpleinstruction -> prPrec i 0 (concatD [prt 0 simpleinstruction])
-    PListCompositeInstruction -> prPrec i 0 (concatD [])
+    PListCompositeInstruction compositeinstruction -> prPrec i 0 (concatD [prt 0 compositeinstruction])
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
@@ -205,11 +205,56 @@ instance Print Parms where
 instance Print Exps where
   prt i e = case e of
     PExpsEmpty -> prPrec i 0 (concatD [])
-    PExpsString str -> prPrec i 0 (concatD [prt 0 str])
-    PExpsId id -> prPrec i 0 (concatD [prt 0 id])
-    PExpsInteger n -> prPrec i 0 (concatD [prt 0 n])
-    PExpsAccRecord accessrecord -> prPrec i 0 (concatD [prt 0 accessrecord])
+    PExpsFactor factor -> prPrec i 0 (concatD [prt 0 factor])
+    PExpsTerms terms -> prPrec i 0 (concatD [prt 0 terms])
+    PExpsSimple simpleexp -> prPrec i 0 (concatD [prt 0 simpleexp])
+    PExpGeneral generalexp -> prPrec i 0 (concatD [prt 0 generalexp])
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
+instance Print Factor where
+  prt i e = case e of
+    PFactorString str -> prPrec i 0 (concatD [prt 0 str])
+    PFactorId id -> prPrec i 0 (concatD [prt 0 id])
+    PFactorInteger n -> prPrec i 0 (concatD [prt 0 n])
+    PFactorAccRecord accessrecord -> prPrec i 0 (concatD [prt 0 accessrecord])
+
+instance Print Terms where
+  prt i e = case e of
+    PTerms -> prPrec i 0 (concatD [])
+
+instance Print SimpleExp where
+  prt i e = case e of
+    PSimpleExpAdd add -> prPrec i 0 (concatD [prt 0 add])
+    PSimpleExpEquals equals -> prPrec i 0 (concatD [prt 0 equals])
+    PSimpleExpMinus minus -> prPrec i 0 (concatD [prt 0 minus])
+
+instance Print Add where
+  prt i e = case e of
+    PAdd factor1 factor2 -> prPrec i 0 (concatD [prt 0 factor1, doc (showString "+"), prt 0 factor2])
+
+instance Print Equals where
+  prt i e = case e of
+    PEquals factor1 factor2 -> prPrec i 0 (concatD [prt 0 factor1, doc (showString "="), prt 0 factor2])
+
+instance Print Minus where
+  prt i e = case e of
+    PMinus factor1 factor2 -> prPrec i 0 (concatD [prt 0 factor1, doc (showString "-"), prt 0 factor2])
+
+instance Print GeneralExp where
+  prt i e = case e of
+    PGeneralExp -> prPrec i 0 (concatD [])
+
+instance Print CompositeInstruction where
+  prt i e = case e of
+    PCompositeInstructionRepeat listinstrss exps -> prPrec i 0 (concatD [doc (showString "repeat"), prt 0 listinstrss, doc (showString "until"), prt 0 exps])
+    PCompositeInstructionForTo id exps1 exps2 instruction -> prPrec i 0 (concatD [doc (showString "for"), prt 0 id, doc (showString ":="), prt 0 exps1, doc (showString "to"), prt 0 exps2, doc (showString "do"), prt 0 instruction])
+    PCompositeInstructionForDownTo id exps1 exps2 instruction -> prPrec i 0 (concatD [doc (showString "for"), prt 0 id, doc (showString ":="), prt 0 exps1, doc (showString "downto"), prt 0 exps2, doc (showString "do"), prt 0 instruction])
+
+instance Print ListInstrs where
+  prt i e = case e of
+    PRepeatListInstrs instruction -> prPrec i 0 (concatD [prt 0 instruction])
+  prtList _ [] = (concatD [])
+  prtList _ [x] = (concatD [prt 0 x])
+  prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
 

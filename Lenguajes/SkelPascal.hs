@@ -80,7 +80,7 @@ transInstruction :: Instruction -> Result
 transInstruction x = case x of
   PListInstructionEmpty -> failure x
   PListSimpleInstruction simpleinstruction -> failure x
-  PListCompositeInstruction -> failure x
+  PListCompositeInstruction compositeinstruction -> failure x
 transSimpleInstruction :: SimpleInstruction -> Result
 transSimpleInstruction x = case x of
   PSimpleInstructionEmpty -> failure x
@@ -94,8 +94,42 @@ transParms x = case x of
 transExps :: Exps -> Result
 transExps x = case x of
   PExpsEmpty -> failure x
-  PExpsString string -> failure x
-  PExpsId id -> failure x
-  PExpsInteger integer -> failure x
-  PExpsAccRecord accessrecord -> failure x
+  PExpsFactor factor -> failure x
+  PExpsTerms terms -> failure x
+  PExpsSimple simpleexp -> failure x
+  PExpGeneral generalexp -> failure x
+transFactor :: Factor -> Result
+transFactor x = case x of
+  PFactorString string -> failure x
+  PFactorId id -> failure x
+  PFactorInteger integer -> failure x
+  PFactorAccRecord accessrecord -> failure x
+transTerms :: Terms -> Result
+transTerms x = case x of
+  PTerms -> failure x
+transSimpleExp :: SimpleExp -> Result
+transSimpleExp x = case x of
+  PSimpleExpAdd add -> failure x
+  PSimpleExpEquals equals -> failure x
+  PSimpleExpMinus minus -> failure x
+transAdd :: Add -> Result
+transAdd x = case x of
+  PAdd factor1 factor2 -> failure x
+transEquals :: Equals -> Result
+transEquals x = case x of
+  PEquals factor1 factor2 -> failure x
+transMinus :: Minus -> Result
+transMinus x = case x of
+  PMinus factor1 factor2 -> failure x
+transGeneralExp :: GeneralExp -> Result
+transGeneralExp x = case x of
+  PGeneralExp -> failure x
+transCompositeInstruction :: CompositeInstruction -> Result
+transCompositeInstruction x = case x of
+  PCompositeInstructionRepeat listinstrss exps -> failure x
+  PCompositeInstructionForTo id exps1 exps2 instruction -> failure x
+  PCompositeInstructionForDownTo id exps1 exps2 instruction -> failure x
+transListInstrs :: ListInstrs -> Result
+transListInstrs x = case x of
+  PRepeatListInstrs instruction -> failure x
 

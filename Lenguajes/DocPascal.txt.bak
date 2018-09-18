@@ -41,13 +41,14 @@ The set of reserved words is the set of terminals appearing in the grammar. Thos
 
 The reserved words used in Pascal are the following:
   | ``array`` | ``begin`` | ``const`` | ``end``
-  | ``of`` | ``program`` | ``record`` | ``type``
-  | ``var`` |  |  | 
+  | ``of`` | ``program`` | ``record`` | ``repeat``
+  | ``type`` | ``until`` | ``var`` | 
 
 The symbols used in Pascal are the following:
   | ; | end. | = | (
   | ) | , | .. | ^
-  | [ | ] | : | :=
+  | [ | ] | : | .
+  | := | + |  | 
 
 ===Comments===
 There are no single-line comments in the grammar.Multiple-line comments are  enclosed with (* and *).
@@ -102,6 +103,7 @@ All other symbols are terminals.
   |  |  **|**  | //Fields// 
   |  |  **|**  | //Fields// ``;`` //[Fields]// 
   | //Fields// | -> | //[ListId]// ``:`` //Type// 
+  | //AccessRecord// | -> | //Id// ``.`` //Id// 
   | //Vars// | -> | **eps**
   |  |  **|**  | ``var`` //[ListVars]// 
   | //[ListVars]// | -> | **eps**
@@ -114,9 +116,10 @@ All other symbols are terminals.
   |  |  **|**  | //Instruction// ``;`` //[Instruction]// 
   | //Instruction// | -> | **eps**
   |  |  **|**  | //SimpleInstruction// 
-  |  |  **|**  | **eps**
+  |  |  **|**  | //CompositeInstruction// 
   | //SimpleInstruction// | -> | **eps**
   |  |  **|**  | //Id// ``:=`` //Exps// 
+  |  |  **|**  | //AccessRecord// ``:=`` //Exps// 
   |  |  **|**  | //Id// //Parms// 
   | //[Parms]// | -> | **eps**
   |  |  **|**  | //Parms// 
@@ -127,8 +130,24 @@ All other symbols are terminals.
   |  |  **|**  | //Exps// 
   |  |  **|**  | //Exps// ``,`` //[Exps]// 
   | //Exps// | -> | **eps**
-  |  |  **|**  | //String// 
+  |  |  **|**  | //Factor// 
+  |  |  **|**  | //Terms// 
+  |  |  **|**  | //SimpleExp// 
+  |  |  **|**  | //GeneralExp// 
+  | //Factor// | -> | //String// 
   |  |  **|**  | //Id// 
   |  |  **|**  | //Integer// 
+  |  |  **|**  | //AccessRecord// 
+  | //Terms// | -> | **eps**
+  | //SimpleExp// | -> | //Add// 
+  |  |  **|**  | //Equals// 
+  | //Add// | -> | //Factor// ``+`` //Factor// 
+  | //Equals// | -> | //Factor// ``=`` //Factor// 
+  | //GeneralExp// | -> | **eps**
+  | //CompositeInstruction// | -> | ``repeat`` //[ListInstrs]// ``until`` //Exps// 
+  | //[ListInstrs]// | -> | **eps**
+  |  |  **|**  | //ListInstrs// 
+  |  |  **|**  | //ListInstrs// ``;`` //[ListInstrs]// 
+  | //ListInstrs// | -> | //Instruction// 
 
 

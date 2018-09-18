@@ -58,6 +58,9 @@ data LType = PTypeArrayLType Type
 data Fields = PRecordFields [ListId] Type
   deriving (Eq, Ord, Show, Read)
 
+data AccessRecord = PAccessRecord Id Id
+  deriving (Eq, Ord, Show, Read)
+
 data Vars = PPartVarsEmpty | PPartVars [ListVars]
   deriving (Eq, Ord, Show, Read)
 
@@ -70,12 +73,13 @@ data FuncsProcs = PPartFuncsProcs
 data Instruction
     = PListInstructionEmpty
     | PListSimpleInstruction SimpleInstruction
-    | PListCompositeInstruction
+    | PListCompositeInstruction CompositeInstruction
   deriving (Eq, Ord, Show, Read)
 
 data SimpleInstruction
     = PSimpleInstructionEmpty
     | PSimpleInstructionAssignment Id Exps
+    | PSimpleInstructionAssignmentAccRecord AccessRecord Exps
     | PSimpleInstructionProcFunc Id Parms
   deriving (Eq, Ord, Show, Read)
 
@@ -84,8 +88,38 @@ data Parms = PParmsEmpty | PParms [Exps]
 
 data Exps
     = PExpsEmpty
-    | PExpsString String
-    | PExpsId Id
-    | PExpsInteger Integer
+    | PExpsFactor Factor
+    | PExpsTerms Terms
+    | PExpsSimple SimpleExp
+    | PExpGeneral GeneralExp
+  deriving (Eq, Ord, Show, Read)
+
+data Factor
+    = PFactorString String
+    | PFactorId Id
+    | PFactorInteger Integer
+    | PFactorAccRecord AccessRecord
+  deriving (Eq, Ord, Show, Read)
+
+data Terms = PTerms
+  deriving (Eq, Ord, Show, Read)
+
+data SimpleExp = PSimpleExpAdd Add | PSimpleExpEquals Equals
+  deriving (Eq, Ord, Show, Read)
+
+data Add = PAdd Factor Factor
+  deriving (Eq, Ord, Show, Read)
+
+data Equals = PEquals Factor Factor
+  deriving (Eq, Ord, Show, Read)
+
+data GeneralExp = PGeneralExp
+  deriving (Eq, Ord, Show, Read)
+
+data CompositeInstruction
+    = PCompositeInstructionRepeat [ListInstrs] Exps
+  deriving (Eq, Ord, Show, Read)
+
+data ListInstrs = PRepeatListInstrs Instruction
   deriving (Eq, Ord, Show, Read)
 

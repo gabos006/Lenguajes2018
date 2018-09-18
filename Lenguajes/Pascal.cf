@@ -80,9 +80,36 @@ PParms . Parms ::= "(" [Exps] ")" ;
 
 separator Exps "," ;
 PExpsEmpty . Exps ::= ;
-PExpsString . Exps ::= String ;
-PExpsId . Exps ::= Id ;
-PExpsInteger . Exps ::= Integer ;
-PExpsAccRecord . Exps ::= AccessRecord ;
+PExpsFactor . Exps ::= Factor ;
+
+PFactorString . Factor ::= String ;
+PFactorId . Factor ::= Id ;
+PFactorInteger . Factor ::= Integer ;
+PFactorAccRecord . Factor ::= AccessRecord ;
+
+PExpsTerms . Exps ::= Terms ;
+
+PTerms . Terms ::= ;
+
+PExpsSimple . Exps ::= SimpleExp ;
+
+PSimpleExpAdd . SimpleExp ::= Add ;
+PSimpleExpEquals . SimpleExp ::= Equals ;
+PSimpleExpMinus . SimpleExp ::= Minus ;
+PAdd . Add ::= Factor "+" Factor ;
+PEquals . Equals ::= Factor "=" Factor ;
+PMinus . Minus ::= Factor "-" Factor ;
+
+PExpGeneral . Exps ::= GeneralExp ;
+
+PGeneralExp . GeneralExp ::= ;
 
 PListCompositeInstruction . Instruction ::= CompositeInstruction ;
+
+PCompositeInstructionRepeat . CompositeInstruction ::= "repeat" [ListInstrs] "until" Exps ;
+
+separator ListInstrs ";" ;
+PRepeatListInstrs . ListInstrs ::= Instruction ;
+
+PCompositeInstructionForTo . CompositeInstruction ::= "for" Id ":=" Exps "to" Exps "do" Instruction ;
+PCompositeInstructionForDownTo . CompositeInstruction ::= "for" Id ":=" Exps "downto" Exps "do" Instruction ;
