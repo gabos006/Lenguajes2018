@@ -51,6 +51,7 @@ transType x = case x of
   PTypeIdentifier id -> failure x
 transListId :: ListId -> Result
 transListId x = case x of
+  PListIdEnum id -> failure x
   PListId id -> failure x
 transRangeType :: RangeType -> Result
 transRangeType x = case x of
@@ -104,6 +105,7 @@ transFactor x = case x of
   PFactorId id -> failure x
   PFactorInteger integer -> failure x
   PFactorAccRecord accessrecord -> failure x
+  PFactorFunction id expss -> failure x
 transTerms :: Terms -> Result
 transTerms x = case x of
   PTerms -> failure x
@@ -124,11 +126,22 @@ transMinus x = case x of
 transGeneralExp :: GeneralExp -> Result
 transGeneralExp x = case x of
   PGeneralExp -> failure x
+  PGeneralExpMayor exps1 exps2 -> failure x
+  PGeneralExpMinor exps1 exps2 -> failure x
+  PGeneralExpEqual exps1 exps2 -> failure x
+  PGeneralExpMayorEqual exps1 exps2 -> failure x
+  PGeneralExpMinorEqual exps1 exps2 -> failure x
+  PGeneralExpDistinct exps1 exps2 -> failure x
 transCompositeInstruction :: CompositeInstruction -> Result
 transCompositeInstruction x = case x of
+  PCompositeInstructionIf exps instruction else_ -> failure x
   PCompositeInstructionRepeat listinstrss exps -> failure x
   PCompositeInstructionForTo id exps1 exps2 instruction -> failure x
   PCompositeInstructionForDownTo id exps1 exps2 instruction -> failure x
+transElse :: Else -> Result
+transElse x = case x of
+  PIfElseEmpty -> failure x
+  PIfElse instruction -> failure x
 transListInstrs :: ListInstrs -> Result
 transListInstrs x = case x of
   PRepeatListInstrs instruction -> failure x

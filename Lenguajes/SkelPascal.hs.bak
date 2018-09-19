@@ -104,6 +104,7 @@ transFactor x = case x of
   PFactorId id -> failure x
   PFactorInteger integer -> failure x
   PFactorAccRecord accessrecord -> failure x
+  PFactorFunction id expss -> failure x
 transTerms :: Terms -> Result
 transTerms x = case x of
   PTerms -> failure x
@@ -111,18 +112,35 @@ transSimpleExp :: SimpleExp -> Result
 transSimpleExp x = case x of
   PSimpleExpAdd add -> failure x
   PSimpleExpEquals equals -> failure x
+  PSimpleExpMinus minus -> failure x
 transAdd :: Add -> Result
 transAdd x = case x of
   PAdd factor1 factor2 -> failure x
 transEquals :: Equals -> Result
 transEquals x = case x of
   PEquals factor1 factor2 -> failure x
+transMinus :: Minus -> Result
+transMinus x = case x of
+  PMinus factor1 factor2 -> failure x
 transGeneralExp :: GeneralExp -> Result
 transGeneralExp x = case x of
   PGeneralExp -> failure x
+  PGeneralExpMayor exps1 exps2 -> failure x
+  PGeneralExpMinor exps1 exps2 -> failure x
+  PGeneralExpEqual exps1 exps2 -> failure x
+  PGeneralExpMayorEqual exps1 exps2 -> failure x
+  PGeneralExpMinorEqual exps1 exps2 -> failure x
+  PGeneralExpDistinct exps1 exps2 -> failure x
 transCompositeInstruction :: CompositeInstruction -> Result
 transCompositeInstruction x = case x of
+  PCompositeInstructionIf exps instruction else_ -> failure x
   PCompositeInstructionRepeat listinstrss exps -> failure x
+  PCompositeInstructionForTo id exps1 exps2 instruction -> failure x
+  PCompositeInstructionForDownTo id exps1 exps2 instruction -> failure x
+transElse :: Else -> Result
+transElse x = case x of
+  PIfElseEmpty -> failure x
+  PIfElse instruction -> failure x
 transListInstrs :: ListInstrs -> Result
 transListInstrs x = case x of
   PRepeatListInstrs instruction -> failure x

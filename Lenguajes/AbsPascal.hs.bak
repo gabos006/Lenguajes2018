@@ -99,12 +99,16 @@ data Factor
     | PFactorId Id
     | PFactorInteger Integer
     | PFactorAccRecord AccessRecord
+    | PFactorFunction Id [Exps]
   deriving (Eq, Ord, Show, Read)
 
 data Terms = PTerms
   deriving (Eq, Ord, Show, Read)
 
-data SimpleExp = PSimpleExpAdd Add | PSimpleExpEquals Equals
+data SimpleExp
+    = PSimpleExpAdd Add
+    | PSimpleExpEquals Equals
+    | PSimpleExpMinus Minus
   deriving (Eq, Ord, Show, Read)
 
 data Add = PAdd Factor Factor
@@ -113,11 +117,27 @@ data Add = PAdd Factor Factor
 data Equals = PEquals Factor Factor
   deriving (Eq, Ord, Show, Read)
 
-data GeneralExp = PGeneralExp
+data Minus = PMinus Factor Factor
+  deriving (Eq, Ord, Show, Read)
+
+data GeneralExp
+    = PGeneralExp
+    | PGeneralExpMayor Exps Exps
+    | PGeneralExpMinor Exps Exps
+    | PGeneralExpEqual Exps Exps
+    | PGeneralExpMayorEqual Exps Exps
+    | PGeneralExpMinorEqual Exps Exps
+    | PGeneralExpDistinct Exps Exps
   deriving (Eq, Ord, Show, Read)
 
 data CompositeInstruction
-    = PCompositeInstructionRepeat [ListInstrs] Exps
+    = PCompositeInstructionIf Exps Instruction Else
+    | PCompositeInstructionRepeat [ListInstrs] Exps
+    | PCompositeInstructionForTo Id Exps Exps Instruction
+    | PCompositeInstructionForDownTo Id Exps Exps Instruction
+  deriving (Eq, Ord, Show, Read)
+
+data Else = PIfElseEmpty | PIfElse Instruction
   deriving (Eq, Ord, Show, Read)
 
 data ListInstrs = PRepeatListInstrs Instruction

@@ -28,7 +28,7 @@ PListTypes . ListTypes ::= Id "=" Type ;
 PTypeEnum . Type ::= "(" [ListId] ")" ;
 
 separator ListId "," ;
-PListId . ListId ::= Id ;
+PListIdEnum . ListId ::= Id ;
 
 PTypeSubRange . Type ::= RangeType ".." RangeType ;
 
@@ -86,6 +86,7 @@ PFactorString . Factor ::= String ;
 PFactorId . Factor ::= Id ;
 PFactorInteger . Factor ::= Integer ;
 PFactorAccRecord . Factor ::= AccessRecord ;
+PFactorFunction . Factor ::= Id "(" [Exps] ")" ;
 
 PExpsTerms . Exps ::= Terms ;
 
@@ -103,8 +104,19 @@ PMinus . Minus ::= Factor "-" Factor ;
 PExpGeneral . Exps ::= GeneralExp ;
 
 PGeneralExp . GeneralExp ::= ;
+PGeneralExpMayor . GeneralExp ::= "(" Exps ">" Exps ")" ;
+PGeneralExpMinor . GeneralExp ::= "(" Exps "<" Exps ")" ;
+PGeneralExpEqual . GeneralExp ::= "(" Exps "=" Exps ")" ;
+PGeneralExpMayorEqual . GeneralExp ::= "(" Exps ">=" Exps ")" ;
+PGeneralExpMinorEqual . GeneralExp ::= "(" Exps "<=" Exps ")" ;
+PGeneralExpDistinct . GeneralExp ::= "(" Exps "<>" Exps ")" ;
 
 PListCompositeInstruction . Instruction ::= CompositeInstruction ;
+
+PCompositeInstructionIf . CompositeInstruction ::= "if" Exps "then" Instruction Else ;
+
+PIfElseEmpty . Else ::= ;
+PIfElse . Else ::= "else" Instruction ;
 
 PCompositeInstructionRepeat . CompositeInstruction ::= "repeat" [ListInstrs] "until" Exps ;
 

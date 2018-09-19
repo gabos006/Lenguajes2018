@@ -136,6 +136,7 @@ instance Print Type where
 
 instance Print ListId where
   prt i e = case e of
+    PListIdEnum id -> prPrec i 0 (concatD [prt 0 id])
     PListId id -> prPrec i 0 (concatD [prt 0 id])
   prtList _ [] = (concatD [])
   prtList _ [] = (concatD [])
@@ -218,6 +219,7 @@ instance Print Factor where
     PFactorId id -> prPrec i 0 (concatD [prt 0 id])
     PFactorInteger n -> prPrec i 0 (concatD [prt 0 n])
     PFactorAccRecord accessrecord -> prPrec i 0 (concatD [prt 0 accessrecord])
+    PFactorFunction id expss -> prPrec i 0 (concatD [prt 0 id, doc (showString "("), prt 0 expss, doc (showString ")")])
 
 instance Print Terms where
   prt i e = case e of
@@ -244,12 +246,24 @@ instance Print Minus where
 instance Print GeneralExp where
   prt i e = case e of
     PGeneralExp -> prPrec i 0 (concatD [])
+    PGeneralExpMayor exps1 exps2 -> prPrec i 0 (concatD [doc (showString "("), prt 0 exps1, doc (showString ">"), prt 0 exps2, doc (showString ")")])
+    PGeneralExpMinor exps1 exps2 -> prPrec i 0 (concatD [doc (showString "("), prt 0 exps1, doc (showString "<"), prt 0 exps2, doc (showString ")")])
+    PGeneralExpEqual exps1 exps2 -> prPrec i 0 (concatD [doc (showString "("), prt 0 exps1, doc (showString "="), prt 0 exps2, doc (showString ")")])
+    PGeneralExpMayorEqual exps1 exps2 -> prPrec i 0 (concatD [doc (showString "("), prt 0 exps1, doc (showString ">="), prt 0 exps2, doc (showString ")")])
+    PGeneralExpMinorEqual exps1 exps2 -> prPrec i 0 (concatD [doc (showString "("), prt 0 exps1, doc (showString "<="), prt 0 exps2, doc (showString ")")])
+    PGeneralExpDistinct exps1 exps2 -> prPrec i 0 (concatD [doc (showString "("), prt 0 exps1, doc (showString "<>"), prt 0 exps2, doc (showString ")")])
 
 instance Print CompositeInstruction where
   prt i e = case e of
+    PCompositeInstructionIf exps instruction else_ -> prPrec i 0 (concatD [doc (showString "if"), prt 0 exps, doc (showString "then"), prt 0 instruction, prt 0 else_])
     PCompositeInstructionRepeat listinstrss exps -> prPrec i 0 (concatD [doc (showString "repeat"), prt 0 listinstrss, doc (showString "until"), prt 0 exps])
     PCompositeInstructionForTo id exps1 exps2 instruction -> prPrec i 0 (concatD [doc (showString "for"), prt 0 id, doc (showString ":="), prt 0 exps1, doc (showString "to"), prt 0 exps2, doc (showString "do"), prt 0 instruction])
     PCompositeInstructionForDownTo id exps1 exps2 instruction -> prPrec i 0 (concatD [doc (showString "for"), prt 0 id, doc (showString ":="), prt 0 exps1, doc (showString "downto"), prt 0 exps2, doc (showString "do"), prt 0 instruction])
+
+instance Print Else where
+  prt i e = case e of
+    PIfElseEmpty -> prPrec i 0 (concatD [])
+    PIfElse instruction -> prPrec i 0 (concatD [doc (showString "else"), prt 0 instruction])
 
 instance Print ListInstrs where
   prt i e = case e of

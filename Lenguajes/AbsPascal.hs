@@ -45,7 +45,7 @@ data Type
     | PTypeIdentifier Id
   deriving (Eq, Ord, Show, Read)
 
-data ListId = PListId Id
+data ListId = PListIdEnum Id | PListId Id
   deriving (Eq, Ord, Show, Read)
 
 data RangeType
@@ -99,6 +99,7 @@ data Factor
     | PFactorId Id
     | PFactorInteger Integer
     | PFactorAccRecord AccessRecord
+    | PFactorFunction Id [Exps]
   deriving (Eq, Ord, Show, Read)
 
 data Terms = PTerms
@@ -119,13 +120,24 @@ data Equals = PEquals Factor Factor
 data Minus = PMinus Factor Factor
   deriving (Eq, Ord, Show, Read)
 
-data GeneralExp = PGeneralExp
+data GeneralExp
+    = PGeneralExp
+    | PGeneralExpMayor Exps Exps
+    | PGeneralExpMinor Exps Exps
+    | PGeneralExpEqual Exps Exps
+    | PGeneralExpMayorEqual Exps Exps
+    | PGeneralExpMinorEqual Exps Exps
+    | PGeneralExpDistinct Exps Exps
   deriving (Eq, Ord, Show, Read)
 
 data CompositeInstruction
-    = PCompositeInstructionRepeat [ListInstrs] Exps
+    = PCompositeInstructionIf Exps Instruction Else
+    | PCompositeInstructionRepeat [ListInstrs] Exps
     | PCompositeInstructionForTo Id Exps Exps Instruction
     | PCompositeInstructionForDownTo Id Exps Exps Instruction
+  deriving (Eq, Ord, Show, Read)
+
+data Else = PIfElseEmpty | PIfElse Instruction
   deriving (Eq, Ord, Show, Read)
 
 data ListInstrs = PRepeatListInstrs Instruction

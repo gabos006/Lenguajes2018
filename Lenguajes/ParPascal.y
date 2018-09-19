@@ -46,6 +46,7 @@ import ErrM
 %name pMinus Minus
 %name pGeneralExp GeneralExp
 %name pCompositeInstruction CompositeInstruction
+%name pElse Else
 %name pListListInstrs ListListInstrs
 %name pListInstrs ListInstrs
 -- no lexer declaration
@@ -62,26 +63,34 @@ import ErrM
   ':' { PT _ (TS _ 8) }
   ':=' { PT _ (TS _ 9) }
   ';' { PT _ (TS _ 10) }
-  '=' { PT _ (TS _ 11) }
-  '[' { PT _ (TS _ 12) }
-  ']' { PT _ (TS _ 13) }
-  '^' { PT _ (TS _ 14) }
-  'array' { PT _ (TS _ 15) }
-  'begin' { PT _ (TS _ 16) }
-  'const' { PT _ (TS _ 17) }
-  'do' { PT _ (TS _ 18) }
-  'downto' { PT _ (TS _ 19) }
-  'end' { PT _ (TS _ 20) }
-  'end.' { PT _ (TS _ 21) }
-  'for' { PT _ (TS _ 22) }
-  'of' { PT _ (TS _ 23) }
-  'program' { PT _ (TS _ 24) }
-  'record' { PT _ (TS _ 25) }
-  'repeat' { PT _ (TS _ 26) }
-  'to' { PT _ (TS _ 27) }
-  'type' { PT _ (TS _ 28) }
-  'until' { PT _ (TS _ 29) }
-  'var' { PT _ (TS _ 30) }
+  '<' { PT _ (TS _ 11) }
+  '<=' { PT _ (TS _ 12) }
+  '<>' { PT _ (TS _ 13) }
+  '=' { PT _ (TS _ 14) }
+  '>' { PT _ (TS _ 15) }
+  '>=' { PT _ (TS _ 16) }
+  '[' { PT _ (TS _ 17) }
+  ']' { PT _ (TS _ 18) }
+  '^' { PT _ (TS _ 19) }
+  'array' { PT _ (TS _ 20) }
+  'begin' { PT _ (TS _ 21) }
+  'const' { PT _ (TS _ 22) }
+  'do' { PT _ (TS _ 23) }
+  'downto' { PT _ (TS _ 24) }
+  'else' { PT _ (TS _ 25) }
+  'end' { PT _ (TS _ 26) }
+  'end.' { PT _ (TS _ 27) }
+  'for' { PT _ (TS _ 28) }
+  'if' { PT _ (TS _ 29) }
+  'of' { PT _ (TS _ 30) }
+  'program' { PT _ (TS _ 31) }
+  'record' { PT _ (TS _ 32) }
+  'repeat' { PT _ (TS _ 33) }
+  'then' { PT _ (TS _ 34) }
+  'to' { PT _ (TS _ 35) }
+  'type' { PT _ (TS _ 36) }
+  'until' { PT _ (TS _ 37) }
+  'var' { PT _ (TS _ 38) }
 
 L_integ  { PT _ (TI $$) }
 L_doubl  { PT _ (TD $$) }
@@ -142,7 +151,8 @@ ListListId : {- empty -} { [] }
            | ListId { (:[]) $1 }
            | ListId ',' ListListId { (:) $1 $3 }
 ListId :: { ListId }
-ListId : Id { AbsPascal.PListId $1 } | Id { AbsPascal.PListId $1 }
+ListId : Id { AbsPascal.PListIdEnum $1 }
+       | Id { AbsPascal.PListId $1 }
 RangeType :: { RangeType }
 RangeType : Id { AbsPascal.PRangeTypeId $1 }
           | Char { AbsPascal.PRangeTypeChar $1 }
@@ -207,6 +217,7 @@ Factor : String { AbsPascal.PFactorString $1 }
        | Id { AbsPascal.PFactorId $1 }
        | Integer { AbsPascal.PFactorInteger $1 }
        | AccessRecord { AbsPascal.PFactorAccRecord $1 }
+       | Id '(' ListExps ')' { AbsPascal.PFactorFunction $1 $3 }
 Terms :: { Terms }
 Terms : {- empty -} { AbsPascal.PTerms }
 SimpleExp :: { SimpleExp }
@@ -221,10 +232,20 @@ Minus :: { Minus }
 Minus : Factor '-' Factor { AbsPascal.PMinus $1 $3 }
 GeneralExp :: { GeneralExp }
 GeneralExp : {- empty -} { AbsPascal.PGeneralExp }
+           | '(' Exps '>' Exps ')' { AbsPascal.PGeneralExpMayor $2 $4 }
+           | '(' Exps '<' Exps ')' { AbsPascal.PGeneralExpMinor $2 $4 }
+           | '(' Exps '=' Exps ')' { AbsPascal.PGeneralExpEqual $2 $4 }
+           | '(' Exps '>=' Exps ')' { AbsPascal.PGeneralExpMayorEqual $2 $4 }
+           | '(' Exps '<=' Exps ')' { AbsPascal.PGeneralExpMinorEqual $2 $4 }
+           | '(' Exps '<>' Exps ')' { AbsPascal.PGeneralExpDistinct $2 $4 }
 CompositeInstruction :: { CompositeInstruction }
-CompositeInstruction : 'repeat' ListListInstrs 'until' Exps { AbsPascal.PCompositeInstructionRepeat $2 $4 }
+CompositeInstruction : 'if' Exps 'then' Instruction Else { AbsPascal.PCompositeInstructionIf $2 $4 $5 }
+                     | 'repeat' ListListInstrs 'until' Exps { AbsPascal.PCompositeInstructionRepeat $2 $4 }
                      | 'for' Id ':=' Exps 'to' Exps 'do' Instruction { AbsPascal.PCompositeInstructionForTo $2 $4 $6 $8 }
                      | 'for' Id ':=' Exps 'downto' Exps 'do' Instruction { AbsPascal.PCompositeInstructionForDownTo $2 $4 $6 $8 }
+Else :: { Else }
+Else : {- empty -} { AbsPascal.PIfElseEmpty }
+     | 'else' Instruction { AbsPascal.PIfElse $2 }
 ListListInstrs :: { [ListInstrs] }
 ListListInstrs : {- empty -} { [] }
                | ListInstrs { (:[]) $1 }
