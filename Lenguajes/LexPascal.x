@@ -21,7 +21,7 @@ $i = [$l $d _ ']          -- identifier character
 $u = [\0-\255]          -- universal: any character
 
 @rsyms =    -- symbols and non-identifier-like reserved words
-   \; | \. | \= | \: | \( | \) | \. \. | \^ | \[ | \] | \: \= | \, | \+ | \-
+   \; | \. | \= | \: | \( | \) | \. \. | \^ | \[ | \] | \: \= | \, | \> | \< | \> \= | \< \= | \< \> | \* | \/ | \+ | \-
 
 :-
 "(*" ([$u # \*] | \*+ [$u # [\* \)]])* ("*")+ ")" ;
@@ -100,7 +100,7 @@ eitherResIdent tv s = treeFind resWords
                               | s == a = t
 
 resWords :: BTree
-resWords = b "const" 17 (b ":=" 9 (b "-" 5 (b "+" 3 (b ")" 2 (b "(" 1 N N) N) (b "," 4 N N)) (b ".." 7 (b "." 6 N N) (b ":" 8 N N))) (b "]" 13 (b "=" 11 (b ";" 10 N N) (b "[" 12 N N)) (b "array" 15 (b "^" 14 N N) (b "begin" 16 N N)))) (b "program" 25 (b "end" 21 (b "downto" 19 (b "do" 18 N N) (b "else" 20 N N)) (b "if" 23 (b "for" 22 N N) (b "of" 24 N N))) (b "to" 29 (b "repeat" 27 (b "record" 26 N N) (b "then" 28 N N)) (b "until" 31 (b "type" 30 N N) (b "var" 32 N N))))
+resWords = b "and" 22 (b ":=" 11 (b "-" 6 (b "*" 3 (b ")" 2 (b "(" 1 N N) N) (b "," 5 (b "+" 4 N N) N)) (b "/" 9 (b ".." 8 (b "." 7 N N) N) (b ":" 10 N N))) (b ">" 17 (b "<=" 14 (b "<" 13 (b ";" 12 N N) N) (b "=" 16 (b "<>" 15 N N) N)) (b "]" 20 (b "[" 19 (b ">=" 18 N N) N) (b "^" 21 N N)))) (b "mod" 33 (b "downto" 28 (b "const" 25 (b "begin" 24 (b "array" 23 N N) N) (b "do" 27 (b "div" 26 N N) N)) (b "for" 31 (b "end" 30 (b "else" 29 N N) N) (b "if" 32 N N))) (b "then" 38 (b "record" 36 (b "program" 35 (b "of" 34 N N) N) (b "repeat" 37 N N)) (b "until" 41 (b "type" 40 (b "to" 39 N N) N) (b "var" 42 N N))))
    where b s n = let bs = id s
                   in B bs (TS bs n)
 

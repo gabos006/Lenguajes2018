@@ -85,24 +85,28 @@ data CompositeInstruction
 data Parms = PParamsEmpty | PParms [Exp]
   deriving (Eq, Ord, Show, Read)
 
-data Exp = PExpGeneral ExpGral
-  deriving (Eq, Ord, Show, Read)
-
-data Factor
-    = PFactorLit Literal | PFactorId Id | PFactorAccId Id [AccId]
-  deriving (Eq, Ord, Show, Read)
-
-data Term = PTermFactor Factor
-  deriving (Eq, Ord, Show, Read)
-
-data SimpleExp
-    = PSimpleExpTerm Term
-    | PSimpleExpAdd Factor Factor
-    | PSimpleExpMinus Factor Factor
-  deriving (Eq, Ord, Show, Read)
-
-data ExpGral
-    = PGeneralExpSimple SimpleExp | PGeneralExpEqual ExpGral ExpGral
+data Exp
+    = PGeneralExpSimple Exp
+    | PGeneralExpMayor Exp Exp
+    | PGeneralExpMinor Exp Exp
+    | PGeneralExpEqual Exp Exp
+    | PGeneralExpMayorEqual Exp Exp
+    | PGeneralExpMinorEqual Exp Exp
+    | PGeneralExpDistinct Exp Exp
+    | PFactorLit Literal
+    | PFactorId Id
+    | PFactorAccId Id [AccId]
+    | PTermFactor Exp
+    | PTermExpMul Exp Exp
+    | PTermExpDiv1 Exp Exp
+    | PTermExpDiv2 Exp Exp
+    | PTermExpMod Exp Exp
+    | PTermExpAnd Exp Exp
+    | PSimpleExpTerm Exp
+    | PSimpleExpAdd Exp Exp
+    | PSimpleExpEquals Exp Exp
+    | PSimpleExpMinus Exp Exp
+    | PSimpleExpInvSign Exp
   deriving (Eq, Ord, Show, Read)
 
 data AccId = PAccId Id

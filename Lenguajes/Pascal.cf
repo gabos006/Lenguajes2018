@@ -116,38 +116,37 @@ PParms . Parms ::= "(" [Exp] ")" ;
 
 --Expresiones--
 separator Exp "," ;
-PExpGeneral . Exp ::= ExpGral ;
-
---Factor--
-PFactorLit . Factor ::= Literal ;
-PFactorId . Factor ::= Id ;
-PFactorAccId . Factor ::= Id "." [AccId] ;
-
---Terminos--
-PTermFactor . Term ::= Factor ;
---PTermExpMul . Term ::= Term "*" Term ;--
---PTermExpDiv1 . Term ::= Term "/" Term ;--
---PTermExpDiv2 . Term ::= Term "div" Term ;--
---PTermExpMod . Term ::= Term "mod" Term ;--
---PTermExpAnd . Term ::= Term "and" Term ;--
-
---Expresion simple--
-PSimpleExpTerm . SimpleExp ::= Term ;
-PSimpleExpAdd . SimpleExp ::= Factor "+" Factor ;
---PSimpleExpEquals . SimpleExp ::= Factor "=" Factor ;--
-PSimpleExpMinus . SimpleExp ::= Factor "-" Factor ;
---PSimpleExpInvSign . SimpleExp ::= "-" SimpleExp ;--
-
 
 --Expresion General--
-PGeneralExpSimple . ExpGral ::= SimpleExp;
---PGeneralExpMayor . ExpGral ::= ExpGral ">" ExpGral ;--
---PGeneralExpMinor . ExpGral ::= ExpGral "<" ExpGral ;--
-PGeneralExpEqual . ExpGral ::= ExpGral "=" ExpGral ;
---PGeneralExpMayorEqual . ExpGral ::= ExpGral ">=" ExpGral ;--
---PGeneralExpMinorEqual . ExpGral ::= ExpGral "<=" ExpGral ;--
---PGeneralExpDistinct . ExpGral ::= ExpGral "<>" ExpGral ;--
+PGeneralExpSimple . Exp ::= Exp1;
+PGeneralExpMayor . Exp ::= Exp ">" Exp ;
+PGeneralExpMinor . Exp ::= Exp "<" Exp ;
+PGeneralExpEqual . Exp ::= Exp "=" Exp ;
+PGeneralExpMayorEqual . Exp ::= Exp ">=" Exp ;
+PGeneralExpMinorEqual . Exp ::= Exp "<=" Exp ;
+PGeneralExpDistinct . Exp ::= Exp "<>" Exp ;
 
+--Factor--
+PFactorLit . Exp3 ::= Literal ;
+PFactorId . Exp3 ::= Id ;
+PFactorAccId . Exp3 ::= Id "." [AccId] ;
+
+--Terminos--
+PTermFactor . Exp2 ::= Exp3 ;
+PTermExpMul . Exp2 ::= Exp2 "*" Exp2 ;
+PTermExpDiv1 . Exp2 ::= Exp2 "/" Exp2 ;
+PTermExpDiv2 . Exp2 ::= Exp2 "div" Exp2 ;
+PTermExpMod . Exp2 ::= Exp2 "mod" Exp2 ;
+PTermExpAnd . Exp2 ::= Exp2 "and" Exp2 ;
+
+--Expresion simple--
+PSimpleExpTerm . Exp1 ::= Exp2 ;
+PSimpleExpAdd . Exp1 ::= Exp3 "+" Exp3 ;
+PSimpleExpEquals . Exp1 ::= Exp3 "=" Exp3 ;
+PSimpleExpMinus . Exp1 ::= Exp3 "-" Exp3 ;
+PSimpleExpInvSign . Exp1 ::= "-" Exp1 ;
+
+coercions Exp 3 ;
 
 
 
