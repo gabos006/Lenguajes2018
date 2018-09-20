@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -w #-}
 {-# OPTIONS -fglasgow-exts -cpp #-}
 {-# OPTIONS_GHC -fno-warn-incomplete-patterns -fno-warn-overlapping-patterns #-}
-module ParPascalCorr where
-import AbsPascalCorr
-import LexPascalCorr
+module ParPascal where
+import AbsPascal
+import LexPascal
 import ErrM
 import qualified Data.Array as Happy_Data_Array
 import qualified GHC.Exts as Happy_GHC_Exts
@@ -335,7 +335,7 @@ happyReduction_31 (happy_x_4 `HappyStk`
 	 = case happyOut33 happy_x_2 of { happy_var_2 -> 
 	case happyOut35 happy_x_4 of { happy_var_4 -> 
 	happyIn34
-		 (AbsPascalCorr.PProgram happy_var_2 happy_var_4
+		 (AbsPascal.PProgram happy_var_2 happy_var_4
 	) `HappyStk` happyRest}}
 
 happyReduce_32 = happySpecReduce_3  6# happyReduction_32
@@ -345,7 +345,7 @@ happyReduction_32 happy_x_3
 	 =  case happyOut36 happy_x_1 of { happy_var_1 -> 
 	case happyOut49 happy_x_2 of { happy_var_2 -> 
 	happyIn35
-		 (AbsPascalCorr.PBlock happy_var_1 happy_var_2
+		 (AbsPascal.PBlock happy_var_1 happy_var_2
 	)}}
 
 happyReduce_33 = happySpecReduce_3  7# happyReduction_33
@@ -356,12 +356,12 @@ happyReduction_33 happy_x_3
 	case happyOut42 happy_x_2 of { happy_var_2 -> 
 	case happyOut40 happy_x_3 of { happy_var_3 -> 
 	happyIn36
-		 (AbsPascalCorr.PPart happy_var_1 happy_var_2 happy_var_3
+		 (AbsPascal.PPart happy_var_1 happy_var_2 happy_var_3
 	)}}}
 
 happyReduce_34 = happySpecReduce_0  8# happyReduction_34
 happyReduction_34  =  happyIn37
-		 (AbsPascalCorr.PPartConstEmpty
+		 (AbsPascal.PPartConstEmpty
 	)
 
 happyReduce_35 = happyReduce 4# 8# happyReduction_35
@@ -373,7 +373,7 @@ happyReduction_35 (happy_x_4 `HappyStk`
 	 = case happyOut56 happy_x_2 of { happy_var_2 -> 
 	case happyOut38 happy_x_3 of { happy_var_3 -> 
 	happyIn37
-		 (AbsPascalCorr.PPartConst (reverse happy_var_2) happy_var_3
+		 (AbsPascal.PPartConst (reverse happy_var_2) happy_var_3
 	) `HappyStk` happyRest}}
 
 happyReduce_36 = happySpecReduce_3  9# happyReduction_36
@@ -383,40 +383,40 @@ happyReduction_36 happy_x_3
 	 =  case happyOut33 happy_x_1 of { happy_var_1 -> 
 	case happyOut39 happy_x_3 of { happy_var_3 -> 
 	happyIn38
-		 (AbsPascalCorr.PConst happy_var_1 happy_var_3
+		 (AbsPascal.PConst happy_var_1 happy_var_3
 	)}}
 
 happyReduce_37 = happySpecReduce_1  10# happyReduction_37
 happyReduction_37 happy_x_1
 	 =  case happyOut29 happy_x_1 of { happy_var_1 -> 
 	happyIn39
-		 (AbsPascalCorr.PValInteger happy_var_1
+		 (AbsPascal.PValInteger happy_var_1
 	)}
 
 happyReduce_38 = happySpecReduce_1  10# happyReduction_38
 happyReduction_38 happy_x_1
 	 =  case happyOut30 happy_x_1 of { happy_var_1 -> 
 	happyIn39
-		 (AbsPascalCorr.PValDouble happy_var_1
+		 (AbsPascal.PValDouble happy_var_1
 	)}
 
 happyReduce_39 = happySpecReduce_1  10# happyReduction_39
 happyReduction_39 happy_x_1
 	 =  case happyOut31 happy_x_1 of { happy_var_1 -> 
 	happyIn39
-		 (AbsPascalCorr.PValString happy_var_1
+		 (AbsPascal.PValString happy_var_1
 	)}
 
 happyReduce_40 = happySpecReduce_1  10# happyReduction_40
 happyReduction_40 happy_x_1
 	 =  case happyOut32 happy_x_1 of { happy_var_1 -> 
 	happyIn39
-		 (AbsPascalCorr.PValChar happy_var_1
+		 (AbsPascal.PValChar happy_var_1
 	)}
 
 happyReduce_41 = happySpecReduce_0  11# happyReduction_41
 happyReduction_41  =  happyIn40
-		 (AbsPascalCorr.PPartVarsEmpty
+		 (AbsPascal.PPartVarsEmpty
 	)
 
 happyReduce_42 = happyReduce 4# 11# happyReduction_42
@@ -428,7 +428,7 @@ happyReduction_42 (happy_x_4 `HappyStk`
 	 = case happyOut57 happy_x_2 of { happy_var_2 -> 
 	case happyOut41 happy_x_3 of { happy_var_3 -> 
 	happyIn40
-		 (AbsPascalCorr.PPartVars (reverse happy_var_2) happy_var_3
+		 (AbsPascal.PPartVars (reverse happy_var_2) happy_var_3
 	) `HappyStk` happyRest}}
 
 happyReduce_43 = happySpecReduce_3  12# happyReduction_43
@@ -438,12 +438,12 @@ happyReduction_43 happy_x_3
 	 =  case happyOut59 happy_x_1 of { happy_var_1 -> 
 	case happyOut33 happy_x_3 of { happy_var_3 -> 
 	happyIn41
-		 (AbsPascalCorr.PVar happy_var_1 happy_var_3
+		 (AbsPascal.PVar happy_var_1 happy_var_3
 	)}}
 
 happyReduce_44 = happySpecReduce_0  13# happyReduction_44
 happyReduction_44  =  happyIn42
-		 (AbsPascalCorr.PPartTypesEmpty
+		 (AbsPascal.PPartTypesEmpty
 	)
 
 happyReduce_45 = happyReduce 4# 13# happyReduction_45
@@ -455,7 +455,7 @@ happyReduction_45 (happy_x_4 `HappyStk`
 	 = case happyOut58 happy_x_2 of { happy_var_2 -> 
 	case happyOut43 happy_x_3 of { happy_var_3 -> 
 	happyIn42
-		 (AbsPascalCorr.PPartTypes (reverse happy_var_2) happy_var_3
+		 (AbsPascal.PPartTypes (reverse happy_var_2) happy_var_3
 	) `HappyStk` happyRest}}
 
 happyReduce_46 = happySpecReduce_3  14# happyReduction_46
@@ -465,7 +465,7 @@ happyReduction_46 happy_x_3
 	 =  case happyOut33 happy_x_1 of { happy_var_1 -> 
 	case happyOut44 happy_x_3 of { happy_var_3 -> 
 	happyIn43
-		 (AbsPascalCorr.PType happy_var_1 happy_var_3
+		 (AbsPascal.PType happy_var_1 happy_var_3
 	)}}
 
 happyReduce_47 = happySpecReduce_3  15# happyReduction_47
@@ -474,7 +474,7 @@ happyReduction_47 happy_x_3
 	happy_x_1
 	 =  case happyOut59 happy_x_2 of { happy_var_2 -> 
 	happyIn44
-		 (AbsPascalCorr.PCustomTypeEnum happy_var_2
+		 (AbsPascal.PCustomTypeEnum happy_var_2
 	)}
 
 happyReduce_48 = happySpecReduce_3  15# happyReduction_48
@@ -484,7 +484,7 @@ happyReduction_48 happy_x_3
 	 =  case happyOut45 happy_x_1 of { happy_var_1 -> 
 	case happyOut45 happy_x_3 of { happy_var_3 -> 
 	happyIn44
-		 (AbsPascalCorr.PCustomTypeSubRange happy_var_1 happy_var_3
+		 (AbsPascal.PCustomTypeSubRange happy_var_1 happy_var_3
 	)}}
 
 happyReduce_49 = happySpecReduce_2  15# happyReduction_49
@@ -492,7 +492,7 @@ happyReduction_49 happy_x_2
 	happy_x_1
 	 =  case happyOut33 happy_x_2 of { happy_var_2 -> 
 	happyIn44
-		 (AbsPascalCorr.PCustomTypePointer happy_var_2
+		 (AbsPascal.PCustomTypePointer happy_var_2
 	)}
 
 happyReduce_50 = happyReduce 6# 15# happyReduction_50
@@ -506,7 +506,7 @@ happyReduction_50 (happy_x_6 `HappyStk`
 	 = case happyOut46 happy_x_3 of { happy_var_3 -> 
 	case happyOut33 happy_x_6 of { happy_var_6 -> 
 	happyIn44
-		 (AbsPascalCorr.PTypeArray happy_var_3 happy_var_6
+		 (AbsPascal.PTypeArray happy_var_3 happy_var_6
 	) `HappyStk` happyRest}}
 
 happyReduce_51 = happySpecReduce_3  15# happyReduction_51
@@ -515,35 +515,35 @@ happyReduction_51 happy_x_3
 	happy_x_1
 	 =  case happyOut47 happy_x_2 of { happy_var_2 -> 
 	happyIn44
-		 (AbsPascalCorr.PTypeRecord happy_var_2
+		 (AbsPascal.PTypeRecord happy_var_2
 	)}
 
 happyReduce_52 = happySpecReduce_1  15# happyReduction_52
 happyReduction_52 happy_x_1
 	 =  case happyOut33 happy_x_1 of { happy_var_1 -> 
 	happyIn44
-		 (AbsPascalCorr.PCustomTypeId happy_var_1
+		 (AbsPascal.PCustomTypeId happy_var_1
 	)}
 
 happyReduce_53 = happySpecReduce_1  16# happyReduction_53
 happyReduction_53 happy_x_1
 	 =  case happyOut33 happy_x_1 of { happy_var_1 -> 
 	happyIn45
-		 (AbsPascalCorr.PRangeTypeId happy_var_1
+		 (AbsPascal.PRangeTypeId happy_var_1
 	)}
 
 happyReduce_54 = happySpecReduce_1  16# happyReduction_54
 happyReduction_54 happy_x_1
 	 =  case happyOut32 happy_x_1 of { happy_var_1 -> 
 	happyIn45
-		 (AbsPascalCorr.PRangeTypeChar happy_var_1
+		 (AbsPascal.PRangeTypeChar happy_var_1
 	)}
 
 happyReduce_55 = happySpecReduce_1  16# happyReduction_55
 happyReduction_55 happy_x_1
 	 =  case happyOut29 happy_x_1 of { happy_var_1 -> 
 	happyIn45
-		 (AbsPascalCorr.PRangeTypeInteger happy_var_1
+		 (AbsPascal.PRangeTypeInteger happy_var_1
 	)}
 
 happyReduce_56 = happySpecReduce_3  17# happyReduction_56
@@ -553,7 +553,7 @@ happyReduction_56 happy_x_3
 	 =  case happyOut45 happy_x_1 of { happy_var_1 -> 
 	case happyOut45 happy_x_3 of { happy_var_3 -> 
 	happyIn46
-		 (AbsPascalCorr.PTypeArrayLType happy_var_1 happy_var_3
+		 (AbsPascal.PTypeArrayLType happy_var_1 happy_var_3
 	)}}
 
 happyReduce_57 = happySpecReduce_0  18# happyReduction_57
@@ -585,7 +585,7 @@ happyReduction_60 happy_x_3
 	 =  case happyOut33 happy_x_1 of { happy_var_1 -> 
 	case happyOut44 happy_x_3 of { happy_var_3 -> 
 	happyIn48
-		 (AbsPascalCorr.PRecordFields happy_var_1 happy_var_3
+		 (AbsPascal.PRecordFields happy_var_1 happy_var_3
 	)}}
 
 happyReduce_61 = happySpecReduce_3  20# happyReduction_61
@@ -594,7 +594,7 @@ happyReduction_61 happy_x_3
 	happy_x_1
 	 =  case happyOut50 happy_x_2 of { happy_var_2 -> 
 	happyIn49
-		 (AbsPascalCorr.PBody happy_var_2
+		 (AbsPascal.PBody happy_var_2
 	)}
 
 happyReduce_62 = happySpecReduce_0  21# happyReduction_62
@@ -623,7 +623,7 @@ happyReduce_65 = happySpecReduce_1  22# happyReduction_65
 happyReduction_65 happy_x_1
 	 =  case happyOut52 happy_x_1 of { happy_var_1 -> 
 	happyIn51
-		 (AbsPascalCorr.PListSimpleInstruction happy_var_1
+		 (AbsPascal.PListSimpleInstruction happy_var_1
 	)}
 
 happyReduce_66 = happySpecReduce_3  23# happyReduction_66
@@ -633,7 +633,7 @@ happyReduction_66 happy_x_3
 	 =  case happyOut33 happy_x_1 of { happy_var_1 -> 
 	case happyOut55 happy_x_3 of { happy_var_3 -> 
 	happyIn52
-		 (AbsPascalCorr.PSimpleInstructionAssignment happy_var_1 happy_var_3
+		 (AbsPascal.PSimpleInstructionAssignment happy_var_1 happy_var_3
 	)}}
 
 happyReduce_67 = happySpecReduce_2  23# happyReduction_67
@@ -642,12 +642,12 @@ happyReduction_67 happy_x_2
 	 =  case happyOut33 happy_x_1 of { happy_var_1 -> 
 	case happyOut53 happy_x_2 of { happy_var_2 -> 
 	happyIn52
-		 (AbsPascalCorr.PSimpleInstructionProcFunc happy_var_1 happy_var_2
+		 (AbsPascal.PSimpleInstructionProcFunc happy_var_1 happy_var_2
 	)}}
 
 happyReduce_68 = happySpecReduce_0  24# happyReduction_68
 happyReduction_68  =  happyIn53
-		 (AbsPascalCorr.PParamsEmpty
+		 (AbsPascal.PParamsEmpty
 	)
 
 happyReduce_69 = happySpecReduce_3  24# happyReduction_69
@@ -656,7 +656,7 @@ happyReduction_69 happy_x_3
 	happy_x_1
 	 =  case happyOut54 happy_x_2 of { happy_var_2 -> 
 	happyIn53
-		 (AbsPascalCorr.PParms happy_var_2
+		 (AbsPascal.PParms happy_var_2
 	)}
 
 happyReduce_70 = happySpecReduce_0  25# happyReduction_70
@@ -685,21 +685,21 @@ happyReduce_73 = happySpecReduce_1  26# happyReduction_73
 happyReduction_73 happy_x_1
 	 =  case happyOut31 happy_x_1 of { happy_var_1 -> 
 	happyIn55
-		 (AbsPascalCorr.PFactorString happy_var_1
+		 (AbsPascal.PFactorString happy_var_1
 	)}
 
 happyReduce_74 = happySpecReduce_1  26# happyReduction_74
 happyReduction_74 happy_x_1
 	 =  case happyOut33 happy_x_1 of { happy_var_1 -> 
 	happyIn55
-		 (AbsPascalCorr.PFactorId happy_var_1
+		 (AbsPascal.PFactorId happy_var_1
 	)}
 
 happyReduce_75 = happySpecReduce_1  26# happyReduction_75
 happyReduction_75 happy_x_1
 	 =  case happyOut29 happy_x_1 of { happy_var_1 -> 
 	happyIn55
-		 (AbsPascalCorr.PFactorInteger happy_var_1
+		 (AbsPascal.PFactorInteger happy_var_1
 	)}
 
 happyReduce_76 = happySpecReduce_0  27# happyReduction_76

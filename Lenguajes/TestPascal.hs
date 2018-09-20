@@ -6,11 +6,11 @@ import System.IO ( stdin, hGetContents )
 import System.Environment ( getArgs, getProgName )
 import System.Exit ( exitFailure, exitSuccess )
 
-import LexPascalCorr
-import ParPascalCorr
-import SkelPascalCorr
-import PrintPascalCorr
-import AbsPascalCorr
+import LexPascal
+import ParPascal
+import SkelPascal
+import PrintPascal
+import AbsPascal
 
 
 

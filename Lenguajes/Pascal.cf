@@ -2,126 +2,84 @@ comment "(*" "*)" ;
 
 token Id (letter (letter | digit)*) ;
 
+--Programa--
 PProgram . Program ::= "program" Id ";" Block ;
 
-PBlock . Block ::= Parts "begin" [Instruction] "end." ;
+--Bloque--
+PBlock . Block ::= Parts Body "." ;
 
-PPart . Parts ::=  Constants Types Vars FuncsProcs ;
+--Partes--
+PPart . Parts ::=  Consts Types Vars ;
 
-PPartConstEmpty . Constants ::= ;
-PPartConst . Constants ::= "const" [Const] ;
+--Constantes--
+PPartConstEmpty . Consts ::= ;
+PPartConst . Consts ::= "const" [Const] Const ";" ;
+PConst . Const ::= Id "=" Literal ;
 
-separator Const ";" ;
-PListConst . Const ::= Id "=" Val ;
+--Literales--
+PValInteger . Literal ::= Integer ;
+PValDouble . Literal ::= Double ;
+PValString . Literal ::= String ;
+PValChar . Literal ::= Char ;
 
-PValInteger . Val ::= Integer ;
-PValDouble . Val ::= Double ;
-PValString . Val ::= String ;
-PValChar . Val ::= Char ;
+--Variables--
+PPartVarsEmpty . Vars ::= ;
+PPartVars . Vars ::= "var" [Var] Var ";" ;
+PVar . Var ::= [Id] ":" Id ;
 
+--Tipos--
 PPartTypesEmpty . Types ::= ;
-PPartTypes . Types ::= "type" [ListTypes] ;
+PPartTypes . Types ::= "type" [Type] Type ";" ;
+PType . Type ::= Id "=" CustomType ;
 
-separator ListTypes ";" ;
-PListTypes . ListTypes ::= Id "=" Type ;
+--Tipo Enumerado--
+PCustomTypeEnum . CustomType ::= "(" [Id] ")" ;
 
-PTypeEnum . Type ::= "(" [ListId] ")" ;
-
-separator ListId "," ;
-PListIdEnum . ListId ::= Id ;
-
-PTypeSubRange . Type ::= RangeType ".." RangeType ;
-
+--Tipo SubRango--
+PCustomTypeSubRange . CustomType ::= RangeType ".." RangeType ;
 PRangeTypeId . RangeType ::= Id ;
 PRangeTypeChar . RangeType ::= Char ;
 PRangeTypeInteger . RangeType ::= Integer ;
 
-PTypePointer . Type ::= "^" Id ;
+--Tipo Puntero--
+PCustomTypePointer . CustomType ::= "^" Id ;
 
-PTypeArray . Type ::= "array" "[" [LType] "]" "of" Id ;
+--Tipo Array--
+PTypeArray . CustomType ::= "array" "[" ArrType "]" "of" Id ;
+PTypeArrayLType . ArrType ::= RangeType ".." RangeType ;
 
-separator LType "," ;
-PTypeArrayLType . LType ::= Type ;
-
-PTypeRecord . Type ::= "record" [Fields] "end";
-
+--Tipo Record--
+PTypeRecord . CustomType ::= "record" [Fields] "end" ;
 separator Fields ";" ;
-PRecordFields . Fields ::= [ListId] ":" Type ;
+PRecordFields . Fields ::= Id ":" CustomType ;
 
-PAccessRecord . AccessRecord ::= Id "." Id ;
+--Tipo Identificador--
+PCustomTypeId . CustomType ::= Id ;
 
-PTypeIdentifier . Type ::= Id ;
+--Cuerpo Programa--
+PBody . Body ::= "begin" [Instruction] "end" ;
 
-PPartVarsEmpty . Vars ::= ;
-PPartVars . Vars ::= "var" [ListVars] ;
-
-separator ListVars ";" ;
-PListVars . ListVars ::= [ListId] ":" Id ;
-
-separator ListId "," ;
-PListId . ListId ::= Id ;
-
-PPartFuncsProcs . FuncsProcs ::= ;
-
-
+--Instrucciones--
 separator Instruction ";" ;
-PListInstructionEmpty . Instruction ::= ;
-
 PListSimpleInstruction . Instruction ::= SimpleInstruction ;
 
-PSimpleInstructionEmpty . SimpleInstruction ::= ;
+--Instrucciones Simples--
 PSimpleInstructionAssignment . SimpleInstruction ::= Id ":=" Exps ;
-PSimpleInstructionAssignmentAccRecord . SimpleInstruction ::= AccessRecord ":=" Exps ;
 PSimpleInstructionProcFunc . SimpleInstruction ::= Id Parms ;
 
-separator Parms "," ;
-PParmsEmpty . Parms ::= ;
+--Parametros--
+PParamsEmpty . Parms ::= ;
 PParms . Parms ::= "(" [Exps] ")" ;
 
+--Expresiones--
 separator Exps "," ;
-PExpsEmpty . Exps ::= ;
-PExpsFactor . Exps ::= Factor ;
+PFactorString . Exps ::= String ;
+PFactorId . Exps ::= Id ;
+PFactorInteger . Exps ::= Integer ;
 
-PFactorString . Factor ::= String ;
-PFactorId . Factor ::= Id ;
-PFactorInteger . Factor ::= Integer ;
-PFactorAccRecord . Factor ::= AccessRecord ;
-PFactorFunction . Factor ::= Id "(" [Exps] ")" ;
 
-PExpsTerms . Exps ::= Terms ;
-
-PTerms . Terms ::= ;
-
-PExpsSimple . Exps ::= SimpleExp ;
-
-PSimpleExpAdd . SimpleExp ::= Add ;
-PSimpleExpEquals . SimpleExp ::= Equals ;
-PSimpleExpMinus . SimpleExp ::= Minus ;
-PAdd . Add ::= Factor "+" Factor ;
-PEquals . Equals ::= Factor "=" Factor ;
-PMinus . Minus ::= Factor "-" Factor ;
-
-PExpGeneral . Exps ::= GeneralExp ;
-
-PGeneralExp . GeneralExp ::= ;
-PGeneralExpMayor . GeneralExp ::= "(" Exps ">" Exps ")" ;
-PGeneralExpMinor . GeneralExp ::= "(" Exps "<" Exps ")" ;
-PGeneralExpEqual . GeneralExp ::= "(" Exps "=" Exps ")" ;
-PGeneralExpMayorEqual . GeneralExp ::= "(" Exps ">=" Exps ")" ;
-PGeneralExpMinorEqual . GeneralExp ::= "(" Exps "<=" Exps ")" ;
-PGeneralExpDistinct . GeneralExp ::= "(" Exps "<>" Exps ")" ;
-
-PListCompositeInstruction . Instruction ::= CompositeInstruction ;
-
-PCompositeInstructionIf . CompositeInstruction ::= "if" Exps "then" Instruction Else ;
-
-PIfElseEmpty . Else ::= ;
-PIfElse . Else ::= "else" Instruction ;
-
-PCompositeInstructionRepeat . CompositeInstruction ::= "repeat" [ListInstrs] "until" Exps ;
-
-separator ListInstrs ";" ;
-PRepeatListInstrs . ListInstrs ::= Instruction ;
-
-PCompositeInstructionForTo . CompositeInstruction ::= "for" Id ":=" Exps "to" Exps "do" Instruction ;
-PCompositeInstructionForDownTo . CompositeInstruction ::= "for" Id ":=" Exps "downto" Exps "do" Instruction ;
+--Terminators--
+terminator Const ";" ;
+terminator Var ";" ;
+terminator Type ";" ;
+separator Id "," ;

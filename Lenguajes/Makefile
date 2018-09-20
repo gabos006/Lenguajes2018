@@ -1,12 +1,12 @@
 all:
-	happy -gca ParPascalCorr.y
-	alex -g LexPascalCorr.x
-	ghc --make TestPascalCorr.hs -o TestPascalCorr
+	happy -gca ParPascal.y
+	alex -g LexPascal.x
+	ghc --make TestPascal.hs -o TestPascal
 
 clean:
 	-rm -f *.log *.aux *.hi *.o *.dvi
 
 distclean: clean
-	-rm -f DocPascalCorr.* LexPascalCorr.* ParPascalCorr.* LayoutPascalCorr.* SkelPascalCorr.* PrintPascalCorr.* TestPascalCorr.* AbsPascalCorr.* TestPascalCorr ErrM.* SharedString.* ComposOp.* Pascal_corr.dtd XMLPascalCorr.* Makefile*
+	-rm -f DocPascal.* LexPascal.* ParPascal.* LayoutPascal.* SkelPascal.* PrintPascal.* TestPascal.* AbsPascal.* TestPascal ErrM.* SharedString.* ComposOp.* Pascal.dtd XMLPascal.* Makefile*
 	
 

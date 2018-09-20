@@ -1,9 +1,9 @@
 {-# LANGUAGE CPP,MagicHash #-}
-{-# LINE 3 "LexPascalCorr.x" #-}
+{-# LINE 3 "LexPascal.x" #-}
 
 {-# OPTIONS -fno-warn-incomplete-patterns #-}
 {-# OPTIONS_GHC -w #-}
-module LexPascalCorr where
+module LexPascal where
 
 
 
@@ -42,7 +42,7 @@ alex_deflt :: AlexAddr
 alex_deflt = AlexA# "\xff\xff\x0c\x00\xff\xff\xff\xff\x0c\x00\x0c\x00\x02\x00\x02\x00\xff\xff\x10\x00\xff\xff\x10\x00\x0c\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"#
 
 alex_accept = listArray (0::Int,31) [AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccSkip,AlexAccSkip,AlexAcc (alex_action_2),AlexAcc (alex_action_2),AlexAcc (alex_action_2),AlexAcc (alex_action_2),AlexAcc (alex_action_3),AlexAcc (alex_action_4),AlexAcc (alex_action_5),AlexAcc (alex_action_6),AlexAcc (alex_action_7),AlexAcc (alex_action_8),AlexAcc (alex_action_8)]
-{-# LINE 39 "LexPascalCorr.x" #-}
+{-# LINE 39 "LexPascal.x" #-}
 
 
 tok :: (Posn -> String -> Token) -> (Posn -> String -> Token)
