@@ -116,12 +116,38 @@ PParms . Parms ::= "(" [Exp] ")" ;
 
 --Expresiones--
 separator Exp "," ;
-PExpFactor . Exp ::= Factor ;
+PExpGeneral . Exp ::= ExpGral ;
 
 --Factor--
 PFactorLit . Factor ::= Literal ;
 PFactorId . Factor ::= Id ;
 PFactorAccId . Factor ::= Id "." [AccId] ;
+
+--Terminos--
+PTermFactor . Term ::= Factor ;
+--PTermExpMul . Term ::= Term "*" Term ;--
+--PTermExpDiv1 . Term ::= Term "/" Term ;--
+--PTermExpDiv2 . Term ::= Term "div" Term ;--
+--PTermExpMod . Term ::= Term "mod" Term ;--
+--PTermExpAnd . Term ::= Term "and" Term ;--
+
+--Expresion simple--
+PSimpleExpTerm . SimpleExp ::= Term ;
+PSimpleExpAdd . SimpleExp ::= Factor "+" Factor ;
+--PSimpleExpEquals . SimpleExp ::= Factor "=" Factor ;--
+PSimpleExpMinus . SimpleExp ::= Factor "-" Factor ;
+--PSimpleExpInvSign . SimpleExp ::= "-" SimpleExp ;--
+
+
+--Expresion General--
+PGeneralExpSimple . ExpGral ::= SimpleExp;
+--PGeneralExpMayor . ExpGral ::= ExpGral ">" ExpGral ;--
+--PGeneralExpMinor . ExpGral ::= ExpGral "<" ExpGral ;--
+PGeneralExpEqual . ExpGral ::= ExpGral "=" ExpGral ;
+--PGeneralExpMayorEqual . ExpGral ::= ExpGral ">=" ExpGral ;--
+--PGeneralExpMinorEqual . ExpGral ::= ExpGral "<=" ExpGral ;--
+--PGeneralExpDistinct . ExpGral ::= ExpGral "<>" ExpGral ;--
+
 
 
 

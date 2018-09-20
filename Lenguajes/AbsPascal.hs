@@ -85,11 +85,24 @@ data CompositeInstruction
 data Parms = PParamsEmpty | PParms [Exp]
   deriving (Eq, Ord, Show, Read)
 
-data Exp = PExpFactor Factor
+data Exp = PExpGeneral ExpGral
   deriving (Eq, Ord, Show, Read)
 
 data Factor
     = PFactorLit Literal | PFactorId Id | PFactorAccId Id [AccId]
+  deriving (Eq, Ord, Show, Read)
+
+data Term = PTermFactor Factor
+  deriving (Eq, Ord, Show, Read)
+
+data SimpleExp
+    = PSimpleExpTerm Term
+    | PSimpleExpAdd Factor Factor
+    | PSimpleExpMinus Factor Factor
+  deriving (Eq, Ord, Show, Read)
+
+data ExpGral
+    = PGeneralExpSimple SimpleExp | PGeneralExpEqual ExpGral ExpGral
   deriving (Eq, Ord, Show, Read)
 
 data AccId = PAccId Id

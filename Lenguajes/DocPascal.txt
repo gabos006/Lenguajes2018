@@ -50,6 +50,7 @@ The symbols used in Pascal are the following:
   | ; | . | = | :
   | ( | ) | .. | ^
   | [ | ] | := | ,
+  | + | - |  | 
 
 ===Comments===
 There are no single-line comments in the grammar.Multiple-line comments are  enclosed with (* and *).
@@ -108,10 +109,16 @@ All other symbols are terminals.
   | //[Exp]// | -> | **eps**
   |  |  **|**  | //Exp// 
   |  |  **|**  | //Exp// ``,`` //[Exp]// 
-  | //Exp// | -> | //Factor// 
+  | //Exp// | -> | //ExpGral// 
   | //Factor// | -> | //Literal// 
   |  |  **|**  | //Id// 
   |  |  **|**  | //Id// ``.`` //[AccId]// 
+  | //Term// | -> | //Factor// 
+  | //SimpleExp// | -> | //Term// 
+  |  |  **|**  | //Factor// ``+`` //Factor// 
+  |  |  **|**  | //Factor// ``-`` //Factor// 
+  | //ExpGral// | -> | //SimpleExp// 
+  |  |  **|**  | //ExpGral// ``=`` //ExpGral// 
   | //[AccId]// | -> | **eps**
   |  |  **|**  | //AccId// 
   |  |  **|**  | //AccId// ``.`` //[AccId]// 

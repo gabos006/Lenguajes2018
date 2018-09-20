@@ -191,7 +191,7 @@ instance Print Parms where
 
 instance Print Exp where
   prt i e = case e of
-    PExpFactor factor -> prPrec i 0 (concatD [prt 0 factor])
+    PExpGeneral expgral -> prPrec i 0 (concatD [prt 0 expgral])
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
@@ -200,6 +200,21 @@ instance Print Factor where
     PFactorLit literal -> prPrec i 0 (concatD [prt 0 literal])
     PFactorId id -> prPrec i 0 (concatD [prt 0 id])
     PFactorAccId id accids -> prPrec i 0 (concatD [prt 0 id, doc (showString "."), prt 0 accids])
+
+instance Print Term where
+  prt i e = case e of
+    PTermFactor factor -> prPrec i 0 (concatD [prt 0 factor])
+
+instance Print SimpleExp where
+  prt i e = case e of
+    PSimpleExpTerm term -> prPrec i 0 (concatD [prt 0 term])
+    PSimpleExpAdd factor1 factor2 -> prPrec i 0 (concatD [prt 0 factor1, doc (showString "+"), prt 0 factor2])
+    PSimpleExpMinus factor1 factor2 -> prPrec i 0 (concatD [prt 0 factor1, doc (showString "-"), prt 0 factor2])
+
+instance Print ExpGral where
+  prt i e = case e of
+    PGeneralExpSimple simpleexp -> prPrec i 0 (concatD [prt 0 simpleexp])
+    PGeneralExpEqual expgral1 expgral2 -> prPrec i 0 (concatD [prt 0 expgral1, doc (showString "="), prt 0 expgral2])
 
 instance Print AccId where
   prt i e = case e of

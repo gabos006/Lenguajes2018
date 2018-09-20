@@ -32,6 +32,9 @@ import ErrM
 %name pListExp ListExp
 %name pExp Exp
 %name pFactor Factor
+%name pTerm Term
+%name pSimpleExp SimpleExp
+%name pExpGral ExpGral
 %name pListAccId ListAccId
 %name pAccId AccId
 %name pListConst ListConst
@@ -44,34 +47,36 @@ import ErrM
 %token
   '(' { PT _ (TS _ 1) }
   ')' { PT _ (TS _ 2) }
-  ',' { PT _ (TS _ 3) }
-  '.' { PT _ (TS _ 4) }
-  '..' { PT _ (TS _ 5) }
-  ':' { PT _ (TS _ 6) }
-  ':=' { PT _ (TS _ 7) }
-  ';' { PT _ (TS _ 8) }
-  '=' { PT _ (TS _ 9) }
-  '[' { PT _ (TS _ 10) }
-  ']' { PT _ (TS _ 11) }
-  '^' { PT _ (TS _ 12) }
-  'array' { PT _ (TS _ 13) }
-  'begin' { PT _ (TS _ 14) }
-  'const' { PT _ (TS _ 15) }
-  'do' { PT _ (TS _ 16) }
-  'downto' { PT _ (TS _ 17) }
-  'else' { PT _ (TS _ 18) }
-  'end' { PT _ (TS _ 19) }
-  'for' { PT _ (TS _ 20) }
-  'if' { PT _ (TS _ 21) }
-  'of' { PT _ (TS _ 22) }
-  'program' { PT _ (TS _ 23) }
-  'record' { PT _ (TS _ 24) }
-  'repeat' { PT _ (TS _ 25) }
-  'then' { PT _ (TS _ 26) }
-  'to' { PT _ (TS _ 27) }
-  'type' { PT _ (TS _ 28) }
-  'until' { PT _ (TS _ 29) }
-  'var' { PT _ (TS _ 30) }
+  '+' { PT _ (TS _ 3) }
+  ',' { PT _ (TS _ 4) }
+  '-' { PT _ (TS _ 5) }
+  '.' { PT _ (TS _ 6) }
+  '..' { PT _ (TS _ 7) }
+  ':' { PT _ (TS _ 8) }
+  ':=' { PT _ (TS _ 9) }
+  ';' { PT _ (TS _ 10) }
+  '=' { PT _ (TS _ 11) }
+  '[' { PT _ (TS _ 12) }
+  ']' { PT _ (TS _ 13) }
+  '^' { PT _ (TS _ 14) }
+  'array' { PT _ (TS _ 15) }
+  'begin' { PT _ (TS _ 16) }
+  'const' { PT _ (TS _ 17) }
+  'do' { PT _ (TS _ 18) }
+  'downto' { PT _ (TS _ 19) }
+  'else' { PT _ (TS _ 20) }
+  'end' { PT _ (TS _ 21) }
+  'for' { PT _ (TS _ 22) }
+  'if' { PT _ (TS _ 23) }
+  'of' { PT _ (TS _ 24) }
+  'program' { PT _ (TS _ 25) }
+  'record' { PT _ (TS _ 26) }
+  'repeat' { PT _ (TS _ 27) }
+  'then' { PT _ (TS _ 28) }
+  'to' { PT _ (TS _ 29) }
+  'type' { PT _ (TS _ 30) }
+  'until' { PT _ (TS _ 31) }
+  'var' { PT _ (TS _ 32) }
 
 L_integ  { PT _ (TI $$) }
 L_doubl  { PT _ (TD $$) }
@@ -159,11 +164,20 @@ ListExp : {- empty -} { [] }
         | Exp { (:[]) $1 }
         | Exp ',' ListExp { (:) $1 $3 }
 Exp :: { Exp }
-Exp : Factor { AbsPascal.PExpFactor $1 }
+Exp : ExpGral { AbsPascal.PExpGeneral $1 }
 Factor :: { Factor }
 Factor : Literal { AbsPascal.PFactorLit $1 }
        | Id { AbsPascal.PFactorId $1 }
        | Id '.' ListAccId { AbsPascal.PFactorAccId $1 $3 }
+Term :: { Term }
+Term : Factor { AbsPascal.PTermFactor $1 }
+SimpleExp :: { SimpleExp }
+SimpleExp : Term { AbsPascal.PSimpleExpTerm $1 }
+          | Factor '+' Factor { AbsPascal.PSimpleExpAdd $1 $3 }
+          | Factor '-' Factor { AbsPascal.PSimpleExpMinus $1 $3 }
+ExpGral :: { ExpGral }
+ExpGral : SimpleExp { AbsPascal.PGeneralExpSimple $1 }
+        | ExpGral '=' ExpGral { AbsPascal.PGeneralExpEqual $1 $3 }
 ListAccId :: { [AccId] }
 ListAccId : {- empty -} { [] }
           | AccId { (:[]) $1 }
