@@ -40,9 +40,11 @@ Id literals are recognized by the regular expression
 The set of reserved words is the set of terminals appearing in the grammar. Those reserved words that consist of non-letter characters are called symbols, and they are treated in a different way from those that are similar to identifiers. The lexer follows rules familiar from languages like Haskell, C, and Java, including longest match and spacing conventions.
 
 The reserved words used in Pascal are the following:
-  | ``array`` | ``begin`` | ``const`` | ``end``
-  | ``of`` | ``program`` | ``record`` | ``type``
-  | ``var`` |  |  | 
+  | ``array`` | ``begin`` | ``const`` | ``do``
+  | ``downto`` | ``else`` | ``end`` | ``for``
+  | ``if`` | ``of`` | ``program`` | ``record``
+  | ``repeat`` | ``then`` | ``to`` | ``type``
+  | ``until`` | ``var`` |  | 
 
 The symbols used in Pascal are the following:
   | ; | . | = | :
@@ -93,20 +95,31 @@ All other symbols are terminals.
   |  |  **|**  | //Instruction// 
   |  |  **|**  | //Instruction// ``;`` //[Instruction]// 
   | //Instruction// | -> | //SimpleInstruction// 
-  | //SimpleInstruction// | -> | //[AccId]// ``:=`` //Exps// 
+  |  |  **|**  | //CompositeInstruction// 
+  | //SimpleInstruction// | -> | //[AccId]// ``:=`` //Exp// 
   |  |  **|**  | //Id// //Parms// 
+  | //CompositeInstruction// | -> | ``if`` //Exp// ``then`` //Instruction// 
+  |  |  **|**  | ``if`` //Exp// ``then`` //Instruction// ``else`` //Instruction// 
+  |  |  **|**  | ``repeat`` //[Instruction]// ``until`` //Exp// 
+  |  |  **|**  | ``for`` //Id// ``:=`` //Exp// ``to`` //Exp// ``do`` //Instruction// 
+  |  |  **|**  | ``for`` //Id// ``:=`` //Exp// ``downto`` //Exp// ``do`` //Instruction// 
+  | //Parms// | -> | **eps**
+  |  |  **|**  | ``(`` //[Exp]// ``)`` 
+  | //[Exp]// | -> | **eps**
+  |  |  **|**  | //Exp// 
+  |  |  **|**  | //Exp// ``,`` //[Exp]// 
+  | //Exp// | -> | //Factor// 
+  |  |  **|**  | //VarExp// 
+  | //Factor// | -> | //Literal// 
+  |  |  **|**  | //Id// 
+  |  |  **|**  | //Id// ``.`` //[AccId]// 
+  | //VarExp// | -> | //Id// 
+  |  |  **|**  | //Id// ``[`` //[Exp]// ``]`` 
+  |  |  **|**  | //Id// ``.`` //Id// 
   | //[AccId]// | -> | **eps**
   |  |  **|**  | //AccId// 
   |  |  **|**  | //AccId// ``.`` //[AccId]// 
   | //AccId// | -> | //Id// 
-  | //Parms// | -> | **eps**
-  |  |  **|**  | ``(`` //[Exps]// ``)`` 
-  | //[Exps]// | -> | **eps**
-  |  |  **|**  | //Exps// 
-  |  |  **|**  | //Exps// ``,`` //[Exps]// 
-  | //Exps// | -> | //String// 
-  |  |  **|**  | //Integer// 
-  |  |  **|**  | //Id// 
   | //[Const]// | -> | **eps**
   |  |  **|**  | //Const// ``;`` //[Const]// 
   | //[Var]// | -> | **eps**

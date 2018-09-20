@@ -73,21 +73,31 @@ transBody x = case x of
 transInstruction :: Instruction -> Result
 transInstruction x = case x of
   PListSimpleInstruction simpleinstruction -> failure x
+  PListCompositeInstruction compositeinstruction -> failure x
 transSimpleInstruction :: SimpleInstruction -> Result
 transSimpleInstruction x = case x of
-  PSimpleInstructionAssignment accids exps -> failure x
+  PSimpleInstructionAssignment accids exp -> failure x
   PSimpleInstructionProcFunc id parms -> failure x
-transAccId :: AccId -> Result
-transAccId x = case x of
-  PAccId id -> failure x
+transCompositeInstruction :: CompositeInstruction -> Result
+transCompositeInstruction x = case x of
+  PCompositeInstructionIf exp instruction -> failure x
+  PCompositeInstructionIfElse exp instruction1 instruction2 -> failure x
+  PCompositeInstructionRepeat instructions exp -> failure x
+  PCompositeInstructionForTo id exp1 exp2 instruction -> failure x
+  PCompositeInstructionForDownTo id exp1 exp2 instruction -> failure x
 transParms :: Parms -> Result
 transParms x = case x of
   PParamsEmpty -> failure x
-  PParms expss -> failure x
-transExps :: Exps -> Result
-transExps x = case x of
-  PFactorString string -> failure x
-  PFactorInteger integer -> failure x
+  PParms exps -> failure x
+transExp :: Exp -> Result
+transExp x = case x of
+  PExpFactor factor -> failure x
+transFactor :: Factor -> Result
+transFactor x = case x of
+  PFactorLit literal -> failure x
   PFactorId id -> failure x
   PFactorAccId id accids -> failure x
+transAccId :: AccId -> Result
+transAccId x = case x of
+  PAccId id -> failure x
 

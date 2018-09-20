@@ -27,11 +27,13 @@ import ErrM
 %name pListInstruction ListInstruction
 %name pInstruction Instruction
 %name pSimpleInstruction SimpleInstruction
+%name pCompositeInstruction CompositeInstruction
+%name pParms Parms
+%name pListExp ListExp
+%name pExp Exp
+%name pFactor Factor
 %name pListAccId ListAccId
 %name pAccId AccId
-%name pParms Parms
-%name pListExps ListExps
-%name pExps Exps
 %name pListConst ListConst
 %name pListVar ListVar
 %name pListType ListType
@@ -55,12 +57,21 @@ import ErrM
   'array' { PT _ (TS _ 13) }
   'begin' { PT _ (TS _ 14) }
   'const' { PT _ (TS _ 15) }
-  'end' { PT _ (TS _ 16) }
-  'of' { PT _ (TS _ 17) }
-  'program' { PT _ (TS _ 18) }
-  'record' { PT _ (TS _ 19) }
-  'type' { PT _ (TS _ 20) }
-  'var' { PT _ (TS _ 21) }
+  'do' { PT _ (TS _ 16) }
+  'downto' { PT _ (TS _ 17) }
+  'else' { PT _ (TS _ 18) }
+  'end' { PT _ (TS _ 19) }
+  'for' { PT _ (TS _ 20) }
+  'if' { PT _ (TS _ 21) }
+  'of' { PT _ (TS _ 22) }
+  'program' { PT _ (TS _ 23) }
+  'record' { PT _ (TS _ 24) }
+  'repeat' { PT _ (TS _ 25) }
+  'then' { PT _ (TS _ 26) }
+  'to' { PT _ (TS _ 27) }
+  'type' { PT _ (TS _ 28) }
+  'until' { PT _ (TS _ 29) }
+  'var' { PT _ (TS _ 30) }
 
 L_integ  { PT _ (TI $$) }
 L_doubl  { PT _ (TD $$) }
@@ -130,27 +141,35 @@ ListInstruction : {- empty -} { [] }
                 | Instruction ';' ListInstruction { (:) $1 $3 }
 Instruction :: { Instruction }
 Instruction : SimpleInstruction { AbsPascal.PListSimpleInstruction $1 }
+            | CompositeInstruction { AbsPascal.PListCompositeInstruction $1 }
 SimpleInstruction :: { SimpleInstruction }
-SimpleInstruction : ListAccId ':=' Exps { AbsPascal.PSimpleInstructionAssignment $1 $3 }
+SimpleInstruction : ListAccId ':=' Exp { AbsPascal.PSimpleInstructionAssignment $1 $3 }
                   | Id Parms { AbsPascal.PSimpleInstructionProcFunc $1 $2 }
+CompositeInstruction :: { CompositeInstruction }
+CompositeInstruction : 'if' Exp 'then' Instruction { AbsPascal.PCompositeInstructionIf $2 $4 }
+                     | 'if' Exp 'then' Instruction 'else' Instruction { AbsPascal.PCompositeInstructionIfElse $2 $4 $6 }
+                     | 'repeat' ListInstruction 'until' Exp { AbsPascal.PCompositeInstructionRepeat $2 $4 }
+                     | 'for' Id ':=' Exp 'to' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForTo $2 $4 $6 $8 }
+                     | 'for' Id ':=' Exp 'downto' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForDownTo $2 $4 $6 $8 }
+Parms :: { Parms }
+Parms : {- empty -} { AbsPascal.PParamsEmpty }
+      | '(' ListExp ')' { AbsPascal.PParms $2 }
+ListExp :: { [Exp] }
+ListExp : {- empty -} { [] }
+        | Exp { (:[]) $1 }
+        | Exp ',' ListExp { (:) $1 $3 }
+Exp :: { Exp }
+Exp : Factor { AbsPascal.PExpFactor $1 }
+Factor :: { Factor }
+Factor : Literal { AbsPascal.PFactorLit $1 }
+       | Id { AbsPascal.PFactorId $1 }
+       | Id '.' ListAccId { AbsPascal.PFactorAccId $1 $3 }
 ListAccId :: { [AccId] }
 ListAccId : {- empty -} { [] }
           | AccId { (:[]) $1 }
           | AccId '.' ListAccId { (:) $1 $3 }
 AccId :: { AccId }
 AccId : Id { AbsPascal.PAccId $1 }
-Parms :: { Parms }
-Parms : {- empty -} { AbsPascal.PParamsEmpty }
-      | '(' ListExps ')' { AbsPascal.PParms $2 }
-ListExps :: { [Exps] }
-ListExps : {- empty -} { [] }
-         | Exps { (:[]) $1 }
-         | Exps ',' ListExps { (:) $1 $3 }
-Exps :: { Exps }
-Exps : String { AbsPascal.PFactorString $1 }
-     | Integer { AbsPascal.PFactorInteger $1 }
-     | Id { AbsPascal.PFactorId $1 }
-     | Id '.' ListAccId { AbsPascal.PFactorAccId $1 $3 }
 ListConst :: { [Const] }
 ListConst : {- empty -} { [] }
           | ListConst Const ';' { flip (:) $1 $2 }

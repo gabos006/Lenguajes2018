@@ -64,21 +64,40 @@ data Fields = PRecordFields Id CustomType
 data Body = PBody [Instruction]
   deriving (Eq, Ord, Show, Read)
 
-data Instruction = PListSimpleInstruction SimpleInstruction
+data Instruction
+    = PListSimpleInstruction SimpleInstruction
+    | PListCompositeInstruction CompositeInstruction
   deriving (Eq, Ord, Show, Read)
 
 data SimpleInstruction
-    = PSimpleInstructionAssignment [AccId] Exps
+    = PSimpleInstructionAssignment [AccId] Exp
     | PSimpleInstructionProcFunc Id Parms
   deriving (Eq, Ord, Show, Read)
 
+data CompositeInstruction
+    = PCompositeInstructionIf Exp Instruction
+    | PCompositeInstructionIfElse Exp Instruction Instruction
+    | PCompositeInstructionRepeat [Instruction] Exp
+    | PCompositeInstructionForTo Id Exp Exp Instruction
+    | PCompositeInstructionForDownTo Id Exp Exp Instruction
+  deriving (Eq, Ord, Show, Read)
+
+data Parms = PParamsEmpty | PParms [Exp]
+  deriving (Eq, Ord, Show, Read)
+
+data Exp = PExpFactor Factor | PExpVar VarExp
+  deriving (Eq, Ord, Show, Read)
+
+data Factor
+    = PFactorLit Literal | PFactorId Id | PFactorAccId Id [AccId]
+  deriving (Eq, Ord, Show, Read)
+
+data VarExp
+    = PVarExpIntegra Id
+    | PVarExpIndexada Id [Exp]
+    | PVarExpDesigCampo Id Id
+  deriving (Eq, Ord, Show, Read)
+
 data AccId = PAccId Id
-  deriving (Eq, Ord, Show, Read)
-
-data Parms = PParamsEmpty | PParms [Exps]
-  deriving (Eq, Ord, Show, Read)
-
-data Exps
-    = PFactorString String | PFactorInteger Integer | PFactorId Id
   deriving (Eq, Ord, Show, Read)
 

@@ -125,3 +125,29 @@ PRepeatListInstrs . ListInstrs ::= Instruction ;
 
 PCompositeInstructionForTo . CompositeInstruction ::= "for" Id ":=" Exps "to" Exps "do" Instruction ;
 PCompositeInstructionForDownTo . CompositeInstruction ::= "for" Id ":=" Exps "downto" Exps "do" Instruction ;
+
+
+
+
+
+
+
+PEMul. Exp ::= Exp "*" Exp1 ;
+PEDivide. Exp ::= Exp "/" Exp1 ;
+PEMod. Exp ::= Exp "mod" Exp1 ;
+PEDiv. Exp ::= Exp "div" Exp1 ;
+PEAnd. Exp ::= Exp "and" Exp1 ;
+
+PEAdd. Exp1 ::= Exp1 "+" Exp2 ;
+PESub. Exp1 ::= Exp1 "-" Exp2 ;
+PEOr. Exp1 ::= Exp1 "*" Exp2 ;
+
+PEMayor . Exp2 ::= "(" Exp2 ">" Exp3 ")" ;
+PEMinor . Exp2 ::= "(" Exp2 "<" Exp3 ")" ;
+PEEqual . Exp2 ::= "(" Exp2 "=" Exp3 ")" ;
+PEMayorEqual . Exp2 ::= "(" Exp2 ">=" Exp3 ")" ;
+PEMinorEqual . Exp2 ::= "(" Exp2 "<=" Exp3 ")" ;
+PEDistinct . Exp2 ::= "(" Exp2 "<>" Exp3 ")" ;
+
+EInt. Exp3 ::= Factor ;
+coercions Exp 3 ;
