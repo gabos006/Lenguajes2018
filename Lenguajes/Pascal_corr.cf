@@ -1,0 +1,85 @@
+comment "(*" "*)" ;
+
+token Id (letter (letter | digit)*) ;
+
+--Programa--
+PProgram . Program ::= "program" Id ";" Block ;
+
+--Bloque--
+PBlock . Block ::= Parts Body "." ;
+
+--Partes--
+PPart . Parts ::=  Consts Types Vars ;
+
+--Constantes--
+PPartConstEmpty . Consts ::= ;
+PPartConst . Consts ::= "const" [Const] Const ";" ;
+PConst . Const ::= Id "=" Literal ;
+
+--Literales--
+PValInteger . Literal ::= Integer ;
+PValDouble . Literal ::= Double ;
+PValString . Literal ::= String ;
+PValChar . Literal ::= Char ;
+
+--Variables--
+PPartVarsEmpty . Vars ::= ;
+PPartVars . Vars ::= "var" [Var] Var ";" ;
+PVar . Var ::= [Id] ":" Id ;
+
+--Tipos--
+PPartTypesEmpty . Types ::= ;
+PPartTypes . Types ::= "type" [Type] Type ";" ;
+PType . Type ::= Id "=" CustomType ;
+
+--Tipo Enumerado--
+PCustomTypeEnum . CustomType ::= "(" [Id] ")" ;
+
+--Tipo SubRango--
+PCustomTypeSubRange . CustomType ::= RangeType ".." RangeType ;
+PRangeTypeId . RangeType ::= Id ;
+PRangeTypeChar . RangeType ::= Char ;
+PRangeTypeInteger . RangeType ::= Integer ;
+
+--Tipo Puntero--
+PCustomTypePointer . CustomType ::= "^" Id ;
+
+--Tipo Array--
+PTypeArray . CustomType ::= "array" "[" ArrType "]" "of" Id ;
+PTypeArrayLType . ArrType ::= RangeType ".." RangeType ;
+
+--Tipo Record--
+PTypeRecord . CustomType ::= "record" [Fields] "end" ;
+separator Fields ";" ;
+PRecordFields . Fields ::= Id ":" CustomType ;
+
+--Tipo Identificador--
+PCustomTypeId . CustomType ::= Id ;
+
+--Cuerpo Programa--
+PBody . Body ::= "begin" [Instruction] "end" ;
+
+--Instrucciones--
+separator Instruction ";" ;
+PListSimpleInstruction . Instruction ::= SimpleInstruction ;
+
+--Instrucciones Simples--
+PSimpleInstructionAssignment . SimpleInstruction ::= Id ":=" Exps ;
+PSimpleInstructionProcFunc . SimpleInstruction ::= Id Parms ;
+
+--Parametros--
+PParamsEmpty . Parms ::= ;
+PParms . Parms ::= "(" [Exps] ")" ;
+
+--Expresiones--
+separator Exps "," ;
+PFactorString . Exps ::= String ;
+PFactorId . Exps ::= Id ;
+PFactorInteger . Exps ::= Integer ;
+
+
+--Terminators--
+terminator Const ";" ;
+terminator Var ";" ;
+terminator Type ";" ;
+separator Id "," ;
