@@ -191,7 +191,6 @@ instance Print Exps where
     PFactorString str -> prPrec i 0 (concatD [prt 0 str])
     PFactorInteger n -> prPrec i 0 (concatD [prt 0 n])
     PFactorId id -> prPrec i 0 (concatD [prt 0 id])
-    PFactorAccId id accids -> prPrec i 0 (concatD [prt 0 id, doc (showString "."), prt 0 accids])
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])

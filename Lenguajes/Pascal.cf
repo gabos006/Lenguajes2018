@@ -64,7 +64,15 @@ separator Instruction ";" ;
 PListSimpleInstruction . Instruction ::= SimpleInstruction ;
 
 --Instrucciones Simples--
-PSimpleInstructionAssignment . SimpleInstruction ::= Id ":=" Exps ;
+
+--Asignaciones--
+PSimpleInstructionAssignment . SimpleInstruction ::= [AccId] ":=" Exps ;
+
+--Acceso--
+separator AccId "." ;
+PAccId . AccId ::= Id ;
+
+--Proc y Func--
 PSimpleInstructionProcFunc . SimpleInstruction ::= Id Parms ;
 
 --Parametros--
@@ -74,8 +82,9 @@ PParms . Parms ::= "(" [Exps] ")" ;
 --Expresiones--
 separator Exps "," ;
 PFactorString . Exps ::= String ;
-PFactorId . Exps ::= Id ;
 PFactorInteger . Exps ::= Integer ;
+PFactorId . Exps ::= Id ;
+PFactorAccId . Exps ::= Id "." [AccId] ;
 
 
 --Terminators--

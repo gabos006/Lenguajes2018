@@ -79,9 +79,6 @@ data Parms = PParamsEmpty | PParms [Exps]
   deriving (Eq, Ord, Show, Read)
 
 data Exps
-    = PFactorString String
-    | PFactorInteger Integer
-    | PFactorId Id
-    | PFactorAccId Id [AccId]
+    = PFactorString String | PFactorInteger Integer | PFactorId Id
   deriving (Eq, Ord, Show, Read)
 

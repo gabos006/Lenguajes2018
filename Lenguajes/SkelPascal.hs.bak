@@ -89,5 +89,4 @@ transExps x = case x of
   PFactorString string -> failure x
   PFactorInteger integer -> failure x
   PFactorId id -> failure x
-  PFactorAccId id accids -> failure x
 

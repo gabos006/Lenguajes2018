@@ -150,7 +150,6 @@ Exps :: { Exps }
 Exps : String { AbsPascal.PFactorString $1 }
      | Integer { AbsPascal.PFactorInteger $1 }
      | Id { AbsPascal.PFactorId $1 }
-     | Id '.' ListAccId { AbsPascal.PFactorAccId $1 $3 }
 ListConst :: { [Const] }
 ListConst : {- empty -} { [] }
           | ListConst Const ';' { flip (:) $1 $2 }
