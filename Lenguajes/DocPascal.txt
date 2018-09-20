@@ -40,20 +40,16 @@ Id literals are recognized by the regular expression
 The set of reserved words is the set of terminals appearing in the grammar. Those reserved words that consist of non-letter characters are called symbols, and they are treated in a different way from those that are similar to identifiers. The lexer follows rules familiar from languages like Haskell, C, and Java, including longest match and spacing conventions.
 
 The reserved words used in Pascal are the following:
-  | ``and`` | ``array`` | ``begin`` | ``const``
-  | ``div`` | ``do`` | ``downto`` | ``else``
-  | ``end`` | ``for`` | ``if`` | ``mod``
-  | ``of`` | ``program`` | ``record`` | ``repeat``
-  | ``then`` | ``to`` | ``type`` | ``until``
-  | ``var`` |  |  | 
+  | ``array`` | ``begin`` | ``const`` | ``do``
+  | ``downto`` | ``else`` | ``end`` | ``for``
+  | ``if`` | ``of`` | ``program`` | ``record``
+  | ``repeat`` | ``then`` | ``to`` | ``type``
+  | ``until`` | ``var`` |  | 
 
 The symbols used in Pascal are the following:
   | ; | . | = | :
   | ( | ) | .. | ^
   | [ | ] | := | ,
-  | > | < | >= | <=
-  | <> | * | / | +
-  | - |  |  | 
 
 ===Comments===
 There are no single-line comments in the grammar.Multiple-line comments are  enclosed with (* and *).
@@ -112,31 +108,10 @@ All other symbols are terminals.
   | //[Exp]// | -> | **eps**
   |  |  **|**  | //Exp// 
   |  |  **|**  | //Exp// ``,`` //[Exp]// 
-  | //Exp// | -> | //Exp1// 
-  |  |  **|**  | //Exp// ``>`` //Exp// 
-  |  |  **|**  | //Exp// ``<`` //Exp// 
-  |  |  **|**  | //Exp// ``=`` //Exp// 
-  |  |  **|**  | //Exp// ``>=`` //Exp// 
-  |  |  **|**  | //Exp// ``<=`` //Exp// 
-  |  |  **|**  | //Exp// ``<>`` //Exp// 
-  |  |  **|**  | //Exp1// 
+  | //Exp// | -> | //Exp3// 
   | //Exp3// | -> | //Literal// 
   |  |  **|**  | //Id// 
   |  |  **|**  | //Id// ``.`` //[AccId]// 
-  |  |  **|**  | ``(`` //Exp// ``)`` 
-  | //Exp2// | -> | //Exp3// 
-  |  |  **|**  | //Exp2// ``*`` //Exp2// 
-  |  |  **|**  | //Exp2// ``/`` //Exp2// 
-  |  |  **|**  | //Exp2// ``div`` //Exp2// 
-  |  |  **|**  | //Exp2// ``mod`` //Exp2// 
-  |  |  **|**  | //Exp2// ``and`` //Exp2// 
-  |  |  **|**  | //Exp3// 
-  | //Exp1// | -> | //Exp2// 
-  |  |  **|**  | //Exp3// ``+`` //Exp3// 
-  |  |  **|**  | //Exp3// ``=`` //Exp3// 
-  |  |  **|**  | //Exp3// ``-`` //Exp3// 
-  |  |  **|**  | ``-`` //Exp1// 
-  |  |  **|**  | //Exp2// 
   | //[AccId]// | -> | **eps**
   |  |  **|**  | //AccId// 
   |  |  **|**  | //AccId// ``.`` //[AccId]// 

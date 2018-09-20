@@ -1,20 +1,172 @@
+comment "(*" "*)" ;
 
-PEMul. Exp ::= Exp "*" Exp1 ;
-PEDivide. Exp ::= Exp "/" Exp1 ;
-PEMod. Exp ::= Exp "mod" Exp1 ;
-PEDiv. Exp ::= Exp "div" Exp1 ;
-PEAnd. Exp ::= Exp "and" Exp1 ;
+token Id (letter (letter | digit)*) ;
 
-PEAdd. Exp1 ::= Exp1 "+" Exp2 ;
-PESub. Exp1 ::= Exp1 "-" Exp2 ;
-PEOr. Exp1 ::= Exp1 "*" Exp2 ;
+--Programa--
+PProgram . Program ::= "program" Id ";" Block ;
 
-PEMayor . Exp2 ::= "(" Exp2 ">" Exp3 ")" ;
-PEMinor . Exp2 ::= "(" Exp2 "<" Exp3 ")" ;
-PEEqual . Exp2 ::= "(" Exp2 "=" Exp3 ")" ;
-PEMayorEqual . Exp2 ::= "(" Exp2 ">=" Exp3 ")" ;
-PEMinorEqual . Exp2 ::= "(" Exp2 "<=" Exp3 ")" ;
-PEDistinct . Exp2 ::= "(" Exp2 "<>" Exp3 ")" ;
 
-EInt. Exp3 ::= Factor ;
-coercions Exp 3 ;
+--Bloque--
+PBlock . Block ::= Parts Body "." ;
+
+
+--Partes--
+PPart . Parts ::=  Consts Types Vars ;
+
+
+--Constantes--
+PPartConstEmpty . Consts ::= ;
+PPartConst . Consts ::= "const" [Const] Const ";" ;
+PConst . Const ::= Id "=" Literal ;
+
+
+--Literales--
+PValInteger . Literal ::= Integer ;
+PValDouble . Literal ::= Double ;
+PValString . Literal ::= String ;
+PValChar . Literal ::= Char ;
+
+
+--Variables--
+PPartVarsEmpty . Vars ::= ;
+PPartVars . Vars ::= "var" [Var] Var ";" ;
+PVar . Var ::= [Id] ":" Id ;
+
+
+--Tipos--
+PPartTypesEmpty . Types ::= ;
+PPartTypes . Types ::= "type" [Type] Type ";" ;
+PType . Type ::= Id "=" CustomType ;
+
+
+--Tipo Enumerado--
+PCustomTypeEnum . CustomType ::= "(" [Id] ")" ;
+
+
+--Tipo SubRango--
+PCustomTypeSubRange . CustomType ::= RangeType ".." RangeType ;
+PRangeTypeId . RangeType ::= Id ;
+PRangeTypeChar . RangeType ::= Char ;
+PRangeTypeInteger . RangeType ::= Integer ;
+
+
+--Tipo Puntero--
+PCustomTypePointer . CustomType ::= "^" Id ;
+
+
+--Tipo Array--
+PTypeArray . CustomType ::= "array" "[" ArrType "]" "of" Id ;
+PTypeArrayLType . ArrType ::= RangeType ".." RangeType ;
+
+
+--Tipo Record--
+PTypeRecord . CustomType ::= "record" [Fields] "end" ;
+separator Fields ";" ;
+PRecordFields . Fields ::= Id ":" CustomType ;
+
+
+--Tipo Identificador--
+PCustomTypeId . CustomType ::= Id ;
+
+
+--Procedimientos y Funciones--
+--TODO--
+
+
+
+--Cuerpo Programa--
+PBody . Body ::= "begin" [Instruction] "end" ;
+
+
+--Instrucciones--
+separator Instruction ";" ;
+PListSimpleInstruction . Instruction ::= SimpleInstruction ;
+PListCompositeInstruction . Instruction ::= CompositeInstruction ;
+
+
+--Instrucciones Simples--
+
+--Asignaciones--
+PSimpleInstructionAssignment . SimpleInstruction ::= [AccId] ":=" Exp ;
+
+--Instruccions Proc y Func--
+PSimpleInstructionProcFunc . SimpleInstruction ::= Id Parms ;
+
+
+--Instrucciones Compuestas--
+
+--Instruccion If--
+PCompositeInstructionIf . CompositeInstruction ::= "if" Exp "then" Instruction ;
+
+--Instruccion If Else--
+PCompositeInstructionIfElse . CompositeInstruction ::= "if" Exp "then" Instruction "else" Instruction ;
+
+--Instruccion Repeat--
+PCompositeInstructionRepeat . CompositeInstruction ::= "repeat" [Instruction] "until" Exp ;
+
+--Instruccion For To--
+PCompositeInstructionForTo . CompositeInstruction ::= "for" Id ":=" Exp "to" Exp "do" Instruction ;
+
+--Instruccion For DownTo--
+PCompositeInstructionForDownTo . CompositeInstruction ::= "for" Id ":=" Exp "downto" Exp "do" Instruction ;
+
+--Instruccion While--
+--TODO--
+
+--Instruccion Case--
+--TODO--
+
+
+--Parametros Instruccion Proc y Func--
+PParamsEmpty . Parms ::= ;
+PParms . Parms ::= "(" [Exp] ")" ;
+
+--Expresiones--
+separator Exp "," ;
+PExp . Exp ::= Exp3 ;
+
+--not--
+-- TODO--
+
+--Expresion General--
+--PGeneralExpSimple . Exp ::= Exp1;--
+--PGeneralExpMayor . Exp ::= Exp ">" Exp ;--
+--PGeneralExpMinor . Exp ::= Exp "<" Exp ;--
+--PGeneralExpEqual . Exp ::= Exp "=" Exp ;--
+--PGeneralExpMayorEqual . Exp ::= Exp ">=" Exp ;--
+--PGeneralExpMinorEqual . Exp ::= Exp "<=" Exp ;--
+--PGeneralExpDistinct . Exp ::= Exp "<>" Exp ;--
+
+--Expresion simple--
+--PSimpleExpTerm . Exp1 ::= Exp2 ;--
+--PSimpleExpAdd . Exp1 ::= Exp3 "+" Exp3 ;--
+--PSimpleExpEquals . Exp1 ::= Exp3 "or" Exp3 ;--
+--PSimpleExpMinus . Exp1 ::= Exp3 "-" Exp3 ;--
+--PSimpleExpInvSign . Exp1 ::= "-" Exp1 ;--
+
+--Terminos--
+--PTermFactor . Exp2 ::= Exp3 ;--
+--PTermExpMul . Exp2 ::= Exp2 "*" Exp2 ;--
+--PTermExpDiv1 . Exp2 ::= Exp2 "/" Exp2 ;--
+--PTermExpDiv2 . Exp2 ::= Exp2 "div" Exp2 ;--
+--PTermExpMod . Exp2 ::= Exp2 "mod" Exp2 ;--
+--PTermExpAnd . Exp2 ::= Exp2 "and" Exp2 ;--
+
+--Factor--
+PFactorLit . Exp3 ::= Literal ;
+PFactorId . Exp3 ::= Id ;
+PFactorAccId . Exp3 ::= Id "." [AccId] ;
+
+--coercions Exp 3 ;--
+
+
+
+--Acceso--
+separator AccId "." ;
+PAccId . AccId ::= Id ;
+
+--Terminators--
+terminator Const ";" ;
+terminator Var ";" ;
+terminator Type ";" ;
+separator Id "," ;

@@ -69,6 +69,11 @@ PRecordFields . Fields ::= Id ":" CustomType ;
 PCustomTypeId . CustomType ::= Id ;
 
 
+--Procedimientos y Funciones--
+--TODO--
+
+
+
 --Cuerpo Programa--
 PBody . Body ::= "begin" [Instruction] "end" ;
 
@@ -106,48 +111,53 @@ PCompositeInstructionForTo . CompositeInstruction ::= "for" Id ":=" Exp "to" Exp
 PCompositeInstructionForDownTo . CompositeInstruction ::= "for" Id ":=" Exp "downto" Exp "do" Instruction ;
 
 --Instruccion While--
+--TODO--
 
 --Instruccion Case--
+--TODO--
 
 
---Parametros Proc y Func--
+--Parametros Instruccion Proc y Func--
 PParamsEmpty . Parms ::= ;
 PParms . Parms ::= "(" [Exp] ")" ;
 
 --Expresiones--
 separator Exp "," ;
+PExp . Exp ::= Exp3 ;
+
+--not--
+-- TODO--
 
 --Expresion General--
-PGeneralExpSimple . Exp ::= Exp1;
-PGeneralExpMayor . Exp ::= Exp ">" Exp ;
-PGeneralExpMinor . Exp ::= Exp "<" Exp ;
-PGeneralExpEqual . Exp ::= Exp "=" Exp ;
-PGeneralExpMayorEqual . Exp ::= Exp ">=" Exp ;
-PGeneralExpMinorEqual . Exp ::= Exp "<=" Exp ;
-PGeneralExpDistinct . Exp ::= Exp "<>" Exp ;
+--PGeneralExpSimple . Exp ::= Exp1;--
+--PGeneralExpMayor . Exp ::= Exp ">" Exp ;--
+--PGeneralExpMinor . Exp ::= Exp "<" Exp ;--
+--PGeneralExpEqual . Exp ::= Exp "=" Exp ;--
+--PGeneralExpMayorEqual . Exp ::= Exp ">=" Exp ;--
+--PGeneralExpMinorEqual . Exp ::= Exp "<=" Exp ;--
+--PGeneralExpDistinct . Exp ::= Exp "<>" Exp ;--
+
+--Expresion simple--
+--PSimpleExpTerm . Exp1 ::= Exp2 ;--
+--PSimpleExpAdd . Exp1 ::= Exp3 "+" Exp3 ;--
+--PSimpleExpEquals . Exp1 ::= Exp3 "or" Exp3 ;--
+--PSimpleExpMinus . Exp1 ::= Exp3 "-" Exp3 ;--
+--PSimpleExpInvSign . Exp1 ::= "-" Exp1 ;--
+
+--Terminos--
+--PTermFactor . Exp2 ::= Exp3 ;--
+--PTermExpMul . Exp2 ::= Exp2 "*" Exp2 ;--
+--PTermExpDiv1 . Exp2 ::= Exp2 "/" Exp2 ;--
+--PTermExpDiv2 . Exp2 ::= Exp2 "div" Exp2 ;--
+--PTermExpMod . Exp2 ::= Exp2 "mod" Exp2 ;--
+--PTermExpAnd . Exp2 ::= Exp2 "and" Exp2 ;--
 
 --Factor--
 PFactorLit . Exp3 ::= Literal ;
 PFactorId . Exp3 ::= Id ;
 PFactorAccId . Exp3 ::= Id "." [AccId] ;
 
---Terminos--
-PTermFactor . Exp2 ::= Exp3 ;
-PTermExpMul . Exp2 ::= Exp2 "*" Exp2 ;
-PTermExpDiv1 . Exp2 ::= Exp2 "/" Exp2 ;
-PTermExpDiv2 . Exp2 ::= Exp2 "div" Exp2 ;
-PTermExpMod . Exp2 ::= Exp2 "mod" Exp2 ;
-PTermExpAnd . Exp2 ::= Exp2 "and" Exp2 ;
-
---Expresion simple--
-PSimpleExpTerm . Exp1 ::= Exp2 ;
-PSimpleExpAdd . Exp1 ::= Exp3 "+" Exp3 ;
-PSimpleExpEquals . Exp1 ::= Exp3 "=" Exp3 ;
-PSimpleExpMinus . Exp1 ::= Exp3 "-" Exp3 ;
-PSimpleExpInvSign . Exp1 ::= "-" Exp1 ;
-
-coercions Exp 3 ;
-
+--coercions Exp 3 ;--
 
 
 

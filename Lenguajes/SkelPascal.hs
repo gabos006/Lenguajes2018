@@ -91,27 +91,10 @@ transParms x = case x of
   PParms exps -> failure x
 transExp :: Exp -> Result
 transExp x = case x of
-  PGeneralExpSimple exp -> failure x
-  PGeneralExpMayor exp1 exp2 -> failure x
-  PGeneralExpMinor exp1 exp2 -> failure x
-  PGeneralExpEqual exp1 exp2 -> failure x
-  PGeneralExpMayorEqual exp1 exp2 -> failure x
-  PGeneralExpMinorEqual exp1 exp2 -> failure x
-  PGeneralExpDistinct exp1 exp2 -> failure x
+  PExp exp -> failure x
   PFactorLit literal -> failure x
   PFactorId id -> failure x
   PFactorAccId id accids -> failure x
-  PTermFactor exp -> failure x
-  PTermExpMul exp1 exp2 -> failure x
-  PTermExpDiv1 exp1 exp2 -> failure x
-  PTermExpDiv2 exp1 exp2 -> failure x
-  PTermExpMod exp1 exp2 -> failure x
-  PTermExpAnd exp1 exp2 -> failure x
-  PSimpleExpTerm exp -> failure x
-  PSimpleExpAdd exp1 exp2 -> failure x
-  PSimpleExpEquals exp1 exp2 -> failure x
-  PSimpleExpMinus exp1 exp2 -> failure x
-  PSimpleExpInvSign exp -> failure x
 transAccId :: AccId -> Result
 transAccId x = case x of
   PAccId id -> failure x

@@ -86,27 +86,10 @@ data Parms = PParamsEmpty | PParms [Exp]
   deriving (Eq, Ord, Show, Read)
 
 data Exp
-    = PGeneralExpSimple Exp
-    | PGeneralExpMayor Exp Exp
-    | PGeneralExpMinor Exp Exp
-    | PGeneralExpEqual Exp Exp
-    | PGeneralExpMayorEqual Exp Exp
-    | PGeneralExpMinorEqual Exp Exp
-    | PGeneralExpDistinct Exp Exp
+    = PExp Exp
     | PFactorLit Literal
     | PFactorId Id
     | PFactorAccId Id [AccId]
-    | PTermFactor Exp
-    | PTermExpMul Exp Exp
-    | PTermExpDiv1 Exp Exp
-    | PTermExpDiv2 Exp Exp
-    | PTermExpMod Exp Exp
-    | PTermExpAnd Exp Exp
-    | PSimpleExpTerm Exp
-    | PSimpleExpAdd Exp Exp
-    | PSimpleExpEquals Exp Exp
-    | PSimpleExpMinus Exp Exp
-    | PSimpleExpInvSign Exp
   deriving (Eq, Ord, Show, Read)
 
 data AccId = PAccId Id
