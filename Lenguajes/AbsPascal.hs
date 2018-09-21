@@ -86,7 +86,7 @@ data Instruction
 
 data SimpleInstruction
     = PSimpleInstructionAssignment [AccId] Exp
-    | PSimpleInstructionProcFunc Id Parms
+    | PSimpleInstructionProcFunc CallFunProc
   deriving (Eq, Ord, Show, Read)
 
 data CompositeInstruction
@@ -95,25 +95,33 @@ data CompositeInstruction
     | PCompositeInstructionRepeat [Instruction] Exp
     | PCompositeInstructionForTo Id Exp Exp Instruction
     | PCompositeInstructionForDownTo Id Exp Exp Instruction
+    | PCompositeInstructionWhile Exp Body
+    | PCompositeInstructionCase Exp [Ramas]
+  deriving (Eq, Ord, Show, Read)
+
+data Ramas = PCaseRamCase [ConstCase] BodyRamaCase
+  deriving (Eq, Ord, Show, Read)
+
+data ConstCase = PConstCaseLiteral Literal | PConsCaseId Id
+  deriving (Eq, Ord, Show, Read)
+
+data BodyRamaCase
+    = PBodyRamaCaseOne Instruction | PBodyRamaCaseMany Body
   deriving (Eq, Ord, Show, Read)
 
 data Parms = PParamsEmpty | PParms [Exp]
   deriving (Eq, Ord, Show, Read)
 
 data Exp
-    = PExp Exp
-    | PNotExp Exp
-    | PGeneralExpSimple Exp
+    = PNotExp Exp
     | PGeneralExp Exp GenCom Exp
-    | PSimpleExpTerm Exp
-    | PSimpleExp Exp AddCom Exp
     | PSimpleExpInvSign Exp
-    | PTermFactor Exp
+    | PSimpleExp Exp AddCom Exp
     | PTermExp Exp MulCom Exp
     | PFactorLit Literal
     | PFactorId Id
     | PFactorAccId Id [AccId]
-    | PFactorCall Id Parms
+    | PFactorCall CallFunProc
   deriving (Eq, Ord, Show, Read)
 
 data GenCom
@@ -134,6 +142,9 @@ data MulCom
     | PTermExpDiv2
     | PTermExpMod
     | PTermExpAnd
+  deriving (Eq, Ord, Show, Read)
+
+data CallFunProc = PCallFuncProc Id Parms
   deriving (Eq, Ord, Show, Read)
 
 data AccId = PAccId Id

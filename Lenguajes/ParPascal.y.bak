@@ -33,16 +33,22 @@ import ErrM
 %name pInstruction Instruction
 %name pSimpleInstruction SimpleInstruction
 %name pCompositeInstruction CompositeInstruction
+%name pListRamas ListRamas
+%name pRamas Ramas
+%name pListConstCase ListConstCase
+%name pConstCase ConstCase
+%name pBodyRamaCase BodyRamaCase
 %name pParms Parms
 %name pListExp ListExp
 %name pExp Exp
+%name pExp1 Exp1
 %name pGenCom GenCom
 %name pExp2 Exp2
-%name pExp1 Exp1
 %name pAddCom AddCom
 %name pExp3 Exp3
 %name pMulCom MulCom
 %name pExp4 Exp4
+%name pCallFunProc CallFunProc
 %name pListAccId ListAccId
 %name pAccId AccId
 %name pListConst ListConst
@@ -77,28 +83,30 @@ import ErrM
   'and' { PT _ (TS _ 22) }
   'array' { PT _ (TS _ 23) }
   'begin' { PT _ (TS _ 24) }
-  'const' { PT _ (TS _ 25) }
-  'div' { PT _ (TS _ 26) }
-  'do' { PT _ (TS _ 27) }
-  'downto' { PT _ (TS _ 28) }
-  'else' { PT _ (TS _ 29) }
-  'end' { PT _ (TS _ 30) }
-  'for' { PT _ (TS _ 31) }
-  'function' { PT _ (TS _ 32) }
-  'if' { PT _ (TS _ 33) }
-  'mod' { PT _ (TS _ 34) }
-  'not' { PT _ (TS _ 35) }
-  'of' { PT _ (TS _ 36) }
-  'or' { PT _ (TS _ 37) }
-  'procedure' { PT _ (TS _ 38) }
-  'program' { PT _ (TS _ 39) }
-  'record' { PT _ (TS _ 40) }
-  'repeat' { PT _ (TS _ 41) }
-  'then' { PT _ (TS _ 42) }
-  'to' { PT _ (TS _ 43) }
-  'type' { PT _ (TS _ 44) }
-  'until' { PT _ (TS _ 45) }
-  'var' { PT _ (TS _ 46) }
+  'case' { PT _ (TS _ 25) }
+  'const' { PT _ (TS _ 26) }
+  'div' { PT _ (TS _ 27) }
+  'do' { PT _ (TS _ 28) }
+  'downto' { PT _ (TS _ 29) }
+  'else' { PT _ (TS _ 30) }
+  'end' { PT _ (TS _ 31) }
+  'for' { PT _ (TS _ 32) }
+  'function' { PT _ (TS _ 33) }
+  'if' { PT _ (TS _ 34) }
+  'mod' { PT _ (TS _ 35) }
+  'not' { PT _ (TS _ 36) }
+  'of' { PT _ (TS _ 37) }
+  'or' { PT _ (TS _ 38) }
+  'procedure' { PT _ (TS _ 39) }
+  'program' { PT _ (TS _ 40) }
+  'record' { PT _ (TS _ 41) }
+  'repeat' { PT _ (TS _ 42) }
+  'then' { PT _ (TS _ 43) }
+  'to' { PT _ (TS _ 44) }
+  'type' { PT _ (TS _ 45) }
+  'until' { PT _ (TS _ 46) }
+  'var' { PT _ (TS _ 47) }
+  'while' { PT _ (TS _ 48) }
 
 L_integ  { PT _ (TI $$) }
 L_doubl  { PT _ (TD $$) }
@@ -185,13 +193,31 @@ Instruction : SimpleInstruction { AbsPascal.PListSimpleInstruction $1 }
             | CompositeInstruction { AbsPascal.PListCompositeInstruction $1 }
 SimpleInstruction :: { SimpleInstruction }
 SimpleInstruction : ListAccId ':=' Exp { AbsPascal.PSimpleInstructionAssignment $1 $3 }
-                  | Id Parms { AbsPascal.PSimpleInstructionProcFunc $1 $2 }
+                  | CallFunProc { AbsPascal.PSimpleInstructionProcFunc $1 }
 CompositeInstruction :: { CompositeInstruction }
 CompositeInstruction : 'if' Exp 'then' Instruction { AbsPascal.PCompositeInstructionIf $2 $4 }
                      | 'if' Exp 'then' Instruction 'else' Instruction { AbsPascal.PCompositeInstructionIfElse $2 $4 $6 }
                      | 'repeat' ListInstruction 'until' Exp { AbsPascal.PCompositeInstructionRepeat $2 $4 }
                      | 'for' Id ':=' Exp 'to' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForTo $2 $4 $6 $8 }
                      | 'for' Id ':=' Exp 'downto' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForDownTo $2 $4 $6 $8 }
+                     | 'while' Exp 'do' Body { AbsPascal.PCompositeInstructionWhile $2 $4 }
+                     | 'case' Exp 'of' ListRamas 'end' { AbsPascal.PCompositeInstructionCase $2 $4 }
+ListRamas :: { [Ramas] }
+ListRamas : {- empty -} { [] }
+          | Ramas { (:[]) $1 }
+          | Ramas ';' ListRamas { (:) $1 $3 }
+Ramas :: { Ramas }
+Ramas : ListConstCase ':' BodyRamaCase { AbsPascal.PCaseRamCase $1 $3 }
+ListConstCase :: { [ConstCase] }
+ListConstCase : {- empty -} { [] }
+              | ConstCase { (:[]) $1 }
+              | ConstCase ',' ListConstCase { (:) $1 $3 }
+ConstCase :: { ConstCase }
+ConstCase : Literal { AbsPascal.PConstCaseLiteral $1 }
+          | Id { AbsPascal.PConsCaseId $1 }
+BodyRamaCase :: { BodyRamaCase }
+BodyRamaCase : Instruction { AbsPascal.PBodyRamaCaseOne $1 }
+             | Body { AbsPascal.PBodyRamaCaseMany $1 }
 Parms :: { Parms }
 Parms : {- empty -} { AbsPascal.PParamsEmpty }
       | '(' ListExp ')' { AbsPascal.PParms $2 }
@@ -200,11 +226,10 @@ ListExp : {- empty -} { [] }
         | Exp { (:[]) $1 }
         | Exp ',' ListExp { (:) $1 $3 }
 Exp :: { Exp }
-Exp : Exp1 { AbsPascal.PExp $1 }
-    | 'not' Exp1 { AbsPascal.PNotExp $2 }
-    | Exp2 { AbsPascal.PGeneralExpSimple $1 }
-    | Exp GenCom Exp2 { AbsPascal.PGeneralExp $1 $2 $3 }
-    | Exp1 { $1 }
+Exp : 'not' Exp1 { AbsPascal.PNotExp $2 } | Exp1 { $1 }
+Exp1 :: { Exp }
+Exp1 : Exp1 GenCom Exp2 { AbsPascal.PGeneralExp $1 $2 $3 }
+     | Exp2 { $1 }
 GenCom :: { GenCom }
 GenCom : '>' { AbsPascal.PGeneralExpMayor }
        | '<' { AbsPascal.PGeneralExpMinor }
@@ -213,18 +238,15 @@ GenCom : '>' { AbsPascal.PGeneralExpMayor }
        | '<=' { AbsPascal.PGeneralExpMinorEqual }
        | '<>' { AbsPascal.PGeneralExpDistinct }
 Exp2 :: { Exp }
-Exp2 : Exp3 { AbsPascal.PSimpleExpTerm $1 }
+Exp2 : '-' Exp3 { AbsPascal.PSimpleExpInvSign $2 }
      | Exp2 AddCom Exp3 { AbsPascal.PSimpleExp $1 $2 $3 }
      | Exp3 { $1 }
-Exp1 :: { Exp }
-Exp1 : '-' Exp2 { AbsPascal.PSimpleExpInvSign $2 } | Exp2 { $1 }
 AddCom :: { AddCom }
 AddCom : '+' { AbsPascal.PSimpleExpAdd }
        | 'or' { AbsPascal.PSimpleExpEquals }
        | '-' { AbsPascal.PSimpleExpMinus }
 Exp3 :: { Exp }
-Exp3 : Exp4 { AbsPascal.PTermFactor $1 }
-     | Exp3 MulCom Exp4 { AbsPascal.PTermExp $1 $2 $3 }
+Exp3 : Exp3 MulCom Exp4 { AbsPascal.PTermExp $1 $2 $3 }
      | Exp4 { $1 }
 MulCom :: { MulCom }
 MulCom : '*' { AbsPascal.PTermExpMul }
@@ -237,6 +259,8 @@ Exp4 : Literal { AbsPascal.PFactorLit $1 }
      | Id { AbsPascal.PFactorId $1 }
      | Id '.' ListAccId { AbsPascal.PFactorAccId $1 $3 }
      | '(' Exp ')' { $2 }
+CallFunProc :: { CallFunProc }
+CallFunProc : Id Parms { AbsPascal.PCallFuncProc $1 $2 }
 ListAccId :: { [AccId] }
 ListAccId : {- empty -} { [] }
           | AccId { (:[]) $1 }

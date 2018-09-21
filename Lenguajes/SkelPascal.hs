@@ -91,7 +91,7 @@ transInstruction x = case x of
 transSimpleInstruction :: SimpleInstruction -> Result
 transSimpleInstruction x = case x of
   PSimpleInstructionAssignment accids exp -> failure x
-  PSimpleInstructionProcFunc id parms -> failure x
+  PSimpleInstructionProcFunc callfunproc -> failure x
 transCompositeInstruction :: CompositeInstruction -> Result
 transCompositeInstruction x = case x of
   PCompositeInstructionIf exp instruction -> failure x
@@ -99,25 +99,34 @@ transCompositeInstruction x = case x of
   PCompositeInstructionRepeat instructions exp -> failure x
   PCompositeInstructionForTo id exp1 exp2 instruction -> failure x
   PCompositeInstructionForDownTo id exp1 exp2 instruction -> failure x
+  PCompositeInstructionWhile exp body -> failure x
+  PCompositeInstructionCase exp ramass -> failure x
+transRamas :: Ramas -> Result
+transRamas x = case x of
+  PCaseRamCase constcases bodyramacase -> failure x
+transConstCase :: ConstCase -> Result
+transConstCase x = case x of
+  PConstCaseLiteral literal -> failure x
+  PConsCaseId id -> failure x
+transBodyRamaCase :: BodyRamaCase -> Result
+transBodyRamaCase x = case x of
+  PBodyRamaCaseOne instruction -> failure x
+  PBodyRamaCaseMany body -> failure x
 transParms :: Parms -> Result
 transParms x = case x of
   PParamsEmpty -> failure x
   PParms exps -> failure x
 transExp :: Exp -> Result
 transExp x = case x of
-  PExp exp -> failure x
   PNotExp exp -> failure x
-  PGeneralExpSimple exp -> failure x
   PGeneralExp exp1 gencom exp2 -> failure x
-  PSimpleExpTerm exp -> failure x
-  PSimpleExp exp1 addcom exp2 -> failure x
   PSimpleExpInvSign exp -> failure x
-  PTermFactor exp -> failure x
+  PSimpleExp exp1 addcom exp2 -> failure x
   PTermExp exp1 mulcom exp2 -> failure x
   PFactorLit literal -> failure x
   PFactorId id -> failure x
   PFactorAccId id accids -> failure x
-  PFactorCall id parms -> failure x
+  PFactorCall callfunproc -> failure x
 transGenCom :: GenCom -> Result
 transGenCom x = case x of
   PGeneralExpMayor -> failure x
@@ -138,6 +147,9 @@ transMulCom x = case x of
   PTermExpDiv2 -> failure x
   PTermExpMod -> failure x
   PTermExpAnd -> failure x
+transCallFunProc :: CallFunProc -> Result
+transCallFunProc x = case x of
+  PCallFuncProc id parms -> failure x
 transAccId :: AccId -> Result
 transAccId x = case x of
   PAccId id -> failure x

@@ -194,7 +194,7 @@ instance Print Instruction where
 instance Print SimpleInstruction where
   prt i e = case e of
     PSimpleInstructionAssignment accids exp -> prPrec i 0 (concatD [prt 0 accids, doc (showString ":="), prt 0 exp])
-    PSimpleInstructionProcFunc id parms -> prPrec i 0 (concatD [prt 0 id, prt 0 parms])
+    PSimpleInstructionProcFunc callfunproc -> prPrec i 0 (concatD [prt 0 callfunproc])
 
 instance Print CompositeInstruction where
   prt i e = case e of
@@ -203,6 +203,26 @@ instance Print CompositeInstruction where
     PCompositeInstructionRepeat instructions exp -> prPrec i 0 (concatD [doc (showString "repeat"), prt 0 instructions, doc (showString "until"), prt 0 exp])
     PCompositeInstructionForTo id exp1 exp2 instruction -> prPrec i 0 (concatD [doc (showString "for"), prt 0 id, doc (showString ":="), prt 0 exp1, doc (showString "to"), prt 0 exp2, doc (showString "do"), prt 0 instruction])
     PCompositeInstructionForDownTo id exp1 exp2 instruction -> prPrec i 0 (concatD [doc (showString "for"), prt 0 id, doc (showString ":="), prt 0 exp1, doc (showString "downto"), prt 0 exp2, doc (showString "do"), prt 0 instruction])
+    PCompositeInstructionWhile exp body -> prPrec i 0 (concatD [doc (showString "while"), prt 0 exp, doc (showString "do"), prt 0 body])
+    PCompositeInstructionCase exp ramass -> prPrec i 0 (concatD [doc (showString "case"), prt 0 exp, doc (showString "of"), prt 0 ramass, doc (showString "end")])
+
+instance Print Ramas where
+  prt i e = case e of
+    PCaseRamCase constcases bodyramacase -> prPrec i 0 (concatD [prt 0 constcases, doc (showString ":"), prt 0 bodyramacase])
+  prtList _ [] = (concatD [])
+  prtList _ [x] = (concatD [prt 0 x])
+  prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
+instance Print ConstCase where
+  prt i e = case e of
+    PConstCaseLiteral literal -> prPrec i 0 (concatD [prt 0 literal])
+    PConsCaseId id -> prPrec i 0 (concatD [prt 0 id])
+  prtList _ [] = (concatD [])
+  prtList _ [x] = (concatD [prt 0 x])
+  prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
+instance Print BodyRamaCase where
+  prt i e = case e of
+    PBodyRamaCaseOne instruction -> prPrec i 0 (concatD [prt 0 instruction])
+    PBodyRamaCaseMany body -> prPrec i 0 (concatD [prt 0 body])
 
 instance Print Parms where
   prt i e = case e of
@@ -211,19 +231,15 @@ instance Print Parms where
 
 instance Print Exp where
   prt i e = case e of
-    PExp exp -> prPrec i 0 (concatD [prt 1 exp])
     PNotExp exp -> prPrec i 0 (concatD [doc (showString "not"), prt 1 exp])
-    PGeneralExpSimple exp -> prPrec i 0 (concatD [prt 2 exp])
-    PGeneralExp exp1 gencom exp2 -> prPrec i 0 (concatD [prt 0 exp1, prt 0 gencom, prt 2 exp2])
-    PSimpleExpTerm exp -> prPrec i 2 (concatD [prt 3 exp])
+    PGeneralExp exp1 gencom exp2 -> prPrec i 1 (concatD [prt 1 exp1, prt 0 gencom, prt 2 exp2])
+    PSimpleExpInvSign exp -> prPrec i 2 (concatD [doc (showString "-"), prt 3 exp])
     PSimpleExp exp1 addcom exp2 -> prPrec i 2 (concatD [prt 2 exp1, prt 0 addcom, prt 3 exp2])
-    PSimpleExpInvSign exp -> prPrec i 1 (concatD [doc (showString "-"), prt 2 exp])
-    PTermFactor exp -> prPrec i 3 (concatD [prt 4 exp])
     PTermExp exp1 mulcom exp2 -> prPrec i 3 (concatD [prt 3 exp1, prt 0 mulcom, prt 4 exp2])
     PFactorLit literal -> prPrec i 4 (concatD [prt 0 literal])
     PFactorId id -> prPrec i 4 (concatD [prt 0 id])
     PFactorAccId id accids -> prPrec i 4 (concatD [prt 0 id, doc (showString "."), prt 0 accids])
-    PFactorCall id parms -> prPrec i 4 (concatD [prt 0 id, prt 0 parms])
+    PFactorCall callfunproc -> prPrec i 4 (concatD [prt 0 callfunproc])
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
@@ -249,6 +265,10 @@ instance Print MulCom where
     PTermExpDiv2 -> prPrec i 0 (concatD [doc (showString "div")])
     PTermExpMod -> prPrec i 0 (concatD [doc (showString "mod")])
     PTermExpAnd -> prPrec i 0 (concatD [doc (showString "and")])
+
+instance Print CallFunProc where
+  prt i e = case e of
+    PCallFuncProc id parms -> prPrec i 0 (concatD [prt 0 id, prt 0 parms])
 
 instance Print AccId where
   prt i e = case e of

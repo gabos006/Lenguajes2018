@@ -101,7 +101,7 @@ PListCompositeInstruction . Instruction ::= CompositeInstruction ;
 PSimpleInstructionAssignment . SimpleInstruction ::= [AccId] ":=" Exp ;
 
 --Instruccions Proc y Func--
-PSimpleInstructionProcFunc . SimpleInstruction ::= Id Parms ;
+PSimpleInstructionProcFunc . SimpleInstruction ::= CallFunProc ;
 
 
 --Instrucciones Compuestas--
@@ -122,11 +122,24 @@ PCompositeInstructionForTo . CompositeInstruction ::= "for" Id ":=" Exp "to" Exp
 PCompositeInstructionForDownTo . CompositeInstruction ::= "for" Id ":=" Exp "downto" Exp "do" Instruction ;
 
 --Instruccion While--
---TODO--
+PCompositeInstructionWhile . CompositeInstruction ::= "while" Exp "do" Body ;
 
 --Instruccion Case--
---TODO--
+PCompositeInstructionCase . CompositeInstruction ::= "case" Exp "of" [Ramas] "end" ;
 
+--Ramas Case--
+separator Ramas ";" ;
+PCaseRamCase . Ramas ::= [ConstCase] ":" BodyRamaCase ;
+
+--Costantes Case--
+separator ConstCase "," ;
+PConstCaseLiteral . ConstCase ::= Literal ;
+PConsCaseId . ConstCase ::= Id ;
+
+--Body rama Case--
+PBodyRamaCaseOne . BodyRamaCase ::= Instruction ;
+PBodyRamaCaseMany . BodyRamaCase ::= Body ;
+ 
 
 --Parametros Instruccion Proc y Func--
 PParamsEmpty . Parms ::= ;
@@ -136,44 +149,47 @@ PParms . Parms ::= "(" [Exp] ")" ;
 separator Exp "," ;
 
 --not--
-PExp . Exp ::= Exp1 ;
-PNotExp . Exp ::= "not" Exp1 ;
+PExp . Exp ::= Exp4 ;
+--PNotExp . Exp ::= "not" Exp1 ;
 
 --Expresion General--
-PGeneralExpSimple . Exp ::= Exp2;--
-PGeneralExp . Exp ::= Exp GenCom Exp2 ;
-PGeneralExpMayor . GenCom ::= ">" ;
-PGeneralExpMinor . GenCom ::= "<" ;
-PGeneralExpEqual . GenCom ::= "=" ;
-PGeneralExpMayorEqual . GenCom ::= ">=" ;
-PGeneralExpMinorEqual . GenCom ::= "<=" ;
-PGeneralExpDistinct . GenCom ::= "<>" ;
+--PGeneralExpSimple . Exp1 ::= Exp2;
+--PGeneralExp . Exp1 ::= Exp1 GenCom Exp2 ;
+--PGeneralExpMayor . GenCom ::= ">" ;
+--PGeneralExpMinor . GenCom ::= "<" ;
+--PGeneralExpEqual . GenCom ::= "=" ;
+--PGeneralExpMayorEqual . GenCom ::= ">=" ;
+--PGeneralExpMinorEqual . GenCom ::= "<=" ;
+--PGeneralExpDistinct . GenCom ::= "<>" ;
 
 --Expresion simple--
-PSimpleExpTerm . Exp2 ::= Exp3 ;
-PSimpleExp . Exp2 ::= Exp2 AddCom Exp3 ;
-PSimpleExpInvSign . Exp1 ::= "-" Exp2 ;
-PSimpleExpAdd . AddCom ::= "+" ;
-PSimpleExpEquals . AddCom ::= "or" ;
-PSimpleExpMinus . AddCom ::= "-" ;
+--PSimpleExpTerm . Exp2 ::= Exp3 ;
+--PSimpleExpInvSign . Exp2 ::= "-" Exp3 ;
+--PSimpleExp . Exp2 ::= Exp2 AddCom Exp3 ;
+
+--PSimpleExpAdd . AddCom ::= "+" ;
+--PSimpleExpEquals . AddCom ::= "or" ;
+--PSimpleExpMinus . AddCom ::= "-" ;
 
 --Terminos--
-PTermFactor . Exp3 ::= Exp4 ;
-PTermExp . Exp3 ::= Exp3 MulCom Exp4 ;
-PTermExpMul . MulCom ::= "*" ;
-PTermExpDiv1 . MulCom ::= "/" ;
-PTermExpDiv2 . MulCom ::= "div" ;
-PTermExpMod . MulCom ::= "mod" ;
-PTermExpAnd . MulCom ::= "and" ;
+--PTermFactor . Exp3 ::= Exp4 ;
+--PTermExp . Exp3 ::= Exp3 MulCom Exp4 ;
+--PTermExpMul . MulCom ::= "*" ;
+--PTermExpDiv1 . MulCom ::= "/" ;
+--PTermExpDiv2 . MulCom ::= "div" ;
+--PTermExpMod . MulCom ::= "mod" ;
+--PTermExpAnd . MulCom ::= "and" ;
 
 --Factor--
 PFactorLit . Exp4 ::= Literal ;
 PFactorId . Exp4 ::= Id ;
 PFactorAccId . Exp4 ::= Id "." [AccId] ;
-PFactorCall . Exp4 ::= Id Parms ;
+--PFactorCall . Exp4 ::= CallFunProc ;
 
-coercions Exp 4 ;
+--coercions Exp 4 ;
 
+--Llamada a Funciones y Procedimientos--
+PCallFuncProc . CallFunProc ::= Id Parms ;
 
 --Acceso--
 separator AccId "." ;

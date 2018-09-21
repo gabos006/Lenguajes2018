@@ -40,13 +40,13 @@ Id literals are recognized by the regular expression
 The set of reserved words is the set of terminals appearing in the grammar. Those reserved words that consist of non-letter characters are called symbols, and they are treated in a different way from those that are similar to identifiers. The lexer follows rules familiar from languages like Haskell, C, and Java, including longest match and spacing conventions.
 
 The reserved words used in Pascal are the following:
-  | ``and`` | ``array`` | ``begin`` | ``const``
-  | ``div`` | ``do`` | ``downto`` | ``else``
-  | ``end`` | ``for`` | ``function`` | ``if``
-  | ``mod`` | ``not`` | ``of`` | ``or``
-  | ``procedure`` | ``program`` | ``record`` | ``repeat``
-  | ``then`` | ``to`` | ``type`` | ``until``
-  | ``var`` |  |  | 
+  | ``and`` | ``array`` | ``begin`` | ``case``
+  | ``const`` | ``div`` | ``do`` | ``downto``
+  | ``else`` | ``end`` | ``for`` | ``function``
+  | ``if`` | ``mod`` | ``not`` | ``of``
+  | ``or`` | ``procedure`` | ``program`` | ``record``
+  | ``repeat`` | ``then`` | ``to`` | ``type``
+  | ``until`` | ``var`` | ``while`` | 
 
 The symbols used in Pascal are the following:
   | ; | . | = | :
@@ -111,38 +111,47 @@ All other symbols are terminals.
   | //Instruction// | -> | //SimpleInstruction// 
   |  |  **|**  | //CompositeInstruction// 
   | //SimpleInstruction// | -> | //[AccId]// ``:=`` //Exp// 
-  |  |  **|**  | //Id// //Parms// 
+  |  |  **|**  | //CallFunProc// 
   | //CompositeInstruction// | -> | ``if`` //Exp// ``then`` //Instruction// 
   |  |  **|**  | ``if`` //Exp// ``then`` //Instruction// ``else`` //Instruction// 
   |  |  **|**  | ``repeat`` //[Instruction]// ``until`` //Exp// 
   |  |  **|**  | ``for`` //Id// ``:=`` //Exp// ``to`` //Exp// ``do`` //Instruction// 
   |  |  **|**  | ``for`` //Id// ``:=`` //Exp// ``downto`` //Exp// ``do`` //Instruction// 
+  |  |  **|**  | ``while`` //Exp// ``do`` //Body// 
+  |  |  **|**  | ``case`` //Exp// ``of`` //[Ramas]// ``end`` 
+  | //[Ramas]// | -> | **eps**
+  |  |  **|**  | //Ramas// 
+  |  |  **|**  | //Ramas// ``;`` //[Ramas]// 
+  | //Ramas// | -> | //[ConstCase]// ``:`` //BodyRamaCase// 
+  | //[ConstCase]// | -> | **eps**
+  |  |  **|**  | //ConstCase// 
+  |  |  **|**  | //ConstCase// ``,`` //[ConstCase]// 
+  | //ConstCase// | -> | //Literal// 
+  |  |  **|**  | //Id// 
+  | //BodyRamaCase// | -> | //Instruction// 
+  |  |  **|**  | //Body// 
   | //Parms// | -> | **eps**
   |  |  **|**  | ``(`` //[Exp]// ``)`` 
   | //[Exp]// | -> | **eps**
   |  |  **|**  | //Exp// 
   |  |  **|**  | //Exp// ``,`` //[Exp]// 
-  | //Exp// | -> | //Exp1// 
-  |  |  **|**  | ``not`` //Exp1// 
-  |  |  **|**  | //Exp2// 
-  |  |  **|**  | //Exp// //GenCom// //Exp2// 
+  | //Exp// | -> | ``not`` //Exp1// 
   |  |  **|**  | //Exp1// 
+  | //Exp1// | -> | //Exp1// //GenCom// //Exp2// 
+  |  |  **|**  | //Exp2// 
   | //GenCom// | -> | ``>`` 
   |  |  **|**  | ``<`` 
   |  |  **|**  | ``=`` 
   |  |  **|**  | ``>=`` 
   |  |  **|**  | ``<=`` 
   |  |  **|**  | ``<>`` 
-  | //Exp2// | -> | //Exp3// 
+  | //Exp2// | -> | ``-`` //Exp3// 
   |  |  **|**  | //Exp2// //AddCom// //Exp3// 
   |  |  **|**  | //Exp3// 
-  | //Exp1// | -> | ``-`` //Exp2// 
-  |  |  **|**  | //Exp2// 
   | //AddCom// | -> | ``+`` 
   |  |  **|**  | ``or`` 
   |  |  **|**  | ``-`` 
-  | //Exp3// | -> | //Exp4// 
-  |  |  **|**  | //Exp3// //MulCom// //Exp4// 
+  | //Exp3// | -> | //Exp3// //MulCom// //Exp4// 
   |  |  **|**  | //Exp4// 
   | //MulCom// | -> | ``*`` 
   |  |  **|**  | ``/`` 
@@ -153,6 +162,7 @@ All other symbols are terminals.
   |  |  **|**  | //Id// 
   |  |  **|**  | //Id// ``.`` //[AccId]// 
   |  |  **|**  | ``(`` //Exp// ``)`` 
+  | //CallFunProc// | -> | //Id// //Parms// 
   | //[AccId]// | -> | **eps**
   |  |  **|**  | //AccId// 
   |  |  **|**  | //AccId// ``.`` //[AccId]// 
