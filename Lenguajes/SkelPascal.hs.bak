@@ -20,7 +20,7 @@ transBlock x = case x of
   PBlock parts body -> failure x
 transParts :: Parts -> Result
 transParts x = case x of
-  PPart consts types vars -> failure x
+  PPart consts types vars procsyfuncs -> failure x
 transConsts :: Consts -> Result
 transConsts x = case x of
   PPartConstEmpty -> failure x
@@ -67,6 +67,20 @@ transArrType x = case x of
 transFields :: Fields -> Result
 transFields x = case x of
   PRecordFields id customtype -> failure x
+transProcsYFuncs :: ProcsYFuncs -> Result
+transProcsYFuncs x = case x of
+  PProcsYFuncsEmpty -> failure x
+  PIdProcedure id pruebas blockprocfun -> failure x
+  PIdFunction id1 pruebas id2 blockprocfun -> failure x
+transPrueba :: Prueba -> Result
+transPrueba x = case x of
+  PPrueba ids id -> failure x
+transBlockProcFun :: BlockProcFun -> Result
+transBlockProcFun x = case x of
+  PBlockProcFun partsprocfun body -> failure x
+transPartsProcFun :: PartsProcFun -> Result
+transPartsProcFun x = case x of
+  PPartProcFun consts types vars -> failure x
 transBody :: Body -> Result
 transBody x = case x of
   PBody instructions -> failure x
@@ -91,12 +105,38 @@ transParms x = case x of
   PParms exps -> failure x
 transExp :: Exp -> Result
 transExp x = case x of
+  PExp exp -> failure x
+  PNotExp exp -> failure x
   PGeneralExpSimple exp -> failure x
+  PGeneralExp exp1 gencom exp2 -> failure x
   PSimpleExpTerm exp -> failure x
+  PSimpleExp exp1 addcom exp2 -> failure x
+  PSimpleExpInvSign exp -> failure x
   PTermFactor exp -> failure x
+  PTermExp exp1 mulcom exp2 -> failure x
   PFactorLit literal -> failure x
   PFactorId id -> failure x
   PFactorAccId id accids -> failure x
+transGenCom :: GenCom -> Result
+transGenCom x = case x of
+  PGeneralExpMayor -> failure x
+  PGeneralExpMinor -> failure x
+  PGeneralExpEqual -> failure x
+  PGeneralExpMayorEqual -> failure x
+  PGeneralExpMinorEqual -> failure x
+  PGeneralExpDistinct -> failure x
+transAddCom :: AddCom -> Result
+transAddCom x = case x of
+  PSimpleExpAdd -> failure x
+  PSimpleExpEquals -> failure x
+  PSimpleExpMinus -> failure x
+transMulCom :: MulCom -> Result
+transMulCom x = case x of
+  PTermExpMul -> failure x
+  PTermExpDiv1 -> failure x
+  PTermExpDiv2 -> failure x
+  PTermExpMod -> failure x
+  PTermExpAnd -> failure x
 transAccId :: AccId -> Result
 transAccId x = case x of
   PAccId id -> failure x

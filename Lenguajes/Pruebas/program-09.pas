@@ -3,7 +3,7 @@ var
    a, b, ret : integer;
 
 (*function definition *)
-function max(num1, num2: integer): integer;
+function max(): integer;
 var
    (* local variable declaration *)
    result: integer;

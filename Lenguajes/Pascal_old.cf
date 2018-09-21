@@ -11,7 +11,7 @@ PBlock . Block ::= Parts Body "." ;
 
 
 --Partes--
-PPart . Parts ::=  Consts Types Vars ;
+PPart . Parts ::=  Consts Types Vars ProcsYFuncs ;
 
 
 --Constantes--
@@ -70,7 +70,18 @@ PCustomTypeId . CustomType ::= Id ;
 
 
 --Procedimientos y Funciones--
---TODO--
+PProcsYFuncsEmpty . ProcsYFuncs ::= ;
+PIdProcedure . ProcsYFuncs ::= "procedure" Id "(" [DecParm] ")" ";" BlockProcFun ;
+PIdFunction . ProcsYFuncs ::= "function" Id "(" [DecParm] ")" ":" Id ";" BlockProcFun ;
+
+separator DecParm ";" ;
+PPrueba . DecParm ::= [Id] ":" Id ;
+
+--Bloque Proc y Fun--
+PBlockProcFun . BlockProcFun ::= PartsProcFun Body ";" ;
+
+--Partes Proc y Fun
+PPartProcFun . PartsProcFun ::=  Consts Types Vars ;
 
 
 
@@ -123,41 +134,46 @@ PParms . Parms ::= "(" [Exp] ")" ;
 
 --Expresiones--
 separator Exp "," ;
-PExp . Exp ::= Exp3 ;
 
 --not--
--- TODO--
+PExp . Exp ::= Exp1 ;
+PNotExp . Exp ::= "not" Exp1 ;
 
 --Expresion General--
---PGeneralExpSimple . Exp ::= Exp1;--
---PGeneralExpMayor . Exp ::= Exp ">" Exp ;--
---PGeneralExpMinor . Exp ::= Exp "<" Exp ;--
---PGeneralExpEqual . Exp ::= Exp "=" Exp ;--
---PGeneralExpMayorEqual . Exp ::= Exp ">=" Exp ;--
---PGeneralExpMinorEqual . Exp ::= Exp "<=" Exp ;--
---PGeneralExpDistinct . Exp ::= Exp "<>" Exp ;--
+PGeneralExpSimple . Exp ::= Exp2;--
+PGeneralExp . Exp ::= Exp GenCom Exp2 ;
+
+PGeneralExpMayor . GenCom ::= ">" ;
+PGeneralExpMinor . GenCom ::= "<" ;
+PGeneralExpEqual . GenCom ::= "=" ;
+PGeneralExpMayorEqual . GenCom ::= ">=" ;
+PGeneralExpMinorEqual . GenCom ::= "<=" ;
+PGeneralExpDistinct . GenCom ::= "<>" ;
 
 --Expresion simple--
---PSimpleExpTerm . Exp1 ::= Exp2 ;--
---PSimpleExpAdd . Exp1 ::= Exp3 "+" Exp3 ;--
---PSimpleExpEquals . Exp1 ::= Exp3 "or" Exp3 ;--
---PSimpleExpMinus . Exp1 ::= Exp3 "-" Exp3 ;--
---PSimpleExpInvSign . Exp1 ::= "-" Exp1 ;--
+PSimpleExpTerm . Exp2 ::= Exp3 ;
+PSimpleExp . Exp2 ::= Exp2 AddCom Exp3 ;
+PSimpleExpInvSign . Exp1 ::= "-" Exp2 ;
+PSimpleExpAdd . AddCom ::= "+" ;
+PSimpleExpEquals . AddCom ::= "or" ;
+PSimpleExpMinus . AddCom ::= "-" ;
+
 
 --Terminos--
---PTermFactor . Exp2 ::= Exp3 ;--
---PTermExpMul . Exp2 ::= Exp2 "*" Exp2 ;--
---PTermExpDiv1 . Exp2 ::= Exp2 "/" Exp2 ;--
---PTermExpDiv2 . Exp2 ::= Exp2 "div" Exp2 ;--
---PTermExpMod . Exp2 ::= Exp2 "mod" Exp2 ;--
---PTermExpAnd . Exp2 ::= Exp2 "and" Exp2 ;--
+PTermFactor . Exp3 ::= Exp4 ;
+PTermExp . Exp3 ::= Exp3 MulCom Exp4 ;
+PTermExpMul . MulCom ::= "*" ;
+PTermExpDiv1 . MulCom ::= "/" ;
+PTermExpDiv2 . MulCom ::= "div" ;
+PTermExpMod . MulCom ::= "mod" ;
+PTermExpAnd . MulCom ::= "and" ;
 
 --Factor--
-PFactorLit . Exp3 ::= Literal ;
-PFactorId . Exp3 ::= Id ;
-PFactorAccId . Exp3 ::= Id "." [AccId] ;
+PFactorLit . Exp4 ::= Literal ;
+PFactorId . Exp4 ::= Id ;
+PFactorAccId . Exp4 ::= Id "." [AccId] ;
 
---coercions Exp 3 ;--
+--coercions Exp 4 ;
 
 
 

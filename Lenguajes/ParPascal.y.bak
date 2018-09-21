@@ -23,6 +23,11 @@ import ErrM
 %name pArrType ArrType
 %name pListFields ListFields
 %name pFields Fields
+%name pProcsYFuncs ProcsYFuncs
+%name pListPrueba ListPrueba
+%name pPrueba Prueba
+%name pBlockProcFun BlockProcFun
+%name pPartsProcFun PartsProcFun
 %name pBody Body
 %name pListInstruction ListInstruction
 %name pInstruction Instruction
@@ -31,9 +36,13 @@ import ErrM
 %name pParms Parms
 %name pListExp ListExp
 %name pExp Exp
-%name pExp1 Exp1
+%name pGenCom GenCom
 %name pExp2 Exp2
+%name pExp1 Exp1
+%name pAddCom AddCom
 %name pExp3 Exp3
+%name pMulCom MulCom
+%name pExp4 Exp4
 %name pListAccId ListAccId
 %name pAccId AccId
 %name pListConst ListConst
@@ -46,34 +55,50 @@ import ErrM
 %token
   '(' { PT _ (TS _ 1) }
   ')' { PT _ (TS _ 2) }
-  ',' { PT _ (TS _ 3) }
-  '.' { PT _ (TS _ 4) }
-  '..' { PT _ (TS _ 5) }
-  ':' { PT _ (TS _ 6) }
-  ':=' { PT _ (TS _ 7) }
-  ';' { PT _ (TS _ 8) }
-  '=' { PT _ (TS _ 9) }
-  '[' { PT _ (TS _ 10) }
-  ']' { PT _ (TS _ 11) }
-  '^' { PT _ (TS _ 12) }
-  'array' { PT _ (TS _ 13) }
-  'begin' { PT _ (TS _ 14) }
-  'const' { PT _ (TS _ 15) }
-  'do' { PT _ (TS _ 16) }
-  'downto' { PT _ (TS _ 17) }
-  'else' { PT _ (TS _ 18) }
-  'end' { PT _ (TS _ 19) }
-  'for' { PT _ (TS _ 20) }
-  'if' { PT _ (TS _ 21) }
-  'of' { PT _ (TS _ 22) }
-  'program' { PT _ (TS _ 23) }
-  'record' { PT _ (TS _ 24) }
-  'repeat' { PT _ (TS _ 25) }
-  'then' { PT _ (TS _ 26) }
-  'to' { PT _ (TS _ 27) }
-  'type' { PT _ (TS _ 28) }
-  'until' { PT _ (TS _ 29) }
-  'var' { PT _ (TS _ 30) }
+  '*' { PT _ (TS _ 3) }
+  '+' { PT _ (TS _ 4) }
+  ',' { PT _ (TS _ 5) }
+  '-' { PT _ (TS _ 6) }
+  '.' { PT _ (TS _ 7) }
+  '..' { PT _ (TS _ 8) }
+  '/' { PT _ (TS _ 9) }
+  ':' { PT _ (TS _ 10) }
+  ':=' { PT _ (TS _ 11) }
+  ';' { PT _ (TS _ 12) }
+  '<' { PT _ (TS _ 13) }
+  '<=' { PT _ (TS _ 14) }
+  '<>' { PT _ (TS _ 15) }
+  '=' { PT _ (TS _ 16) }
+  '>' { PT _ (TS _ 17) }
+  '>=' { PT _ (TS _ 18) }
+  '[' { PT _ (TS _ 19) }
+  ']' { PT _ (TS _ 20) }
+  '^' { PT _ (TS _ 21) }
+  'and' { PT _ (TS _ 22) }
+  'array' { PT _ (TS _ 23) }
+  'begin' { PT _ (TS _ 24) }
+  'const' { PT _ (TS _ 25) }
+  'div' { PT _ (TS _ 26) }
+  'do' { PT _ (TS _ 27) }
+  'downto' { PT _ (TS _ 28) }
+  'else' { PT _ (TS _ 29) }
+  'end' { PT _ (TS _ 30) }
+  'for' { PT _ (TS _ 31) }
+  'function' { PT _ (TS _ 32) }
+  'if' { PT _ (TS _ 33) }
+  'mod' { PT _ (TS _ 34) }
+  'not' { PT _ (TS _ 35) }
+  'of' { PT _ (TS _ 36) }
+  'or' { PT _ (TS _ 37) }
+  'procedure' { PT _ (TS _ 38) }
+  'program' { PT _ (TS _ 39) }
+  'record' { PT _ (TS _ 40) }
+  'repeat' { PT _ (TS _ 41) }
+  'then' { PT _ (TS _ 42) }
+  'to' { PT _ (TS _ 43) }
+  'type' { PT _ (TS _ 44) }
+  'until' { PT _ (TS _ 45) }
+  'var' { PT _ (TS _ 46) }
 
 L_integ  { PT _ (TI $$) }
 L_doubl  { PT _ (TD $$) }
@@ -95,7 +120,7 @@ Program : 'program' Id ';' Block { AbsPascal.PProgram $2 $4 }
 Block :: { Block }
 Block : Parts Body '.' { AbsPascal.PBlock $1 $2 }
 Parts :: { Parts }
-Parts : Consts Types Vars { AbsPascal.PPart $1 $2 $3 }
+Parts : Consts Types Vars ProcsYFuncs { AbsPascal.PPart $1 $2 $3 $4 }
 Consts :: { Consts }
 Consts : {- empty -} { AbsPascal.PPartConstEmpty }
        | 'const' ListConst Const ';' { AbsPascal.PPartConst (reverse $2) $3 }
@@ -135,6 +160,20 @@ ListFields : {- empty -} { [] }
            | Fields ';' ListFields { (:) $1 $3 }
 Fields :: { Fields }
 Fields : Id ':' CustomType { AbsPascal.PRecordFields $1 $3 }
+ProcsYFuncs :: { ProcsYFuncs }
+ProcsYFuncs : {- empty -} { AbsPascal.PProcsYFuncsEmpty }
+            | 'procedure' Id '(' ListPrueba ')' ';' BlockProcFun { AbsPascal.PIdProcedure $2 $4 $7 }
+            | 'function' Id '(' ListPrueba ')' ':' Id ';' BlockProcFun { AbsPascal.PIdFunction $2 $4 $7 $9 }
+ListPrueba :: { [Prueba] }
+ListPrueba : {- empty -} { [] }
+           | Prueba { (:[]) $1 }
+           | Prueba ';' ListPrueba { (:) $1 $3 }
+Prueba :: { Prueba }
+Prueba : ListId ':' Id { AbsPascal.PPrueba $1 $3 }
+BlockProcFun :: { BlockProcFun }
+BlockProcFun : PartsProcFun Body ';' { AbsPascal.PBlockProcFun $1 $2 }
+PartsProcFun :: { PartsProcFun }
+PartsProcFun : Consts Types Vars { AbsPascal.PPartProcFun $1 $2 $3 }
 Body :: { Body }
 Body : 'begin' ListInstruction 'end' { AbsPascal.PBody $2 }
 ListInstruction :: { [Instruction] }
@@ -161,16 +200,39 @@ ListExp : {- empty -} { [] }
         | Exp { (:[]) $1 }
         | Exp ',' ListExp { (:) $1 $3 }
 Exp :: { Exp }
-Exp : Exp1 { AbsPascal.PGeneralExpSimple $1 } | Exp1 { $1 }
-Exp1 :: { Exp }
-Exp1 : Exp2 { AbsPascal.PSimpleExpTerm $1 } | Exp2 { $1 }
+Exp : Exp1 { AbsPascal.PExp $1 }
+    | 'not' Exp1 { AbsPascal.PNotExp $2 }
+    | Exp2 { AbsPascal.PGeneralExpSimple $1 }
+    | Exp GenCom Exp2 { AbsPascal.PGeneralExp $1 $2 $3 }
+GenCom :: { GenCom }
+GenCom : '>' { AbsPascal.PGeneralExpMayor }
+       | '<' { AbsPascal.PGeneralExpMinor }
+       | '=' { AbsPascal.PGeneralExpEqual }
+       | '>=' { AbsPascal.PGeneralExpMayorEqual }
+       | '<=' { AbsPascal.PGeneralExpMinorEqual }
+       | '<>' { AbsPascal.PGeneralExpDistinct }
 Exp2 :: { Exp }
-Exp2 : Exp3 { AbsPascal.PTermFactor $1 } | Exp3 { $1 }
+Exp2 : Exp3 { AbsPascal.PSimpleExpTerm $1 }
+     | Exp2 AddCom Exp3 { AbsPascal.PSimpleExp $1 $2 $3 }
+Exp1 :: { Exp }
+Exp1 : '-' Exp2 { AbsPascal.PSimpleExpInvSign $2 }
+AddCom :: { AddCom }
+AddCom : '+' { AbsPascal.PSimpleExpAdd }
+       | 'or' { AbsPascal.PSimpleExpEquals }
+       | '-' { AbsPascal.PSimpleExpMinus }
 Exp3 :: { Exp }
-Exp3 : Literal { AbsPascal.PFactorLit $1 }
+Exp3 : Exp4 { AbsPascal.PTermFactor $1 }
+     | Exp3 MulCom Exp4 { AbsPascal.PTermExp $1 $2 $3 }
+MulCom :: { MulCom }
+MulCom : '*' { AbsPascal.PTermExpMul }
+       | '/' { AbsPascal.PTermExpDiv1 }
+       | 'div' { AbsPascal.PTermExpDiv2 }
+       | 'mod' { AbsPascal.PTermExpMod }
+       | 'and' { AbsPascal.PTermExpAnd }
+Exp4 :: { Exp }
+Exp4 : Literal { AbsPascal.PFactorLit $1 }
      | Id { AbsPascal.PFactorId $1 }
      | Id '.' ListAccId { AbsPascal.PFactorAccId $1 $3 }
-     | '(' Exp ')' { $2 }
 ListAccId :: { [AccId] }
 ListAccId : {- empty -} { [] }
           | AccId { (:[]) $1 }

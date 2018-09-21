@@ -14,7 +14,7 @@ data Program = PProgram Id Block
 data Block = PBlock Parts Body
   deriving (Eq, Ord, Show, Read)
 
-data Parts = PPart Consts Types Vars
+data Parts = PPart Consts Types Vars ProcsYFuncs
   deriving (Eq, Ord, Show, Read)
 
 data Consts = PPartConstEmpty | PPartConst [Const] Const
@@ -61,6 +61,21 @@ data ArrType = PTypeArrayLType RangeType RangeType
 data Fields = PRecordFields Id CustomType
   deriving (Eq, Ord, Show, Read)
 
+data ProcsYFuncs
+    = PProcsYFuncsEmpty
+    | PIdProcedure Id [Prueba] BlockProcFun
+    | PIdFunction Id [Prueba] Id BlockProcFun
+  deriving (Eq, Ord, Show, Read)
+
+data Prueba = PPrueba [Id] Id
+  deriving (Eq, Ord, Show, Read)
+
+data BlockProcFun = PBlockProcFun PartsProcFun Body
+  deriving (Eq, Ord, Show, Read)
+
+data PartsProcFun = PPartProcFun Consts Types Vars
+  deriving (Eq, Ord, Show, Read)
+
 data Body = PBody [Instruction]
   deriving (Eq, Ord, Show, Read)
 
@@ -86,12 +101,38 @@ data Parms = PParamsEmpty | PParms [Exp]
   deriving (Eq, Ord, Show, Read)
 
 data Exp
-    = PGeneralExpSimple Exp
+    = PExp Exp
+    | PNotExp Exp
+    | PGeneralExpSimple Exp
+    | PGeneralExp Exp GenCom Exp
     | PSimpleExpTerm Exp
+    | PSimpleExp Exp AddCom Exp
+    | PSimpleExpInvSign Exp
     | PTermFactor Exp
+    | PTermExp Exp MulCom Exp
     | PFactorLit Literal
     | PFactorId Id
     | PFactorAccId Id [AccId]
+  deriving (Eq, Ord, Show, Read)
+
+data GenCom
+    = PGeneralExpMayor
+    | PGeneralExpMinor
+    | PGeneralExpEqual
+    | PGeneralExpMayorEqual
+    | PGeneralExpMinorEqual
+    | PGeneralExpDistinct
+  deriving (Eq, Ord, Show, Read)
+
+data AddCom = PSimpleExpAdd | PSimpleExpEquals | PSimpleExpMinus
+  deriving (Eq, Ord, Show, Read)
+
+data MulCom
+    = PTermExpMul
+    | PTermExpDiv1
+    | PTermExpDiv2
+    | PTermExpMod
+    | PTermExpAnd
   deriving (Eq, Ord, Show, Read)
 
 data AccId = PAccId Id

@@ -40,16 +40,21 @@ Id literals are recognized by the regular expression
 The set of reserved words is the set of terminals appearing in the grammar. Those reserved words that consist of non-letter characters are called symbols, and they are treated in a different way from those that are similar to identifiers. The lexer follows rules familiar from languages like Haskell, C, and Java, including longest match and spacing conventions.
 
 The reserved words used in Pascal are the following:
-  | ``array`` | ``begin`` | ``const`` | ``do``
-  | ``downto`` | ``else`` | ``end`` | ``for``
-  | ``if`` | ``of`` | ``program`` | ``record``
-  | ``repeat`` | ``then`` | ``to`` | ``type``
-  | ``until`` | ``var`` |  | 
+  | ``and`` | ``array`` | ``begin`` | ``const``
+  | ``div`` | ``do`` | ``downto`` | ``else``
+  | ``end`` | ``for`` | ``function`` | ``if``
+  | ``mod`` | ``not`` | ``of`` | ``or``
+  | ``procedure`` | ``program`` | ``record`` | ``repeat``
+  | ``then`` | ``to`` | ``type`` | ``until``
+  | ``var`` |  |  | 
 
 The symbols used in Pascal are the following:
   | ; | . | = | :
   | ( | ) | .. | ^
   | [ | ] | := | ,
+  | > | < | >= | <=
+  | <> | - | + | *
+  | / |  |  | 
 
 ===Comments===
 There are no single-line comments in the grammar.Multiple-line comments are  enclosed with (* and *).
@@ -62,7 +67,7 @@ All other symbols are terminals.
 
   | //Program// | -> | ``program`` //Id// ``;`` //Block// 
   | //Block// | -> | //Parts// //Body// ``.`` 
-  | //Parts// | -> | //Consts// //Types// //Vars// 
+  | //Parts// | -> | //Consts// //Types// //Vars// //ProcsYFuncs// 
   | //Consts// | -> | **eps**
   |  |  **|**  | ``const`` //[Const]// //Const// ``;`` 
   | //Const// | -> | //Id// ``=`` //Literal// 
@@ -90,6 +95,15 @@ All other symbols are terminals.
   |  |  **|**  | //Fields// 
   |  |  **|**  | //Fields// ``;`` //[Fields]// 
   | //Fields// | -> | //Id// ``:`` //CustomType// 
+  | //ProcsYFuncs// | -> | **eps**
+  |  |  **|**  | ``procedure`` //Id// ``(`` //[Prueba]// ``)`` ``;`` //BlockProcFun// 
+  |  |  **|**  | ``function`` //Id// ``(`` //[Prueba]// ``)`` ``:`` //Id// ``;`` //BlockProcFun// 
+  | //[Prueba]// | -> | **eps**
+  |  |  **|**  | //Prueba// 
+  |  |  **|**  | //Prueba// ``;`` //[Prueba]// 
+  | //Prueba// | -> | //[Id]// ``:`` //Id// 
+  | //BlockProcFun// | -> | //PartsProcFun// //Body// ``;`` 
+  | //PartsProcFun// | -> | //Consts// //Types// //Vars// 
   | //Body// | -> | ``begin`` //[Instruction]// ``end`` 
   | //[Instruction]// | -> | **eps**
   |  |  **|**  | //Instruction// 
@@ -109,15 +123,31 @@ All other symbols are terminals.
   |  |  **|**  | //Exp// 
   |  |  **|**  | //Exp// ``,`` //[Exp]// 
   | //Exp// | -> | //Exp1// 
-  |  |  **|**  | //Exp1// 
-  | //Exp1// | -> | //Exp2// 
+  |  |  **|**  | ``not`` //Exp1// 
   |  |  **|**  | //Exp2// 
+  |  |  **|**  | //Exp// //GenCom// //Exp2// 
+  | //GenCom// | -> | ``>`` 
+  |  |  **|**  | ``<`` 
+  |  |  **|**  | ``=`` 
+  |  |  **|**  | ``>=`` 
+  |  |  **|**  | ``<=`` 
+  |  |  **|**  | ``<>`` 
   | //Exp2// | -> | //Exp3// 
-  |  |  **|**  | //Exp3// 
-  | //Exp3// | -> | //Literal// 
+  |  |  **|**  | //Exp2// //AddCom// //Exp3// 
+  | //Exp1// | -> | ``-`` //Exp2// 
+  | //AddCom// | -> | ``+`` 
+  |  |  **|**  | ``or`` 
+  |  |  **|**  | ``-`` 
+  | //Exp3// | -> | //Exp4// 
+  |  |  **|**  | //Exp3// //MulCom// //Exp4// 
+  | //MulCom// | -> | ``*`` 
+  |  |  **|**  | ``/`` 
+  |  |  **|**  | ``div`` 
+  |  |  **|**  | ``mod`` 
+  |  |  **|**  | ``and`` 
+  | //Exp4// | -> | //Literal// 
   |  |  **|**  | //Id// 
   |  |  **|**  | //Id// ``.`` //[AccId]// 
-  |  |  **|**  | ``(`` //Exp// ``)`` 
   | //[AccId]// | -> | **eps**
   |  |  **|**  | //AccId// 
   |  |  **|**  | //AccId// ``.`` //[AccId]// 
