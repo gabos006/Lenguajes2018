@@ -170,8 +170,9 @@ PTermExpAnd . MulCom ::= "and" ;
 PFactorLit . Exp4 ::= Literal ;
 PFactorId . Exp4 ::= Id ;
 PFactorAccId . Exp4 ::= Id "." [AccId] ;
+PFactorCall . Exp4 ::= Id Parms ;
 
---coercions Exp 4 ;
+coercions Exp 4 ;
 
 
 --Acceso--

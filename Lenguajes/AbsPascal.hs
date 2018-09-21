@@ -67,7 +67,7 @@ data ProcsYFuncs
     | PIdFunction Id [DecParm] Id BlockProcFun
   deriving (Eq, Ord, Show, Read)
 
-data DecParm = PPrueba [Id] Id
+data DecParm = PDecParam [Id] Id
   deriving (Eq, Ord, Show, Read)
 
 data BlockProcFun = PBlockProcFun PartsProcFun Body
@@ -113,6 +113,7 @@ data Exp
     | PFactorLit Literal
     | PFactorId Id
     | PFactorAccId Id [AccId]
+    | PFactorCall Id Parms
   deriving (Eq, Ord, Show, Read)
 
 data GenCom

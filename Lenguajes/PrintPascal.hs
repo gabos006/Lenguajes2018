@@ -168,7 +168,7 @@ instance Print ProcsYFuncs where
 
 instance Print DecParm where
   prt i e = case e of
-    PPrueba ids id -> prPrec i 0 (concatD [prt 0 ids, doc (showString ":"), prt 0 id])
+    PDecParam ids id -> prPrec i 0 (concatD [prt 0 ids, doc (showString ":"), prt 0 id])
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
@@ -223,6 +223,7 @@ instance Print Exp where
     PFactorLit literal -> prPrec i 4 (concatD [prt 0 literal])
     PFactorId id -> prPrec i 4 (concatD [prt 0 id])
     PFactorAccId id accids -> prPrec i 4 (concatD [prt 0 id, doc (showString "."), prt 0 accids])
+    PFactorCall id parms -> prPrec i 4 (concatD [prt 0 id, prt 0 parms])
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])

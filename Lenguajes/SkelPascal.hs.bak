@@ -70,11 +70,11 @@ transFields x = case x of
 transProcsYFuncs :: ProcsYFuncs -> Result
 transProcsYFuncs x = case x of
   PProcsYFuncsEmpty -> failure x
-  PIdProcedure id pruebas blockprocfun -> failure x
-  PIdFunction id1 pruebas id2 blockprocfun -> failure x
-transPrueba :: Prueba -> Result
-transPrueba x = case x of
-  PPrueba ids id -> failure x
+  PIdProcedure id decparms blockprocfun -> failure x
+  PIdFunction id1 decparms id2 blockprocfun -> failure x
+transDecParm :: DecParm -> Result
+transDecParm x = case x of
+  PDecParam ids id -> failure x
 transBlockProcFun :: BlockProcFun -> Result
 transBlockProcFun x = case x of
   PBlockProcFun partsprocfun body -> failure x

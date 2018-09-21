@@ -96,12 +96,12 @@ All other symbols are terminals.
   |  |  **|**  | //Fields// ``;`` //[Fields]// 
   | //Fields// | -> | //Id// ``:`` //CustomType// 
   | //ProcsYFuncs// | -> | **eps**
-  |  |  **|**  | ``procedure`` //Id// ``(`` //[Prueba]// ``)`` ``;`` //BlockProcFun// 
-  |  |  **|**  | ``function`` //Id// ``(`` //[Prueba]// ``)`` ``:`` //Id// ``;`` //BlockProcFun// 
-  | //[Prueba]// | -> | **eps**
-  |  |  **|**  | //Prueba// 
-  |  |  **|**  | //Prueba// ``;`` //[Prueba]// 
-  | //Prueba// | -> | //[Id]// ``:`` //Id// 
+  |  |  **|**  | ``procedure`` //Id// ``(`` //[DecParm]// ``)`` ``;`` //BlockProcFun// 
+  |  |  **|**  | ``function`` //Id// ``(`` //[DecParm]// ``)`` ``:`` //Id// ``;`` //BlockProcFun// 
+  | //[DecParm]// | -> | **eps**
+  |  |  **|**  | //DecParm// 
+  |  |  **|**  | //DecParm// ``;`` //[DecParm]// 
+  | //DecParm// | -> | //[Id]// ``:`` //Id// 
   | //BlockProcFun// | -> | //PartsProcFun// //Body// ``;`` 
   | //PartsProcFun// | -> | //Consts// //Types// //Vars// 
   | //Body// | -> | ``begin`` //[Instruction]// ``end`` 
@@ -126,6 +126,7 @@ All other symbols are terminals.
   |  |  **|**  | ``not`` //Exp1// 
   |  |  **|**  | //Exp2// 
   |  |  **|**  | //Exp// //GenCom// //Exp2// 
+  |  |  **|**  | //Exp1// 
   | //GenCom// | -> | ``>`` 
   |  |  **|**  | ``<`` 
   |  |  **|**  | ``=`` 
@@ -134,12 +135,15 @@ All other symbols are terminals.
   |  |  **|**  | ``<>`` 
   | //Exp2// | -> | //Exp3// 
   |  |  **|**  | //Exp2// //AddCom// //Exp3// 
+  |  |  **|**  | //Exp3// 
   | //Exp1// | -> | ``-`` //Exp2// 
+  |  |  **|**  | //Exp2// 
   | //AddCom// | -> | ``+`` 
   |  |  **|**  | ``or`` 
   |  |  **|**  | ``-`` 
   | //Exp3// | -> | //Exp4// 
   |  |  **|**  | //Exp3// //MulCom// //Exp4// 
+  |  |  **|**  | //Exp4// 
   | //MulCom// | -> | ``*`` 
   |  |  **|**  | ``/`` 
   |  |  **|**  | ``div`` 
@@ -148,6 +152,7 @@ All other symbols are terminals.
   | //Exp4// | -> | //Literal// 
   |  |  **|**  | //Id// 
   |  |  **|**  | //Id// ``.`` //[AccId]// 
+  |  |  **|**  | ``(`` //Exp// ``)`` 
   | //[AccId]// | -> | **eps**
   |  |  **|**  | //AccId// 
   |  |  **|**  | //AccId// ``.`` //[AccId]// 

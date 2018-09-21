@@ -74,7 +74,7 @@ transProcsYFuncs x = case x of
   PIdFunction id1 decparms id2 blockprocfun -> failure x
 transDecParm :: DecParm -> Result
 transDecParm x = case x of
-  PPrueba ids id -> failure x
+  PDecParam ids id -> failure x
 transBlockProcFun :: BlockProcFun -> Result
 transBlockProcFun x = case x of
   PBlockProcFun partsprocfun body -> failure x
@@ -117,6 +117,7 @@ transExp x = case x of
   PFactorLit literal -> failure x
   PFactorId id -> failure x
   PFactorAccId id accids -> failure x
+  PFactorCall id parms -> failure x
 transGenCom :: GenCom -> Result
 transGenCom x = case x of
   PGeneralExpMayor -> failure x

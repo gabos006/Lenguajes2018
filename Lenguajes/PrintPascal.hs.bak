@@ -163,12 +163,12 @@ instance Print Fields where
 instance Print ProcsYFuncs where
   prt i e = case e of
     PProcsYFuncsEmpty -> prPrec i 0 (concatD [])
-    PIdProcedure id pruebas blockprocfun -> prPrec i 0 (concatD [doc (showString "procedure"), prt 0 id, doc (showString "("), prt 0 pruebas, doc (showString ")"), doc (showString ";"), prt 0 blockprocfun])
-    PIdFunction id1 pruebas id2 blockprocfun -> prPrec i 0 (concatD [doc (showString "function"), prt 0 id1, doc (showString "("), prt 0 pruebas, doc (showString ")"), doc (showString ":"), prt 0 id2, doc (showString ";"), prt 0 blockprocfun])
+    PIdProcedure id decparms blockprocfun -> prPrec i 0 (concatD [doc (showString "procedure"), prt 0 id, doc (showString "("), prt 0 decparms, doc (showString ")"), doc (showString ";"), prt 0 blockprocfun])
+    PIdFunction id1 decparms id2 blockprocfun -> prPrec i 0 (concatD [doc (showString "function"), prt 0 id1, doc (showString "("), prt 0 decparms, doc (showString ")"), doc (showString ":"), prt 0 id2, doc (showString ";"), prt 0 blockprocfun])
 
-instance Print Prueba where
+instance Print DecParm where
   prt i e = case e of
-    PPrueba ids id -> prPrec i 0 (concatD [prt 0 ids, doc (showString ":"), prt 0 id])
+    PDecParam ids id -> prPrec i 0 (concatD [prt 0 ids, doc (showString ":"), prt 0 id])
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
