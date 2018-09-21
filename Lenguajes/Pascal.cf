@@ -76,7 +76,7 @@ PIdFunction . ProcsYFuncs ::= "function" Id "(" [DecParm] ")" ":" Id ";" BlockPr
 
 --Declaracion Parametros Proc y Fun--
 separator DecParm ";" ;
-PPrueba . DecParm ::= [Id] ":" Id ;
+PDecParam . DecParm ::= [Id] ":" Id ;
 
 --Bloque Proc y Fun--
 PBlockProcFun . BlockProcFun ::= PartsProcFun Body ";" ;

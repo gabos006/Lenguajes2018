@@ -74,15 +74,15 @@ PProcsYFuncsEmpty . ProcsYFuncs ::= ;
 PIdProcedure . ProcsYFuncs ::= "procedure" Id "(" [DecParm] ")" ";" BlockProcFun ;
 PIdFunction . ProcsYFuncs ::= "function" Id "(" [DecParm] ")" ":" Id ";" BlockProcFun ;
 
+--Declaracion Parametros Proc y Fun--
 separator DecParm ";" ;
-PPrueba . DecParm ::= [Id] ":" Id ;
+PDecParam . DecParm ::= [Id] ":" Id ;
 
 --Bloque Proc y Fun--
 PBlockProcFun . BlockProcFun ::= PartsProcFun Body ";" ;
 
 --Partes Proc y Fun
 PPartProcFun . PartsProcFun ::=  Consts Types Vars ;
-
 
 
 --Cuerpo Programa--
@@ -142,7 +142,6 @@ PNotExp . Exp ::= "not" Exp1 ;
 --Expresion General--
 PGeneralExpSimple . Exp ::= Exp2;--
 PGeneralExp . Exp ::= Exp GenCom Exp2 ;
-
 PGeneralExpMayor . GenCom ::= ">" ;
 PGeneralExpMinor . GenCom ::= "<" ;
 PGeneralExpEqual . GenCom ::= "=" ;
@@ -157,7 +156,6 @@ PSimpleExpInvSign . Exp1 ::= "-" Exp2 ;
 PSimpleExpAdd . AddCom ::= "+" ;
 PSimpleExpEquals . AddCom ::= "or" ;
 PSimpleExpMinus . AddCom ::= "-" ;
-
 
 --Terminos--
 PTermFactor . Exp3 ::= Exp4 ;
@@ -174,7 +172,6 @@ PFactorId . Exp4 ::= Id ;
 PFactorAccId . Exp4 ::= Id "." [AccId] ;
 
 --coercions Exp 4 ;
-
 
 
 --Acceso--
