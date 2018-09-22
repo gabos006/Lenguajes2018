@@ -67,20 +67,18 @@ data ProcsYFuncs
     | PIdFunction Id [DecParm] Id BlockProcFun
   deriving (Eq, Ord, Show, Read)
 
-data DecParm = PDecParam [Id] Id
+data DecParm = PDecParamVar [Id] Id | PDecParam [Id] Id
   deriving (Eq, Ord, Show, Read)
 
-data BlockProcFun = PBlockProcFun PartsProcFun Body
-  deriving (Eq, Ord, Show, Read)
-
-data PartsProcFun = PPartProcFun Consts Types Vars
+data BlockProcFun = PBlockProcFun Parts Body
   deriving (Eq, Ord, Show, Read)
 
 data Body = PBody [Instruction]
   deriving (Eq, Ord, Show, Read)
 
 data Instruction
-    = PListSimpleInstruction SimpleInstruction
+    = PListInstruction
+    | PListSimpleInstruction SimpleInstruction
     | PListCompositeInstruction CompositeInstruction
   deriving (Eq, Ord, Show, Read)
 

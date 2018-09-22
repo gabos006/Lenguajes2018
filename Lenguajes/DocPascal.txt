@@ -51,10 +51,10 @@ The reserved words used in Pascal are the following:
 The symbols used in Pascal are the following:
   | ; | . | = | :
   | ( | ) | .. | ^
-  | [ | ] | := | ,
-  | > | < | >= | <=
-  | <> | - | + | *
-  | / |  |  | 
+  | [ | ] |   | :=
+  | , | > | < | >=
+  | <= | <> | - | +
+  | * | / |  | 
 
 ===Comments===
 There are no single-line comments in the grammar.Multiple-line comments are  enclosed with (* and *).
@@ -101,14 +101,15 @@ All other symbols are terminals.
   | //[DecParm]// | -> | **eps**
   |  |  **|**  | //DecParm// 
   |  |  **|**  | //DecParm// ``;`` //[DecParm]// 
-  | //DecParm// | -> | //[Id]// ``:`` //Id// 
-  | //BlockProcFun// | -> | //PartsProcFun// //Body// ``;`` 
-  | //PartsProcFun// | -> | //Consts// //Types// //Vars// 
+  | //DecParm// | -> | ``var`` //[Id]// ``:`` //Id// 
+  |  |  **|**  | //[Id]// ``:`` //Id// 
+  | //BlockProcFun// | -> | //Parts// //Body// ``;`` 
   | //Body// | -> | ``begin`` //[Instruction]// ``end`` 
   | //[Instruction]// | -> | **eps**
   |  |  **|**  | //Instruction// 
   |  |  **|**  | //Instruction// ``;`` //[Instruction]// 
-  | //Instruction// | -> | //SimpleInstruction// 
+  | //Instruction// | -> | `` `` 
+  |  |  **|**  | //SimpleInstruction// 
   |  |  **|**  | //CompositeInstruction// 
   | //SimpleInstruction// | -> | //[AccId]// ``:=`` //Exp// 
   |  |  **|**  | //CallFunProc// 
@@ -119,8 +120,7 @@ All other symbols are terminals.
   |  |  **|**  | ``for`` //Id// ``:=`` //Exp// ``downto`` //Exp// ``do`` //Instruction// 
   |  |  **|**  | ``while`` //Exp// ``do`` //Body// 
   |  |  **|**  | ``case`` //Exp// ``of`` //[Ramas]// ``end`` 
-  | //[Ramas]// | -> | **eps**
-  |  |  **|**  | //Ramas// 
+  | //[Ramas]// | -> | //Ramas// 
   |  |  **|**  | //Ramas// ``;`` //[Ramas]// 
   | //Ramas// | -> | //[ConstCase]// ``:`` //BodyRamaCase// 
   | //[ConstCase]// | -> | **eps**

@@ -1,0 +1,4 @@
+program emptystms;
+begin
+   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+end.

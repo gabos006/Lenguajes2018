@@ -76,14 +76,11 @@ PIdFunction . ProcsYFuncs ::= "function" Id "(" [DecParm] ")" ":" Id ";" BlockPr
 
 --Declaracion Parametros Proc y Fun--
 separator DecParm ";" ;
+PDecParamVar . DecParm ::= "var" [Id] ":" Id ;
 PDecParam . DecParm ::= [Id] ":" Id ;
 
 --Bloque Proc y Fun--
-PBlockProcFun . BlockProcFun ::= PartsProcFun Body ";" ;
-
---Partes Proc y Fun
-PPartProcFun . PartsProcFun ::=  Consts Types Vars ;
-
+PBlockProcFun . BlockProcFun ::= Parts Body ";" ;
 
 --Cuerpo Programa--
 PBody . Body ::= "begin" [Instruction] "end" ;
@@ -128,7 +125,7 @@ PCompositeInstructionWhile . CompositeInstruction ::= "while" Exp "do" Body ;
 PCompositeInstructionCase . CompositeInstruction ::= "case" Exp "of" [Ramas] "end" ;
 
 --Ramas Case--
-separator Ramas ";" ;
+separator nonempty Ramas ";" ;
 PCaseRamCase . Ramas ::= [ConstCase] ":" BodyRamaCase ;
 
 --Costantes Case--

@@ -168,17 +168,14 @@ instance Print ProcsYFuncs where
 
 instance Print DecParm where
   prt i e = case e of
+    PDecParamVar ids id -> prPrec i 0 (concatD [doc (showString "var"), prt 0 ids, doc (showString ":"), prt 0 id])
     PDecParam ids id -> prPrec i 0 (concatD [prt 0 ids, doc (showString ":"), prt 0 id])
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
 instance Print BlockProcFun where
   prt i e = case e of
-    PBlockProcFun partsprocfun body -> prPrec i 0 (concatD [prt 0 partsprocfun, prt 0 body, doc (showString ";")])
-
-instance Print PartsProcFun where
-  prt i e = case e of
-    PPartProcFun consts types vars -> prPrec i 0 (concatD [prt 0 consts, prt 0 types, prt 0 vars])
+    PBlockProcFun parts body -> prPrec i 0 (concatD [prt 0 parts, prt 0 body, doc (showString ";")])
 
 instance Print Body where
   prt i e = case e of
@@ -186,6 +183,7 @@ instance Print Body where
 
 instance Print Instruction where
   prt i e = case e of
+    PListInstruction -> prPrec i 0 (concatD [doc (showString " ")])
     PListSimpleInstruction simpleinstruction -> prPrec i 0 (concatD [prt 0 simpleinstruction])
     PListCompositeInstruction compositeinstruction -> prPrec i 0 (concatD [prt 0 compositeinstruction])
   prtList _ [] = (concatD [])
@@ -209,7 +207,6 @@ instance Print CompositeInstruction where
 instance Print Ramas where
   prt i e = case e of
     PCaseRamCase constcases bodyramacase -> prPrec i 0 (concatD [prt 0 constcases, doc (showString ":"), prt 0 bodyramacase])
-  prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
 instance Print ConstCase where

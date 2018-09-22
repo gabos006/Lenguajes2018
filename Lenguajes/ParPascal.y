@@ -27,7 +27,6 @@ import ErrM
 %name pListDecParm ListDecParm
 %name pDecParm DecParm
 %name pBlockProcFun BlockProcFun
-%name pPartsProcFun PartsProcFun
 %name pBody Body
 %name pListInstruction ListInstruction
 %name pInstruction Instruction
@@ -59,54 +58,55 @@ import ErrM
 %monad { Err } { thenM } { returnM }
 %tokentype {Token}
 %token
-  '(' { PT _ (TS _ 1) }
-  ')' { PT _ (TS _ 2) }
-  '*' { PT _ (TS _ 3) }
-  '+' { PT _ (TS _ 4) }
-  ',' { PT _ (TS _ 5) }
-  '-' { PT _ (TS _ 6) }
-  '.' { PT _ (TS _ 7) }
-  '..' { PT _ (TS _ 8) }
-  '/' { PT _ (TS _ 9) }
-  ':' { PT _ (TS _ 10) }
-  ':=' { PT _ (TS _ 11) }
-  ';' { PT _ (TS _ 12) }
-  '<' { PT _ (TS _ 13) }
-  '<=' { PT _ (TS _ 14) }
-  '<>' { PT _ (TS _ 15) }
-  '=' { PT _ (TS _ 16) }
-  '>' { PT _ (TS _ 17) }
-  '>=' { PT _ (TS _ 18) }
-  '[' { PT _ (TS _ 19) }
-  ']' { PT _ (TS _ 20) }
-  '^' { PT _ (TS _ 21) }
-  'and' { PT _ (TS _ 22) }
-  'array' { PT _ (TS _ 23) }
-  'begin' { PT _ (TS _ 24) }
-  'case' { PT _ (TS _ 25) }
-  'const' { PT _ (TS _ 26) }
-  'div' { PT _ (TS _ 27) }
-  'do' { PT _ (TS _ 28) }
-  'downto' { PT _ (TS _ 29) }
-  'else' { PT _ (TS _ 30) }
-  'end' { PT _ (TS _ 31) }
-  'for' { PT _ (TS _ 32) }
-  'function' { PT _ (TS _ 33) }
-  'if' { PT _ (TS _ 34) }
-  'mod' { PT _ (TS _ 35) }
-  'not' { PT _ (TS _ 36) }
-  'of' { PT _ (TS _ 37) }
-  'or' { PT _ (TS _ 38) }
-  'procedure' { PT _ (TS _ 39) }
-  'program' { PT _ (TS _ 40) }
-  'record' { PT _ (TS _ 41) }
-  'repeat' { PT _ (TS _ 42) }
-  'then' { PT _ (TS _ 43) }
-  'to' { PT _ (TS _ 44) }
-  'type' { PT _ (TS _ 45) }
-  'until' { PT _ (TS _ 46) }
-  'var' { PT _ (TS _ 47) }
-  'while' { PT _ (TS _ 48) }
+  ' ' { PT _ (TS _ 1) }
+  '(' { PT _ (TS _ 2) }
+  ')' { PT _ (TS _ 3) }
+  '*' { PT _ (TS _ 4) }
+  '+' { PT _ (TS _ 5) }
+  ',' { PT _ (TS _ 6) }
+  '-' { PT _ (TS _ 7) }
+  '.' { PT _ (TS _ 8) }
+  '..' { PT _ (TS _ 9) }
+  '/' { PT _ (TS _ 10) }
+  ':' { PT _ (TS _ 11) }
+  ':=' { PT _ (TS _ 12) }
+  ';' { PT _ (TS _ 13) }
+  '<' { PT _ (TS _ 14) }
+  '<=' { PT _ (TS _ 15) }
+  '<>' { PT _ (TS _ 16) }
+  '=' { PT _ (TS _ 17) }
+  '>' { PT _ (TS _ 18) }
+  '>=' { PT _ (TS _ 19) }
+  '[' { PT _ (TS _ 20) }
+  ']' { PT _ (TS _ 21) }
+  '^' { PT _ (TS _ 22) }
+  'and' { PT _ (TS _ 23) }
+  'array' { PT _ (TS _ 24) }
+  'begin' { PT _ (TS _ 25) }
+  'case' { PT _ (TS _ 26) }
+  'const' { PT _ (TS _ 27) }
+  'div' { PT _ (TS _ 28) }
+  'do' { PT _ (TS _ 29) }
+  'downto' { PT _ (TS _ 30) }
+  'else' { PT _ (TS _ 31) }
+  'end' { PT _ (TS _ 32) }
+  'for' { PT _ (TS _ 33) }
+  'function' { PT _ (TS _ 34) }
+  'if' { PT _ (TS _ 35) }
+  'mod' { PT _ (TS _ 36) }
+  'not' { PT _ (TS _ 37) }
+  'of' { PT _ (TS _ 38) }
+  'or' { PT _ (TS _ 39) }
+  'procedure' { PT _ (TS _ 40) }
+  'program' { PT _ (TS _ 41) }
+  'record' { PT _ (TS _ 42) }
+  'repeat' { PT _ (TS _ 43) }
+  'then' { PT _ (TS _ 44) }
+  'to' { PT _ (TS _ 45) }
+  'type' { PT _ (TS _ 46) }
+  'until' { PT _ (TS _ 47) }
+  'var' { PT _ (TS _ 48) }
+  'while' { PT _ (TS _ 49) }
 
 L_integ  { PT _ (TI $$) }
 L_doubl  { PT _ (TD $$) }
@@ -177,11 +177,10 @@ ListDecParm : {- empty -} { [] }
             | DecParm { (:[]) $1 }
             | DecParm ';' ListDecParm { (:) $1 $3 }
 DecParm :: { DecParm }
-DecParm : ListId ':' Id { AbsPascal.PDecParam $1 $3 }
+DecParm : 'var' ListId ':' Id { AbsPascal.PDecParamVar $2 $4 }
+        | ListId ':' Id { AbsPascal.PDecParam $1 $3 }
 BlockProcFun :: { BlockProcFun }
-BlockProcFun : PartsProcFun Body ';' { AbsPascal.PBlockProcFun $1 $2 }
-PartsProcFun :: { PartsProcFun }
-PartsProcFun : Consts Types Vars { AbsPascal.PPartProcFun $1 $2 $3 }
+BlockProcFun : Parts Body ';' { AbsPascal.PBlockProcFun $1 $2 }
 Body :: { Body }
 Body : 'begin' ListInstruction 'end' { AbsPascal.PBody $2 }
 ListInstruction :: { [Instruction] }
@@ -189,7 +188,8 @@ ListInstruction : {- empty -} { [] }
                 | Instruction { (:[]) $1 }
                 | Instruction ';' ListInstruction { (:) $1 $3 }
 Instruction :: { Instruction }
-Instruction : SimpleInstruction { AbsPascal.PListSimpleInstruction $1 }
+Instruction : ' ' { AbsPascal.PListInstruction }
+            | SimpleInstruction { AbsPascal.PListSimpleInstruction $1 }
             | CompositeInstruction { AbsPascal.PListCompositeInstruction $1 }
 SimpleInstruction :: { SimpleInstruction }
 SimpleInstruction : ListAccId ':=' Exp { AbsPascal.PSimpleInstructionAssignment $1 $3 }
@@ -203,9 +203,7 @@ CompositeInstruction : 'if' Exp 'then' Instruction { AbsPascal.PCompositeInstruc
                      | 'while' Exp 'do' Body { AbsPascal.PCompositeInstructionWhile $2 $4 }
                      | 'case' Exp 'of' ListRamas 'end' { AbsPascal.PCompositeInstructionCase $2 $4 }
 ListRamas :: { [Ramas] }
-ListRamas : {- empty -} { [] }
-          | Ramas { (:[]) $1 }
-          | Ramas ';' ListRamas { (:) $1 $3 }
+ListRamas : Ramas { (:[]) $1 } | Ramas ';' ListRamas { (:) $1 $3 }
 Ramas :: { Ramas }
 Ramas : ListConstCase ':' BodyRamaCase { AbsPascal.PCaseRamCase $1 $3 }
 ListConstCase :: { [ConstCase] }

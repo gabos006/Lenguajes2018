@@ -74,13 +74,11 @@ transProcsYFuncs x = case x of
   PIdFunction id1 decparms id2 blockprocfun -> failure x
 transDecParm :: DecParm -> Result
 transDecParm x = case x of
+  PDecParamVar ids id -> failure x
   PDecParam ids id -> failure x
 transBlockProcFun :: BlockProcFun -> Result
 transBlockProcFun x = case x of
-  PBlockProcFun partsprocfun body -> failure x
-transPartsProcFun :: PartsProcFun -> Result
-transPartsProcFun x = case x of
-  PPartProcFun consts types vars -> failure x
+  PBlockProcFun parts body -> failure x
 transBody :: Body -> Result
 transBody x = case x of
   PBody instructions -> failure x
@@ -90,6 +88,7 @@ transInstruction x = case x of
   PListCompositeInstruction compositeinstruction -> failure x
 transSimpleInstruction :: SimpleInstruction -> Result
 transSimpleInstruction x = case x of
+  PSimpleInstruction -> failure x
   PSimpleInstructionAssignment accids exp -> failure x
   PSimpleInstructionProcFunc callfunproc -> failure x
 transCompositeInstruction :: CompositeInstruction -> Result
@@ -126,6 +125,7 @@ transExp x = case x of
   PFactorLit literal -> failure x
   PFactorId id -> failure x
   PFactorAccId id accids -> failure x
+  PFactorCall callfunproc -> failure x
 transGenCom :: GenCom -> Result
 transGenCom x = case x of
   PGeneralExpMayor -> failure x
