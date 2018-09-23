@@ -55,7 +55,8 @@ PCustomTypePointer . CustomType ::= "^" Id ;
 
 
 --Tipo Array--
-PTypeArray . CustomType ::= "array" "[" ArrType "]" "of" Id ;
+-- Arregla la 5 --
+PTypeArray . CustomType ::= "array" "[" ArrType "]" "of" CustomType ;
 PTypeArrayLType . ArrType ::= RangeType ".." RangeType ;
 
 
@@ -186,8 +187,10 @@ coercions Exp 4 ;
 PCallFuncProc . CallFunProc ::= Id Parms ;
 
 --Acceso--
+-- Arregla la 22 --
 separator AccId "." ;
 PAccId . AccId ::= Id ;
+PtrAccId . AccId ::= Id "^" ;
 
 --Terminators--
 terminator Const ";" ;
