@@ -20,9 +20,11 @@ import ErrM
 %name pType Type
 %name pCustomType CustomType
 %name pRangeType RangeType
+%name pListArrType ListArrType
 %name pArrType ArrType
 %name pListFields ListFields
 %name pFields Fields
+%name pListProcsYFuncs ListProcsYFuncs
 %name pProcsYFuncs ProcsYFuncs
 %name pListDecParm ListDecParm
 %name pDecParm DecParm
@@ -37,7 +39,7 @@ import ErrM
 %name pListConstCase ListConstCase
 %name pConstCase ConstCase
 %name pBodyRamaCase BodyRamaCase
-%name pParms Parms
+%name pCallFunProc CallFunProc
 %name pListExp ListExp
 %name pExp Exp
 %name pExp1 Exp1
@@ -47,7 +49,9 @@ import ErrM
 %name pExp3 Exp3
 %name pMulCom MulCom
 %name pExp4 Exp4
-%name pCallFunProc CallFunProc
+%name pArrayAccess ArrayAccess
+%name pListTypeAccess ListTypeAccess
+%name pTypeAccess TypeAccess
 %name pListAccId ListAccId
 %name pAccId AccId
 %name pListConst ListConst
@@ -58,55 +62,54 @@ import ErrM
 %monad { Err } { thenM } { returnM }
 %tokentype {Token}
 %token
-  '' { PT _ (TS _ 1) }
-  '(' { PT _ (TS _ 2) }
-  ')' { PT _ (TS _ 3) }
-  '*' { PT _ (TS _ 4) }
-  '+' { PT _ (TS _ 5) }
-  ',' { PT _ (TS _ 6) }
-  '-' { PT _ (TS _ 7) }
-  '.' { PT _ (TS _ 8) }
-  '..' { PT _ (TS _ 9) }
-  '/' { PT _ (TS _ 10) }
-  ':' { PT _ (TS _ 11) }
-  ':=' { PT _ (TS _ 12) }
-  ';' { PT _ (TS _ 13) }
-  '<' { PT _ (TS _ 14) }
-  '<=' { PT _ (TS _ 15) }
-  '<>' { PT _ (TS _ 16) }
-  '=' { PT _ (TS _ 17) }
-  '>' { PT _ (TS _ 18) }
-  '>=' { PT _ (TS _ 19) }
-  '[' { PT _ (TS _ 20) }
-  ']' { PT _ (TS _ 21) }
-  '^' { PT _ (TS _ 22) }
-  'and' { PT _ (TS _ 23) }
-  'array' { PT _ (TS _ 24) }
-  'begin' { PT _ (TS _ 25) }
-  'case' { PT _ (TS _ 26) }
-  'const' { PT _ (TS _ 27) }
-  'div' { PT _ (TS _ 28) }
-  'do' { PT _ (TS _ 29) }
-  'downto' { PT _ (TS _ 30) }
-  'else' { PT _ (TS _ 31) }
-  'end' { PT _ (TS _ 32) }
-  'for' { PT _ (TS _ 33) }
-  'function' { PT _ (TS _ 34) }
-  'if' { PT _ (TS _ 35) }
-  'mod' { PT _ (TS _ 36) }
-  'not' { PT _ (TS _ 37) }
-  'of' { PT _ (TS _ 38) }
-  'or' { PT _ (TS _ 39) }
-  'procedure' { PT _ (TS _ 40) }
-  'program' { PT _ (TS _ 41) }
-  'record' { PT _ (TS _ 42) }
-  'repeat' { PT _ (TS _ 43) }
-  'then' { PT _ (TS _ 44) }
-  'to' { PT _ (TS _ 45) }
-  'type' { PT _ (TS _ 46) }
-  'until' { PT _ (TS _ 47) }
-  'var' { PT _ (TS _ 48) }
-  'while' { PT _ (TS _ 49) }
+  '(' { PT _ (TS _ 1) }
+  ')' { PT _ (TS _ 2) }
+  '*' { PT _ (TS _ 3) }
+  '+' { PT _ (TS _ 4) }
+  ',' { PT _ (TS _ 5) }
+  '-' { PT _ (TS _ 6) }
+  '.' { PT _ (TS _ 7) }
+  '..' { PT _ (TS _ 8) }
+  '/' { PT _ (TS _ 9) }
+  ':' { PT _ (TS _ 10) }
+  ':=' { PT _ (TS _ 11) }
+  ';' { PT _ (TS _ 12) }
+  '<' { PT _ (TS _ 13) }
+  '<=' { PT _ (TS _ 14) }
+  '<>' { PT _ (TS _ 15) }
+  '=' { PT _ (TS _ 16) }
+  '>' { PT _ (TS _ 17) }
+  '>=' { PT _ (TS _ 18) }
+  '[' { PT _ (TS _ 19) }
+  ']' { PT _ (TS _ 20) }
+  '^' { PT _ (TS _ 21) }
+  'and' { PT _ (TS _ 22) }
+  'array' { PT _ (TS _ 23) }
+  'begin' { PT _ (TS _ 24) }
+  'case' { PT _ (TS _ 25) }
+  'const' { PT _ (TS _ 26) }
+  'div' { PT _ (TS _ 27) }
+  'do' { PT _ (TS _ 28) }
+  'downto' { PT _ (TS _ 29) }
+  'else' { PT _ (TS _ 30) }
+  'end' { PT _ (TS _ 31) }
+  'for' { PT _ (TS _ 32) }
+  'function' { PT _ (TS _ 33) }
+  'if' { PT _ (TS _ 34) }
+  'mod' { PT _ (TS _ 35) }
+  'not' { PT _ (TS _ 36) }
+  'of' { PT _ (TS _ 37) }
+  'or' { PT _ (TS _ 38) }
+  'procedure' { PT _ (TS _ 39) }
+  'program' { PT _ (TS _ 40) }
+  'record' { PT _ (TS _ 41) }
+  'repeat' { PT _ (TS _ 42) }
+  'then' { PT _ (TS _ 43) }
+  'to' { PT _ (TS _ 44) }
+  'type' { PT _ (TS _ 45) }
+  'until' { PT _ (TS _ 46) }
+  'var' { PT _ (TS _ 47) }
+  'while' { PT _ (TS _ 48) }
 
 L_integ  { PT _ (TI $$) }
 L_doubl  { PT _ (TD $$) }
@@ -128,7 +131,7 @@ Program : 'program' Id ';' Block { AbsPascal.PProgram $2 $4 }
 Block :: { Block }
 Block : Parts Body '.' { AbsPascal.PBlock $1 $2 }
 Parts :: { Parts }
-Parts : Consts Types Vars ProcsYFuncs { AbsPascal.PPart $1 $2 $3 $4 }
+Parts : Consts Types Vars ListProcsYFuncs { AbsPascal.PPart $1 $2 $3 (reverse $4) }
 Consts :: { Consts }
 Consts : {- empty -} { AbsPascal.PPartConstEmpty }
        | 'const' ListConst Const ';' { AbsPascal.PPartConst (reverse $2) $3 }
@@ -143,7 +146,7 @@ Vars :: { Vars }
 Vars : {- empty -} { AbsPascal.PPartVarsEmpty }
      | 'var' ListVar Var ';' { AbsPascal.PPartVars (reverse $2) $3 }
 Var :: { Var }
-Var : ListId ':' Id { AbsPascal.PVar $1 $3 }
+Var : ListId ':' CustomType { AbsPascal.PVar $1 $3 }
 Types :: { Types }
 Types : {- empty -} { AbsPascal.PPartTypesEmpty }
       | 'type' ListType Type ';' { AbsPascal.PPartTypes (reverse $2) $3 }
@@ -153,25 +156,32 @@ CustomType :: { CustomType }
 CustomType : '(' ListId ')' { AbsPascal.PCustomTypeEnum $2 }
            | RangeType '..' RangeType { AbsPascal.PCustomTypeSubRange $1 $3 }
            | '^' Id { AbsPascal.PCustomTypePointer $2 }
-           | 'array' '[' ArrType ']' 'of' Id { AbsPascal.PTypeArray $3 $6 }
+           | 'array' '[' ListArrType ']' 'of' CustomType { AbsPascal.PTypeArray $3 $6 }
            | 'record' ListFields 'end' { AbsPascal.PTypeRecord $2 }
            | Id { AbsPascal.PCustomTypeId $1 }
 RangeType :: { RangeType }
 RangeType : Id { AbsPascal.PRangeTypeId $1 }
-          | Char { AbsPascal.PRangeTypeChar $1 }
-          | Integer { AbsPascal.PRangeTypeInteger $1 }
+          | Literal { AbsPascal.PRangeTypeLiteral $1 }
+ListArrType :: { [ArrType] }
+ListArrType : {- empty -} { [] }
+            | ArrType { (:[]) $1 }
+            | ArrType ',' ListArrType { (:) $1 $3 }
 ArrType :: { ArrType }
-ArrType : RangeType '..' RangeType { AbsPascal.PTypeArrayLType $1 $3 }
+ArrType : Id { AbsPascal.PTypeArrayId $1 }
+        | Literal { AbsPascal.PTypeArrayLiteral $1 }
+        | RangeType '..' RangeType { AbsPascal.PTypeArrayRange $1 $3 }
 ListFields :: { [Fields] }
 ListFields : {- empty -} { [] }
            | Fields { (:[]) $1 }
            | Fields ';' ListFields { (:) $1 $3 }
 Fields :: { Fields }
-Fields : Id ':' CustomType { AbsPascal.PRecordFields $1 $3 }
+Fields : ListId ':' CustomType { AbsPascal.PRecordFields $1 $3 }
+ListProcsYFuncs :: { [ProcsYFuncs] }
+ListProcsYFuncs : {- empty -} { [] }
+                | ListProcsYFuncs ProcsYFuncs { flip (:) $1 $2 }
 ProcsYFuncs :: { ProcsYFuncs }
-ProcsYFuncs : {- empty -} { AbsPascal.PProcsYFuncsEmpty }
-            | 'procedure' Id '(' ListDecParm ')' ';' BlockProcFun { AbsPascal.PIdProcedure $2 $4 $7 }
-            | 'function' Id '(' ListDecParm ')' ':' Id ';' BlockProcFun { AbsPascal.PIdFunction $2 $4 $7 $9 }
+ProcsYFuncs : 'procedure' Id '(' ListDecParm ')' ';' BlockProcFun ';' { AbsPascal.PIdProcedure $2 $4 $7 }
+            | 'function' Id '(' ListDecParm ')' ':' Id ';' BlockProcFun ';' { AbsPascal.PIdFunction $2 $4 $7 $9 }
 ListDecParm :: { [DecParm] }
 ListDecParm : {- empty -} { [] }
             | DecParm { (:[]) $1 }
@@ -180,7 +190,7 @@ DecParm :: { DecParm }
 DecParm : 'var' ListId ':' Id { AbsPascal.PDecParamVar $2 $4 }
         | ListId ':' Id { AbsPascal.PDecParam $1 $3 }
 BlockProcFun :: { BlockProcFun }
-BlockProcFun : Parts Body ';' { AbsPascal.PBlockProcFun $1 $2 }
+BlockProcFun : Parts Body { AbsPascal.PBlockProcFun $1 $2 }
 Body :: { Body }
 Body : 'begin' ListInstruction 'end' { AbsPascal.PBody $2 }
 ListInstruction :: { [Instruction] }
@@ -188,11 +198,11 @@ ListInstruction : {- empty -} { [] }
                 | Instruction { (:[]) $1 }
                 | Instruction ';' ListInstruction { (:) $1 $3 }
 Instruction :: { Instruction }
-Instruction : '' { AbsPascal.PListInstruction }
-            | SimpleInstruction { AbsPascal.PListSimpleInstruction $1 }
+Instruction : SimpleInstruction { AbsPascal.PListSimpleInstruction $1 }
             | CompositeInstruction { AbsPascal.PListCompositeInstruction $1 }
 SimpleInstruction :: { SimpleInstruction }
 SimpleInstruction : ListAccId ':=' Exp { AbsPascal.PSimpleInstructionAssignment $1 $3 }
+                  | Id { AbsPascal.PSimpleInstructionSinParm $1 }
                   | CallFunProc { AbsPascal.PSimpleInstructionProcFunc $1 }
 CompositeInstruction :: { CompositeInstruction }
 CompositeInstruction : 'if' Exp 'then' Instruction { AbsPascal.PCompositeInstructionIf $2 $4 }
@@ -216,9 +226,8 @@ ConstCase : Literal { AbsPascal.PConstCaseLiteral $1 }
 BodyRamaCase :: { BodyRamaCase }
 BodyRamaCase : Instruction { AbsPascal.PBodyRamaCaseOne $1 }
              | Body { AbsPascal.PBodyRamaCaseMany $1 }
-Parms :: { Parms }
-Parms : {- empty -} { AbsPascal.PParamsEmpty }
-      | '(' ListExp ')' { AbsPascal.PParms $2 }
+CallFunProc :: { CallFunProc }
+CallFunProc : Id '(' ListExp ')' { AbsPascal.PCallFuncProc $1 $3 }
 ListExp :: { [Exp] }
 ListExp : {- empty -} { [] }
         | Exp { (:[]) $1 }
@@ -254,18 +263,25 @@ MulCom : '*' { AbsPascal.PTermExpMul }
        | 'and' { AbsPascal.PTermExpAnd }
 Exp4 :: { Exp }
 Exp4 : Literal { AbsPascal.PFactorLit $1 }
-     | Id { AbsPascal.PFactorId $1 }
-     | Id '.' ListAccId { AbsPascal.PFactorAccId $1 $3 }
+     | AccId { AbsPascal.PFactorId $1 }
+     | AccId '.' ListAccId { AbsPascal.PFactorAccId $1 $3 }
      | CallFunProc { AbsPascal.PFactorCall $1 }
      | '(' Exp ')' { $2 }
-CallFunProc :: { CallFunProc }
-CallFunProc : Id Parms { AbsPascal.PCallFuncProc $1 $2 }
+ArrayAccess :: { ArrayAccess }
+ArrayAccess : Id '[' ListTypeAccess ']' { AbsPascal.PArrayAccess $1 $3 }
+ListTypeAccess :: { [TypeAccess] }
+ListTypeAccess : TypeAccess { (:[]) $1 }
+               | TypeAccess ',' ListTypeAccess { (:) $1 $3 }
+TypeAccess :: { TypeAccess }
+TypeAccess : Exp { AbsPascal.PTypeAccessLiteral $1 }
 ListAccId :: { [AccId] }
 ListAccId : {- empty -} { [] }
           | AccId { (:[]) $1 }
           | AccId '.' ListAccId { (:) $1 $3 }
 AccId :: { AccId }
 AccId : Id { AbsPascal.PAccId $1 }
+      | Id '^' { AbsPascal.PtrAccId $1 }
+      | ArrayAccess { AbsPascal.PtrArrayAccess $1 }
 ListConst :: { [Const] }
 ListConst : {- empty -} { [] }
           | ListConst Const ';' { flip (:) $1 $2 }

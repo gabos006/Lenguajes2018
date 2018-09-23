@@ -51,10 +51,10 @@ The reserved words used in Pascal are the following:
 The symbols used in Pascal are the following:
   | ; | . | = | :
   | ( | ) | .. | ^
-  | [ | ] |  | :=
-  | , | > | < | >=
-  | <= | <> | - | +
-  | * | / |  | 
+  | [ | ] | , | :=
+  | > | < | >= | <=
+  | <> | - | + | *
+  | / |  |  | 
 
 ===Comments===
 There are no single-line comments in the grammar.Multiple-line comments are  enclosed with (* and *).
@@ -67,7 +67,7 @@ All other symbols are terminals.
 
   | //Program// | -> | ``program`` //Id// ``;`` //Block// 
   | //Block// | -> | //Parts// //Body// ``.`` 
-  | //Parts// | -> | //Consts// //Types// //Vars// //ProcsYFuncs// 
+  | //Parts// | -> | //Consts// //Types// //Vars// //[ProcsYFuncs]// 
   | //Consts// | -> | **eps**
   |  |  **|**  | ``const`` //[Const]// //Const// ``;`` 
   | //Const// | -> | //Id// ``=`` //Literal// 
@@ -77,41 +77,46 @@ All other symbols are terminals.
   |  |  **|**  | //Char// 
   | //Vars// | -> | **eps**
   |  |  **|**  | ``var`` //[Var]// //Var// ``;`` 
-  | //Var// | -> | //[Id]// ``:`` //Id// 
+  | //Var// | -> | //[Id]// ``:`` //CustomType// 
   | //Types// | -> | **eps**
   |  |  **|**  | ``type`` //[Type]// //Type// ``;`` 
   | //Type// | -> | //Id// ``=`` //CustomType// 
   | //CustomType// | -> | ``(`` //[Id]// ``)`` 
   |  |  **|**  | //RangeType// ``..`` //RangeType// 
   |  |  **|**  | ``^`` //Id// 
-  |  |  **|**  | ``array`` ``[`` //ArrType// ``]`` ``of`` //Id// 
+  |  |  **|**  | ``array`` ``[`` //[ArrType]// ``]`` ``of`` //CustomType// 
   |  |  **|**  | ``record`` //[Fields]// ``end`` 
   |  |  **|**  | //Id// 
   | //RangeType// | -> | //Id// 
-  |  |  **|**  | //Char// 
-  |  |  **|**  | //Integer// 
-  | //ArrType// | -> | //RangeType// ``..`` //RangeType// 
+  |  |  **|**  | //Literal// 
+  | //[ArrType]// | -> | **eps**
+  |  |  **|**  | //ArrType// 
+  |  |  **|**  | //ArrType// ``,`` //[ArrType]// 
+  | //ArrType// | -> | //Id// 
+  |  |  **|**  | //Literal// 
+  |  |  **|**  | //RangeType// ``..`` //RangeType// 
   | //[Fields]// | -> | **eps**
   |  |  **|**  | //Fields// 
   |  |  **|**  | //Fields// ``;`` //[Fields]// 
-  | //Fields// | -> | //Id// ``:`` //CustomType// 
-  | //ProcsYFuncs// | -> | **eps**
-  |  |  **|**  | ``procedure`` //Id// ``(`` //[DecParm]// ``)`` ``;`` //BlockProcFun// 
-  |  |  **|**  | ``function`` //Id// ``(`` //[DecParm]// ``)`` ``:`` //Id// ``;`` //BlockProcFun// 
+  | //Fields// | -> | //[Id]// ``:`` //CustomType// 
+  | //[ProcsYFuncs]// | -> | **eps**
+  |  |  **|**  | //ProcsYFuncs// //[ProcsYFuncs]// 
+  | //ProcsYFuncs// | -> | ``procedure`` //Id// ``(`` //[DecParm]// ``)`` ``;`` //BlockProcFun// ``;`` 
+  |  |  **|**  | ``function`` //Id// ``(`` //[DecParm]// ``)`` ``:`` //Id// ``;`` //BlockProcFun// ``;`` 
   | //[DecParm]// | -> | **eps**
   |  |  **|**  | //DecParm// 
   |  |  **|**  | //DecParm// ``;`` //[DecParm]// 
   | //DecParm// | -> | ``var`` //[Id]// ``:`` //Id// 
   |  |  **|**  | //[Id]// ``:`` //Id// 
-  | //BlockProcFun// | -> | //Parts// //Body// ``;`` 
+  | //BlockProcFun// | -> | //Parts// //Body// 
   | //Body// | -> | ``begin`` //[Instruction]// ``end`` 
   | //[Instruction]// | -> | **eps**
   |  |  **|**  | //Instruction// 
   |  |  **|**  | //Instruction// ``;`` //[Instruction]// 
-  | //Instruction// | -> | ```` 
-  |  |  **|**  | //SimpleInstruction// 
+  | //Instruction// | -> | //SimpleInstruction// 
   |  |  **|**  | //CompositeInstruction// 
   | //SimpleInstruction// | -> | //[AccId]// ``:=`` //Exp// 
+  |  |  **|**  | //Id// 
   |  |  **|**  | //CallFunProc// 
   | //CompositeInstruction// | -> | ``if`` //Exp// ``then`` //Instruction// 
   |  |  **|**  | ``if`` //Exp// ``then`` //Instruction// ``else`` //Instruction// 
@@ -130,8 +135,7 @@ All other symbols are terminals.
   |  |  **|**  | //Id// 
   | //BodyRamaCase// | -> | //Instruction// 
   |  |  **|**  | //Body// 
-  | //Parms// | -> | **eps**
-  |  |  **|**  | ``(`` //[Exp]// ``)`` 
+  | //CallFunProc// | -> | //Id// ``(`` //[Exp]// ``)`` 
   | //[Exp]// | -> | **eps**
   |  |  **|**  | //Exp// 
   |  |  **|**  | //Exp// ``,`` //[Exp]// 
@@ -159,15 +163,20 @@ All other symbols are terminals.
   |  |  **|**  | ``mod`` 
   |  |  **|**  | ``and`` 
   | //Exp4// | -> | //Literal// 
-  |  |  **|**  | //Id// 
-  |  |  **|**  | //Id// ``.`` //[AccId]// 
+  |  |  **|**  | //AccId// 
+  |  |  **|**  | //AccId// ``.`` //[AccId]// 
   |  |  **|**  | //CallFunProc// 
   |  |  **|**  | ``(`` //Exp// ``)`` 
-  | //CallFunProc// | -> | //Id// //Parms// 
+  | //ArrayAccess// | -> | //Id// ``[`` //[TypeAccess]// ``]`` 
+  | //[TypeAccess]// | -> | //TypeAccess// 
+  |  |  **|**  | //TypeAccess// ``,`` //[TypeAccess]// 
+  | //TypeAccess// | -> | //Exp// 
   | //[AccId]// | -> | **eps**
   |  |  **|**  | //AccId// 
   |  |  **|**  | //AccId// ``.`` //[AccId]// 
   | //AccId// | -> | //Id// 
+  |  |  **|**  | //Id// ``^`` 
+  |  |  **|**  | //ArrayAccess// 
   | //[Const]// | -> | **eps**
   |  |  **|**  | //Const// ``;`` //[Const]// 
   | //[Var]// | -> | **eps**

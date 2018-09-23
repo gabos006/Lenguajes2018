@@ -14,7 +14,7 @@ data Program = PProgram Id Block
 data Block = PBlock Parts Body
   deriving (Eq, Ord, Show, Read)
 
-data Parts = PPart Consts Types Vars ProcsYFuncs
+data Parts = PPart Consts Types Vars [ProcsYFuncs]
   deriving (Eq, Ord, Show, Read)
 
 data Consts = PPartConstEmpty | PPartConst [Const] Const
@@ -33,7 +33,7 @@ data Literal
 data Vars = PPartVarsEmpty | PPartVars [Var] Var
   deriving (Eq, Ord, Show, Read)
 
-data Var = PVar [Id] Id
+data Var = PVar [Id] CustomType
   deriving (Eq, Ord, Show, Read)
 
 data Types = PPartTypesEmpty | PPartTypes [Type] Type
@@ -46,24 +46,25 @@ data CustomType
     = PCustomTypeEnum [Id]
     | PCustomTypeSubRange RangeType RangeType
     | PCustomTypePointer Id
-    | PTypeArray ArrType Id
+    | PTypeArray [ArrType] CustomType
     | PTypeRecord [Fields]
     | PCustomTypeId Id
   deriving (Eq, Ord, Show, Read)
 
-data RangeType
-    = PRangeTypeId Id | PRangeTypeChar Char | PRangeTypeInteger Integer
+data RangeType = PRangeTypeId Id | PRangeTypeLiteral Literal
   deriving (Eq, Ord, Show, Read)
 
-data ArrType = PTypeArrayLType RangeType RangeType
+data ArrType
+    = PTypeArrayId Id
+    | PTypeArrayLiteral Literal
+    | PTypeArrayRange RangeType RangeType
   deriving (Eq, Ord, Show, Read)
 
-data Fields = PRecordFields Id CustomType
+data Fields = PRecordFields [Id] CustomType
   deriving (Eq, Ord, Show, Read)
 
 data ProcsYFuncs
-    = PProcsYFuncsEmpty
-    | PIdProcedure Id [DecParm] BlockProcFun
+    = PIdProcedure Id [DecParm] BlockProcFun
     | PIdFunction Id [DecParm] Id BlockProcFun
   deriving (Eq, Ord, Show, Read)
 
@@ -77,14 +78,14 @@ data Body = PBody [Instruction]
   deriving (Eq, Ord, Show, Read)
 
 data Instruction
-    = PListInstruction
-    | PListSimpleInstruction SimpleInstruction
+    = PListSimpleInstruction SimpleInstruction
     | PListCompositeInstruction CompositeInstruction
   deriving (Eq, Ord, Show, Read)
 
 data SimpleInstruction
     = PSimpleInstructionAssignment [AccId] Exp
     | PSimpleInstructionProcFunc CallFunProc
+    | PSimpleInstructionProcFunSinParm Id
   deriving (Eq, Ord, Show, Read)
 
 data CompositeInstruction
@@ -107,7 +108,7 @@ data BodyRamaCase
     = PBodyRamaCaseOne Instruction | PBodyRamaCaseMany Body
   deriving (Eq, Ord, Show, Read)
 
-data Parms = PParamsEmpty | PParms [Exp]
+data CallFunProc = PCallFuncProc Id [Exp]
   deriving (Eq, Ord, Show, Read)
 
 data Exp
@@ -117,8 +118,8 @@ data Exp
     | PSimpleExp Exp AddCom Exp
     | PTermExp Exp MulCom Exp
     | PFactorLit Literal
-    | PFactorId Id
-    | PFactorAccId Id [AccId]
+    | PFactorId AccId
+    | PFactorAccId AccId [AccId]
     | PFactorCall CallFunProc
   deriving (Eq, Ord, Show, Read)
 
@@ -142,9 +143,12 @@ data MulCom
     | PTermExpAnd
   deriving (Eq, Ord, Show, Read)
 
-data CallFunProc = PCallFuncProc Id Parms
+data AccId = PAccId Id | PtrAccId Id | PtrArrayAccess ArrayAccess
   deriving (Eq, Ord, Show, Read)
 
-data AccId = PAccId Id
+data ArrayAccess = PArrayAccess Id [TypeAccess]
+  deriving (Eq, Ord, Show, Read)
+
+data TypeAccess = PTypeAccessLiteral Exp
   deriving (Eq, Ord, Show, Read)
 

@@ -20,7 +20,7 @@ transBlock x = case x of
   PBlock parts body -> failure x
 transParts :: Parts -> Result
 transParts x = case x of
-  PPart consts types vars procsyfuncs -> failure x
+  PPart consts types vars procsyfuncss -> failure x
 transConsts :: Consts -> Result
 transConsts x = case x of
   PPartConstEmpty -> failure x
@@ -40,7 +40,7 @@ transVars x = case x of
   PPartVars vars var -> failure x
 transVar :: Var -> Result
 transVar x = case x of
-  PVar ids id -> failure x
+  PVar ids customtype -> failure x
 transTypes :: Types -> Result
 transTypes x = case x of
   PPartTypesEmpty -> failure x
@@ -53,23 +53,23 @@ transCustomType x = case x of
   PCustomTypeEnum ids -> failure x
   PCustomTypeSubRange rangetype1 rangetype2 -> failure x
   PCustomTypePointer id -> failure x
-  PTypeArray arrtype id -> failure x
+  PTypeArray arrtypes customtype -> failure x
   PTypeRecord fieldss -> failure x
   PCustomTypeId id -> failure x
 transRangeType :: RangeType -> Result
 transRangeType x = case x of
   PRangeTypeId id -> failure x
-  PRangeTypeChar char -> failure x
-  PRangeTypeInteger integer -> failure x
+  PRangeTypeLiteral literal -> failure x
 transArrType :: ArrType -> Result
 transArrType x = case x of
-  PTypeArrayLType rangetype1 rangetype2 -> failure x
+  PTypeArrayId id -> failure x
+  PTypeArrayLiteral literal -> failure x
+  PTypeArrayRange rangetype1 rangetype2 -> failure x
 transFields :: Fields -> Result
 transFields x = case x of
-  PRecordFields id customtype -> failure x
+  PRecordFields ids customtype -> failure x
 transProcsYFuncs :: ProcsYFuncs -> Result
 transProcsYFuncs x = case x of
-  PProcsYFuncsEmpty -> failure x
   PIdProcedure id decparms blockprocfun -> failure x
   PIdFunction id1 decparms id2 blockprocfun -> failure x
 transDecParm :: DecParm -> Result
@@ -84,13 +84,13 @@ transBody x = case x of
   PBody instructions -> failure x
 transInstruction :: Instruction -> Result
 transInstruction x = case x of
-  PListInstruction -> failure x
   PListSimpleInstruction simpleinstruction -> failure x
   PListCompositeInstruction compositeinstruction -> failure x
 transSimpleInstruction :: SimpleInstruction -> Result
 transSimpleInstruction x = case x of
   PSimpleInstructionAssignment accids exp -> failure x
   PSimpleInstructionProcFunc callfunproc -> failure x
+  PSimpleInstructionProcFunSinParm id -> failure x
 transCompositeInstruction :: CompositeInstruction -> Result
 transCompositeInstruction x = case x of
   PCompositeInstructionIf exp instruction -> failure x
@@ -111,10 +111,9 @@ transBodyRamaCase :: BodyRamaCase -> Result
 transBodyRamaCase x = case x of
   PBodyRamaCaseOne instruction -> failure x
   PBodyRamaCaseMany body -> failure x
-transParms :: Parms -> Result
-transParms x = case x of
-  PParamsEmpty -> failure x
-  PParms exps -> failure x
+transCallFunProc :: CallFunProc -> Result
+transCallFunProc x = case x of
+  PCallFuncProc id exps -> failure x
 transExp :: Exp -> Result
 transExp x = case x of
   PNotExp exp -> failure x
@@ -123,8 +122,8 @@ transExp x = case x of
   PSimpleExp exp1 addcom exp2 -> failure x
   PTermExp exp1 mulcom exp2 -> failure x
   PFactorLit literal -> failure x
-  PFactorId id -> failure x
-  PFactorAccId id accids -> failure x
+  PFactorId accid -> failure x
+  PFactorAccId accid accids -> failure x
   PFactorCall callfunproc -> failure x
 transGenCom :: GenCom -> Result
 transGenCom x = case x of
@@ -146,10 +145,15 @@ transMulCom x = case x of
   PTermExpDiv2 -> failure x
   PTermExpMod -> failure x
   PTermExpAnd -> failure x
-transCallFunProc :: CallFunProc -> Result
-transCallFunProc x = case x of
-  PCallFuncProc id parms -> failure x
 transAccId :: AccId -> Result
 transAccId x = case x of
   PAccId id -> failure x
+  PtrAccId id -> failure x
+  PtrArrayAccess arrayaccess -> failure x
+transArrayAccess :: ArrayAccess -> Result
+transArrayAccess x = case x of
+  PArrayAccess id typeaccesss -> failure x
+transTypeAccess :: TypeAccess -> Result
+transTypeAccess x = case x of
+  PTypeAccessLiteral exp -> failure x
 

@@ -11,7 +11,7 @@ PBlock . Block ::= Parts Body "." ;
 
 
 --Partes--
-PPart . Parts ::=  Consts Types Vars ProcsYFuncs ;
+PPart . Parts ::=  Consts Types Vars [ProcsYFuncs] ;
 
 
 --Constantes--
@@ -30,7 +30,7 @@ PValChar . Literal ::= Char ;
 --Variables--
 PPartVarsEmpty . Vars ::= ;
 PPartVars . Vars ::= "var" [Var] Var ";" ;
-PVar . Var ::= [Id] ":" Id ;
+PVar . Var ::= [Id] ":" CustomType ;
 
 
 --Tipos--
@@ -46,8 +46,7 @@ PCustomTypeEnum . CustomType ::= "(" [Id] ")" ;
 --Tipo SubRango--
 PCustomTypeSubRange . CustomType ::= RangeType ".." RangeType ;
 PRangeTypeId . RangeType ::= Id ;
-PRangeTypeChar . RangeType ::= Char ;
-PRangeTypeInteger . RangeType ::= Integer ;
+PRangeTypeLiteral . RangeType ::= Literal ;
 
 
 --Tipo Puntero--
@@ -55,15 +54,17 @@ PCustomTypePointer . CustomType ::= "^" Id ;
 
 
 --Tipo Array--
--- Arregla la 5 --
-PTypeArray . CustomType ::= "array" "[" ArrType "]" "of" CustomType ;
-PTypeArrayLType . ArrType ::= RangeType ".." RangeType ;
+PTypeArray . CustomType ::= "array" "[" [ArrType] "]" "of" CustomType ;
+separator ArrType "," ;
+PTypeArrayId . ArrType ::= Id ;
+PTypeArrayLiteral . ArrType ::= Literal ;
+PTypeArrayRange . ArrType ::= RangeType ".." RangeType ;
 
 
 --Tipo Record--
 PTypeRecord . CustomType ::= "record" [Fields] "end" ;
 separator Fields ";" ;
-PRecordFields . Fields ::= Id ":" CustomType ;
+PRecordFields . Fields ::= [Id] ":" CustomType ;
 
 
 --Tipo Identificador--
@@ -71,9 +72,9 @@ PCustomTypeId . CustomType ::= Id ;
 
 
 --Procedimientos y Funciones--
-PProcsYFuncsEmpty . ProcsYFuncs ::= ;
-PIdProcedure . ProcsYFuncs ::= "procedure" Id "(" [DecParm] ")" ";" BlockProcFun ;
-PIdFunction . ProcsYFuncs ::= "function" Id "(" [DecParm] ")" ":" Id ";" BlockProcFun ;
+separator ProcsYFuncs "" ;
+PIdProcedure . ProcsYFuncs ::= "procedure" Id "(" [DecParm] ")" ";" BlockProcFun ";" ;
+PIdFunction . ProcsYFuncs ::= "function" Id "(" [DecParm] ")" ":" Id ";" BlockProcFun ";" ;
 
 --Declaracion Parametros Proc y Fun--
 separator DecParm ";" ;
@@ -81,7 +82,7 @@ PDecParamVar . DecParm ::= "var" [Id] ":" Id ;
 PDecParam . DecParm ::= [Id] ":" Id ;
 
 --Bloque Proc y Fun--
-PBlockProcFun . BlockProcFun ::= Parts Body ";" ;
+PBlockProcFun . BlockProcFun ::= Parts Body ;
 
 --Cuerpo Programa--
 PBody . Body ::= "begin" [Instruction] "end" ;
@@ -100,7 +101,7 @@ PSimpleInstructionAssignment . SimpleInstruction ::= [AccId] ":=" Exp ;
 
 --Instruccions Proc y Func--
 PSimpleInstructionProcFunc . SimpleInstruction ::= CallFunProc ;
-
+PSimpleInstructionProcFunSinParm . SimpleInstruction ::= Id ;
 
 --Instrucciones Compuestas--
 
@@ -139,9 +140,8 @@ PBodyRamaCaseOne . BodyRamaCase ::= Instruction ;
 PBodyRamaCaseMany . BodyRamaCase ::= Body ;
  
 
---Parametros Instruccion Proc y Func--
-PParamsEmpty . Parms ::= ;
-PParms . Parms ::= "(" [Exp] ")" ;
+--Llamada a Funciones y Procedimientos--
+PCallFuncProc . CallFunProc ::= Id "(" [Exp] ")" ;
 
 --Expresiones--
 separator Exp "," ;
@@ -177,20 +177,22 @@ PTermExpAnd . MulCom ::= "and" ;
 
 --Factor--
 PFactorLit . Exp4 ::= Literal ;
-PFactorId . Exp4 ::= Id ;
-PFactorAccId . Exp4 ::= Id "." [AccId] ;
+PFactorId . Exp4 ::= AccId ;
+PFactorAccId . Exp4 ::= AccId "." [AccId] ;
 PFactorCall . Exp4 ::= CallFunProc ;
 
 coercions Exp 4 ;
 
---Llamada a Funciones y Procedimientos--
-PCallFuncProc . CallFunProc ::= Id Parms ;
 
 --Acceso--
--- Arregla la 22 --
-separator AccId "." ;
+separator nonempty AccId "." ;
 PAccId . AccId ::= Id ;
 PtrAccId . AccId ::= Id "^" ;
+PtrArrayAccess . AccId ::= ArrayAccess ;
+PArrayAccess . ArrayAccess ::= Id "[" [TypeAccess] "]" ;
+separator nonempty TypeAccess "," ;
+PTypeAccessLiteral . TypeAccess ::= Exp ;
+
 
 --Terminators--
 terminator Const ";" ;
