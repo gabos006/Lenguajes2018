@@ -93,15 +93,13 @@ separator Instruction ";" ;
 PListSimpleInstruction . Instruction ::= SimpleInstruction ;
 PListCompositeInstruction . Instruction ::= CompositeInstruction ;
 
-
 --Instrucciones Simples--
 
 --Asignaciones--
 PSimpleInstructionAssignment . SimpleInstruction ::= [AccId] ":=" Exp ;
 
 --Instruccions Proc y Func--
-PSimpleInstructionProcFunc . SimpleInstruction ::= CallFunProc ;
-PSimpleInstructionProcFunSinParm . SimpleInstruction ::= Id ;
+PSimpleInstructionProc . SimpleInstruction ::= CallProc ;
 
 --Instrucciones Compuestas--
 
@@ -143,8 +141,16 @@ PBodyRamaCaseMany . BodyRamaCase ::= Body ;
 --Llamada a Funciones y Procedimientos--
 PCallFuncProc . CallFunProc ::= Id "(" [Exp] ")" ;
 
+-- Llamada d Proc --
+PCallProc . CallProc ::= Id "(" [ExpC] ExpC ")" ;
+PCallProcEmpty . CallProc ::= Id ;
+
+PExpC . ExpC ::= Exp ;
+terminator ExpC "," ;
+
 --Expresiones--
 separator Exp "," ;
+--terminator Exp "," ;--
 
 --not--
 
