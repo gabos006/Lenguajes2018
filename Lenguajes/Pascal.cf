@@ -161,6 +161,7 @@ PGeneralExpDistinct . GenCom ::= "<>" ;
 
 --Expresion simple--
 PSimpleExpInvSign . Exp2 ::= "-" Exp3 ;
+PSimpleExpPreSum . Exp2 ::= "+" Exp3 ;
 PSimpleExp . Exp2 ::= Exp2 AddCom Exp3 ;
 
 PSimpleExpAdd . AddCom ::= "+" ;
