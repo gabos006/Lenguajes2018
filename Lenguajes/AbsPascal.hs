@@ -80,12 +80,12 @@ data Body = PBody [Instruction]
 data Instruction
     = PListSimpleInstruction SimpleInstruction
     | PListCompositeInstruction CompositeInstruction
+    | PSimpleInstructionBegEnd [Instruction]
   deriving (Eq, Ord, Show, Read)
 
 data SimpleInstruction
     = PSimpleInstructionAssignment [AccId] Exp
-    | PSimpleInstructionProcFunc CallFunProc
-    | PSimpleInstructionProcFunSinParm Id
+    | PSimpleInstructionProc CallProc
   deriving (Eq, Ord, Show, Read)
 
 data CompositeInstruction
@@ -111,10 +111,17 @@ data BodyRamaCase
 data CallFunProc = PCallFuncProc Id [Exp]
   deriving (Eq, Ord, Show, Read)
 
+data CallProc = PCallProc Id [ExpC] ExpC | PCallProcEmpty Id
+  deriving (Eq, Ord, Show, Read)
+
+data ExpC = PExpC Exp
+  deriving (Eq, Ord, Show, Read)
+
 data Exp
     = PNotExp Exp
     | PGeneralExp Exp GenCom Exp
     | PSimpleExpInvSign Exp
+    | PSimpleExpPreSum Exp
     | PSimpleExp Exp AddCom Exp
     | PTermExp Exp MulCom Exp
     | PFactorLit Literal

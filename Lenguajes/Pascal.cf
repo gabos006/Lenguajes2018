@@ -92,6 +92,8 @@ PBody . Body ::= "begin" [Instruction] "end" ;
 separator Instruction ";" ;
 PListSimpleInstruction . Instruction ::= SimpleInstruction ;
 PListCompositeInstruction . Instruction ::= CompositeInstruction ;
+PSimpleInstructionBegEnd . Instruction ::= "begin" [Instruction] "end" ;
+
 
 --Instrucciones Simples--
 

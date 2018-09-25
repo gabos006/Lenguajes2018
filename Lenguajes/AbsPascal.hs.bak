@@ -84,8 +84,8 @@ data Instruction
 
 data SimpleInstruction
     = PSimpleInstructionAssignment [AccId] Exp
-    | PSimpleInstructionSinParm Id
-    | PSimpleInstructionProcFunc CallFunProc
+    | PSimpleInstructionProc CallProc
+    | PSimpleInstructionBegEnd [Instruction]
   deriving (Eq, Ord, Show, Read)
 
 data CompositeInstruction
@@ -111,10 +111,17 @@ data BodyRamaCase
 data CallFunProc = PCallFuncProc Id [Exp]
   deriving (Eq, Ord, Show, Read)
 
+data CallProc = PCallProc Id [ExpC] ExpC | PCallProcEmpty Id
+  deriving (Eq, Ord, Show, Read)
+
+data ExpC = PExpC Exp
+  deriving (Eq, Ord, Show, Read)
+
 data Exp
     = PNotExp Exp
     | PGeneralExp Exp GenCom Exp
     | PSimpleExpInvSign Exp
+    | PSimpleExpPreSum Exp
     | PSimpleExp Exp AddCom Exp
     | PTermExp Exp MulCom Exp
     | PFactorLit Literal
@@ -143,12 +150,12 @@ data MulCom
     | PTermExpAnd
   deriving (Eq, Ord, Show, Read)
 
+data AccId = PAccId Id | PtrAccId Id | PtrArrayAccess ArrayAccess
+  deriving (Eq, Ord, Show, Read)
+
 data ArrayAccess = PArrayAccess Id [TypeAccess]
   deriving (Eq, Ord, Show, Read)
 
 data TypeAccess = PTypeAccessLiteral Exp
-  deriving (Eq, Ord, Show, Read)
-
-data AccId = PAccId Id | PtrAccId Id | PtrArrayAccess ArrayAccess
   deriving (Eq, Ord, Show, Read)
 

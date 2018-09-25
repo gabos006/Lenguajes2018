@@ -188,14 +188,14 @@ instance Print Instruction where
   prt i e = case e of
     PListSimpleInstruction simpleinstruction -> prPrec i 0 (concatD [prt 0 simpleinstruction])
     PListCompositeInstruction compositeinstruction -> prPrec i 0 (concatD [prt 0 compositeinstruction])
+    PSimpleInstructionBegEnd instructions -> prPrec i 0 (concatD [doc (showString "begin"), prt 0 instructions, doc (showString "end")])
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
 instance Print SimpleInstruction where
   prt i e = case e of
     PSimpleInstructionAssignment accids exp -> prPrec i 0 (concatD [prt 0 accids, doc (showString ":="), prt 0 exp])
-    PSimpleInstructionProcFunc callfunproc -> prPrec i 0 (concatD [prt 0 callfunproc])
-    PSimpleInstructionProcFunSinParm id -> prPrec i 0 (concatD [prt 0 id])
+    PSimpleInstructionProc callproc -> prPrec i 0 (concatD [prt 0 callproc])
 
 instance Print CompositeInstruction where
   prt i e = case e of
@@ -228,11 +228,22 @@ instance Print CallFunProc where
   prt i e = case e of
     PCallFuncProc id exps -> prPrec i 0 (concatD [prt 0 id, doc (showString "("), prt 0 exps, doc (showString ")")])
 
+instance Print CallProc where
+  prt i e = case e of
+    PCallProc id expcs expc -> prPrec i 0 (concatD [prt 0 id, doc (showString "("), prt 0 expcs, prt 0 expc, doc (showString ")")])
+    PCallProcEmpty id -> prPrec i 0 (concatD [prt 0 id])
+
+instance Print ExpC where
+  prt i e = case e of
+    PExpC exp -> prPrec i 0 (concatD [prt 0 exp])
+  prtList _ [] = (concatD [])
+  prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
 instance Print Exp where
   prt i e = case e of
     PNotExp exp -> prPrec i 0 (concatD [doc (showString "not"), prt 1 exp])
     PGeneralExp exp1 gencom exp2 -> prPrec i 1 (concatD [prt 1 exp1, prt 0 gencom, prt 2 exp2])
     PSimpleExpInvSign exp -> prPrec i 2 (concatD [doc (showString "-"), prt 3 exp])
+    PSimpleExpPreSum exp -> prPrec i 2 (concatD [doc (showString "+"), prt 3 exp])
     PSimpleExp exp1 addcom exp2 -> prPrec i 2 (concatD [prt 2 exp1, prt 0 addcom, prt 3 exp2])
     PTermExp exp1 mulcom exp2 -> prPrec i 3 (concatD [prt 3 exp1, prt 0 mulcom, prt 4 exp2])
     PFactorLit literal -> prPrec i 4 (concatD [prt 0 literal])

@@ -115,9 +115,9 @@ All other symbols are terminals.
   |  |  **|**  | //Instruction// ``;`` //[Instruction]// 
   | //Instruction// | -> | //SimpleInstruction// 
   |  |  **|**  | //CompositeInstruction// 
+  |  |  **|**  | ``begin`` //[Instruction]// ``end`` 
   | //SimpleInstruction// | -> | //[AccId]// ``:=`` //Exp// 
-  |  |  **|**  | //CallFunProc// 
-  |  |  **|**  | //Id// 
+  |  |  **|**  | //CallProc// 
   | //CompositeInstruction// | -> | ``if`` //Exp// ``then`` //Instruction// 
   |  |  **|**  | ``if`` //Exp// ``then`` //Instruction// ``else`` //Instruction// 
   |  |  **|**  | ``repeat`` //[Instruction]// ``until`` //Exp// 
@@ -136,6 +136,11 @@ All other symbols are terminals.
   | //BodyRamaCase// | -> | //Instruction// 
   |  |  **|**  | //Body// 
   | //CallFunProc// | -> | //Id// ``(`` //[Exp]// ``)`` 
+  | //CallProc// | -> | //Id// ``(`` //[ExpC]// //ExpC// ``)`` 
+  |  |  **|**  | //Id// 
+  | //ExpC// | -> | //Exp// 
+  | //[ExpC]// | -> | **eps**
+  |  |  **|**  | //ExpC// ``,`` //[ExpC]// 
   | //[Exp]// | -> | **eps**
   |  |  **|**  | //Exp// 
   |  |  **|**  | //Exp// ``,`` //[Exp]// 
@@ -150,6 +155,7 @@ All other symbols are terminals.
   |  |  **|**  | ``<=`` 
   |  |  **|**  | ``<>`` 
   | //Exp2// | -> | ``-`` //Exp3// 
+  |  |  **|**  | ``+`` //Exp3// 
   |  |  **|**  | //Exp2// //AddCom// //Exp3// 
   |  |  **|**  | //Exp3// 
   | //AddCom// | -> | ``+`` 

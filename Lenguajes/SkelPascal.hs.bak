@@ -89,8 +89,8 @@ transInstruction x = case x of
 transSimpleInstruction :: SimpleInstruction -> Result
 transSimpleInstruction x = case x of
   PSimpleInstructionAssignment accids exp -> failure x
-  PSimpleInstructionSinParm id -> failure x
-  PSimpleInstructionProcFunc callfunproc -> failure x
+  PSimpleInstructionProc callproc -> failure x
+  PSimpleInstructionBegEnd instructions -> failure x
 transCompositeInstruction :: CompositeInstruction -> Result
 transCompositeInstruction x = case x of
   PCompositeInstructionIf exp instruction -> failure x
@@ -114,11 +114,19 @@ transBodyRamaCase x = case x of
 transCallFunProc :: CallFunProc -> Result
 transCallFunProc x = case x of
   PCallFuncProc id exps -> failure x
+transCallProc :: CallProc -> Result
+transCallProc x = case x of
+  PCallProc id expcs expc -> failure x
+  PCallProcEmpty id -> failure x
+transExpC :: ExpC -> Result
+transExpC x = case x of
+  PExpC exp -> failure x
 transExp :: Exp -> Result
 transExp x = case x of
   PNotExp exp -> failure x
   PGeneralExp exp1 gencom exp2 -> failure x
   PSimpleExpInvSign exp -> failure x
+  PSimpleExpPreSum exp -> failure x
   PSimpleExp exp1 addcom exp2 -> failure x
   PTermExp exp1 mulcom exp2 -> failure x
   PFactorLit literal -> failure x
@@ -145,15 +153,15 @@ transMulCom x = case x of
   PTermExpDiv2 -> failure x
   PTermExpMod -> failure x
   PTermExpAnd -> failure x
+transAccId :: AccId -> Result
+transAccId x = case x of
+  PAccId id -> failure x
+  PtrAccId id -> failure x
+  PtrArrayAccess arrayaccess -> failure x
 transArrayAccess :: ArrayAccess -> Result
 transArrayAccess x = case x of
   PArrayAccess id typeaccesss -> failure x
 transTypeAccess :: TypeAccess -> Result
 transTypeAccess x = case x of
   PTypeAccessLiteral exp -> failure x
-transAccId :: AccId -> Result
-transAccId x = case x of
-  PAccId id -> failure x
-  PtrAccId id -> failure x
-  PtrArrayAccess arrayaccess -> failure x
 
