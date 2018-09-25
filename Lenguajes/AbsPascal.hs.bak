@@ -80,12 +80,12 @@ data Body = PBody [Instruction]
 data Instruction
     = PListSimpleInstruction SimpleInstruction
     | PListCompositeInstruction CompositeInstruction
+    | PSimpleInstructionBegEnd Body
   deriving (Eq, Ord, Show, Read)
 
 data SimpleInstruction
     = PSimpleInstructionAssignment [AccId] Exp
     | PSimpleInstructionProc CallProc
-    | PSimpleInstructionBegEnd [Instruction]
   deriving (Eq, Ord, Show, Read)
 
 data CompositeInstruction

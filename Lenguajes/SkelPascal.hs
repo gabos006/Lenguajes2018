@@ -85,21 +85,30 @@ transBody x = case x of
 transInstruction :: Instruction -> Result
 transInstruction x = case x of
   PListSimpleInstruction simpleinstruction -> failure x
-  PListCompositeInstruction compositeinstruction -> failure x
-  PSimpleInstructionBegEnd instructions -> failure x
+  PListCompositeInstruction structuredinstruction -> failure x
+transStructuredInstruction :: StructuredInstruction -> Result
+transStructuredInstruction x = case x of
+  PStructuredInstructionComp compositeinstruction -> failure x
+  PStructuredInstructionCond conditionalinstruction -> failure x
+  PStructuredInstructionRepe repetitiveinstruction -> failure x
 transSimpleInstruction :: SimpleInstruction -> Result
 transSimpleInstruction x = case x of
   PSimpleInstructionAssignment accids exp -> failure x
   PSimpleInstructionProc callproc -> failure x
-transCompositeInstruction :: CompositeInstruction -> Result
-transCompositeInstruction x = case x of
+transConditionalInstruction :: ConditionalInstruction -> Result
+transConditionalInstruction x = case x of
   PCompositeInstructionIf exp instruction -> failure x
   PCompositeInstructionIfElse exp instruction1 instruction2 -> failure x
+  PCompositeInstructionCase exp ramass -> failure x
+transRepetitiveInstruction :: RepetitiveInstruction -> Result
+transRepetitiveInstruction x = case x of
   PCompositeInstructionRepeat instructions exp -> failure x
   PCompositeInstructionForTo id exp1 exp2 instruction -> failure x
   PCompositeInstructionForDownTo id exp1 exp2 instruction -> failure x
   PCompositeInstructionWhile exp body -> failure x
-  PCompositeInstructionCase exp ramass -> failure x
+transCompositeInstruction :: CompositeInstruction -> Result
+transCompositeInstruction x = case x of
+  PSimpleInstructionBegEnd body -> failure x
 transRamas :: Ramas -> Result
 transRamas x = case x of
   PCaseRamCase constcases bodyramacase -> failure x

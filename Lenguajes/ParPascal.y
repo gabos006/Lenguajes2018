@@ -32,7 +32,10 @@ import ErrM
 %name pBody Body
 %name pListInstruction ListInstruction
 %name pInstruction Instruction
+%name pStructuredInstruction StructuredInstruction
 %name pSimpleInstruction SimpleInstruction
+%name pConditionalInstruction ConditionalInstruction
+%name pRepetitiveInstruction RepetitiveInstruction
 %name pCompositeInstruction CompositeInstruction
 %name pListRamas ListRamas
 %name pRamas Ramas
@@ -202,19 +205,25 @@ ListInstruction : {- empty -} { [] }
                 | Instruction ';' ListInstruction { (:) $1 $3 }
 Instruction :: { Instruction }
 Instruction : SimpleInstruction { AbsPascal.PListSimpleInstruction $1 }
-            | CompositeInstruction { AbsPascal.PListCompositeInstruction $1 }
-            | 'begin' ListInstruction 'end' { AbsPascal.PSimpleInstructionBegEnd $2 }
+            | StructuredInstruction { AbsPascal.PListCompositeInstruction $1 }
+StructuredInstruction :: { StructuredInstruction }
+StructuredInstruction : CompositeInstruction { AbsPascal.PStructuredInstructionComp $1 }
+                      | ConditionalInstruction { AbsPascal.PStructuredInstructionCond $1 }
+                      | RepetitiveInstruction { AbsPascal.PStructuredInstructionRepe $1 }
 SimpleInstruction :: { SimpleInstruction }
 SimpleInstruction : ListAccId ':=' Exp { AbsPascal.PSimpleInstructionAssignment $1 $3 }
                   | CallProc { AbsPascal.PSimpleInstructionProc $1 }
+ConditionalInstruction :: { ConditionalInstruction }
+ConditionalInstruction : 'if' Exp 'then' Instruction { AbsPascal.PCompositeInstructionIf $2 $4 }
+                       | 'if' Exp 'then' Instruction 'else' Instruction { AbsPascal.PCompositeInstructionIfElse $2 $4 $6 }
+                       | 'case' Exp 'of' ListRamas 'end' { AbsPascal.PCompositeInstructionCase $2 $4 }
+RepetitiveInstruction :: { RepetitiveInstruction }
+RepetitiveInstruction : 'repeat' ListInstruction 'until' Exp { AbsPascal.PCompositeInstructionRepeat $2 $4 }
+                      | 'for' Id ':=' Exp 'to' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForTo $2 $4 $6 $8 }
+                      | 'for' Id ':=' Exp 'downto' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForDownTo $2 $4 $6 $8 }
+                      | 'while' Exp 'do' Body { AbsPascal.PCompositeInstructionWhile $2 $4 }
 CompositeInstruction :: { CompositeInstruction }
-CompositeInstruction : 'if' Exp 'then' Instruction { AbsPascal.PCompositeInstructionIf $2 $4 }
-                     | 'if' Exp 'then' Instruction 'else' Instruction { AbsPascal.PCompositeInstructionIfElse $2 $4 $6 }
-                     | 'repeat' ListInstruction 'until' Exp { AbsPascal.PCompositeInstructionRepeat $2 $4 }
-                     | 'for' Id ':=' Exp 'to' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForTo $2 $4 $6 $8 }
-                     | 'for' Id ':=' Exp 'downto' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForDownTo $2 $4 $6 $8 }
-                     | 'while' Exp 'do' Body { AbsPascal.PCompositeInstructionWhile $2 $4 }
-                     | 'case' Exp 'of' ListRamas 'end' { AbsPascal.PCompositeInstructionCase $2 $4 }
+CompositeInstruction : Body { AbsPascal.PSimpleInstructionBegEnd $1 }
 ListRamas :: { [Ramas] }
 ListRamas : Ramas { (:[]) $1 } | Ramas ';' ListRamas { (:) $1 $3 }
 Ramas :: { Ramas }

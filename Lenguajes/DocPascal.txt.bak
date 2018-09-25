@@ -115,9 +115,9 @@ All other symbols are terminals.
   |  |  **|**  | //Instruction// ``;`` //[Instruction]// 
   | //Instruction// | -> | //SimpleInstruction// 
   |  |  **|**  | //CompositeInstruction// 
+  |  |  **|**  | //Body// 
   | //SimpleInstruction// | -> | //[AccId]// ``:=`` //Exp// 
   |  |  **|**  | //CallProc// 
-  |  |  **|**  | ``begin`` //[Instruction]// ``end`` 
   | //CompositeInstruction// | -> | ``if`` //Exp// ``then`` //Instruction// 
   |  |  **|**  | ``if`` //Exp// ``then`` //Instruction// ``else`` //Instruction// 
   |  |  **|**  | ``repeat`` //[Instruction]// ``until`` //Exp// 

@@ -114,17 +114,20 @@ All other symbols are terminals.
   |  |  **|**  | //Instruction// 
   |  |  **|**  | //Instruction// ``;`` //[Instruction]// 
   | //Instruction// | -> | //SimpleInstruction// 
-  |  |  **|**  | //CompositeInstruction// 
-  |  |  **|**  | ``begin`` //[Instruction]// ``end`` 
+  |  |  **|**  | //StructuredInstruction// 
+  | //StructuredInstruction// | -> | //CompositeInstruction// 
+  |  |  **|**  | //ConditionalInstruction// 
+  |  |  **|**  | //RepetitiveInstruction// 
   | //SimpleInstruction// | -> | //[AccId]// ``:=`` //Exp// 
   |  |  **|**  | //CallProc// 
-  | //CompositeInstruction// | -> | ``if`` //Exp// ``then`` //Instruction// 
+  | //ConditionalInstruction// | -> | ``if`` //Exp// ``then`` //Instruction// 
   |  |  **|**  | ``if`` //Exp// ``then`` //Instruction// ``else`` //Instruction// 
-  |  |  **|**  | ``repeat`` //[Instruction]// ``until`` //Exp// 
+  |  |  **|**  | ``case`` //Exp// ``of`` //[Ramas]// ``end`` 
+  | //RepetitiveInstruction// | -> | ``repeat`` //[Instruction]// ``until`` //Exp// 
   |  |  **|**  | ``for`` //Id// ``:=`` //Exp// ``to`` //Exp// ``do`` //Instruction// 
   |  |  **|**  | ``for`` //Id// ``:=`` //Exp// ``downto`` //Exp// ``do`` //Instruction// 
   |  |  **|**  | ``while`` //Exp// ``do`` //Body// 
-  |  |  **|**  | ``case`` //Exp// ``of`` //[Ramas]// ``end`` 
+  | //CompositeInstruction// | -> | //Body// 
   | //[Ramas]// | -> | //Ramas// 
   |  |  **|**  | //Ramas// ``;`` //[Ramas]// 
   | //Ramas// | -> | //[ConstCase]// ``:`` //BodyRamaCase// 

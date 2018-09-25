@@ -188,6 +188,7 @@ instance Print Instruction where
   prt i e = case e of
     PListSimpleInstruction simpleinstruction -> prPrec i 0 (concatD [prt 0 simpleinstruction])
     PListCompositeInstruction compositeinstruction -> prPrec i 0 (concatD [prt 0 compositeinstruction])
+    PSimpleInstructionBegEnd body -> prPrec i 0 (concatD [prt 0 body])
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
@@ -195,7 +196,6 @@ instance Print SimpleInstruction where
   prt i e = case e of
     PSimpleInstructionAssignment accids exp -> prPrec i 0 (concatD [prt 0 accids, doc (showString ":="), prt 0 exp])
     PSimpleInstructionProc callproc -> prPrec i 0 (concatD [prt 0 callproc])
-    PSimpleInstructionBegEnd instructions -> prPrec i 0 (concatD [doc (showString "begin"), prt 0 instructions, doc (showString "end")])
 
 instance Print CompositeInstruction where
   prt i e = case e of

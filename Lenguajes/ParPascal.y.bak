@@ -203,10 +203,10 @@ ListInstruction : {- empty -} { [] }
 Instruction :: { Instruction }
 Instruction : SimpleInstruction { AbsPascal.PListSimpleInstruction $1 }
             | CompositeInstruction { AbsPascal.PListCompositeInstruction $1 }
+            | Body { AbsPascal.PSimpleInstructionBegEnd $1 }
 SimpleInstruction :: { SimpleInstruction }
 SimpleInstruction : ListAccId ':=' Exp { AbsPascal.PSimpleInstructionAssignment $1 $3 }
                   | CallProc { AbsPascal.PSimpleInstructionProc $1 }
-                  | 'begin' ListInstruction 'end' { AbsPascal.PSimpleInstructionBegEnd $2 }
 CompositeInstruction :: { CompositeInstruction }
 CompositeInstruction : 'if' Exp 'then' Instruction { AbsPascal.PCompositeInstructionIf $2 $4 }
                      | 'if' Exp 'then' Instruction 'else' Instruction { AbsPascal.PCompositeInstructionIfElse $2 $4 $6 }

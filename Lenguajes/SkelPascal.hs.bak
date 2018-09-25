@@ -86,11 +86,11 @@ transInstruction :: Instruction -> Result
 transInstruction x = case x of
   PListSimpleInstruction simpleinstruction -> failure x
   PListCompositeInstruction compositeinstruction -> failure x
+  PSimpleInstructionBegEnd body -> failure x
 transSimpleInstruction :: SimpleInstruction -> Result
 transSimpleInstruction x = case x of
   PSimpleInstructionAssignment accids exp -> failure x
   PSimpleInstructionProc callproc -> failure x
-  PSimpleInstructionBegEnd instructions -> failure x
 transCompositeInstruction :: CompositeInstruction -> Result
 transCompositeInstruction x = case x of
   PCompositeInstructionIf exp instruction -> failure x
