@@ -198,7 +198,6 @@ instance Print SimpleInstruction where
 
 instance Print StructuredInstruction where
   prt i e = case e of
-    PStructuredInstructionBegEnd instructions instruction -> prPrec i 0 (concatD [doc (showString "begin"), prt 0 instructions, prt 0 instruction, doc (showString "end")])
     PStructuredInstructionCond conditionalinstruction -> prPrec i 0 (concatD [prt 0 conditionalinstruction])
     PStructuredInstructionComp compositeinstruction -> prPrec i 0 (concatD [prt 0 compositeinstruction])
 
@@ -287,9 +286,9 @@ instance Print MulCom where
 instance Print AccId where
   prt i e = case e of
     PAccId id -> prPrec i 0 (concatD [prt 0 id])
-    PtrAccId1 id -> prPrec i 0 (concatD [prt 0 id, doc (showString "^")])
-    PtrAccId2 id -> prPrec i 0 (concatD [prt 0 id, doc (showString "^^")])
+    PAccIdPointer id pointers -> prPrec i 0 (concatD [prt 0 id, prt 0 pointers])
     PtrArrayAccess arrayaccess -> prPrec i 0 (concatD [prt 0 arrayaccess])
+    PtrArrayAccessPointer arrayaccess pointers -> prPrec i 0 (concatD [prt 0 arrayaccess, prt 0 pointers])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString "."), prt 0 xs])
 instance Print ArrayAccess where
@@ -301,4 +300,9 @@ instance Print TypeAccess where
     PTypeAccessLiteral exp -> prPrec i 0 (concatD [prt 0 exp])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
+instance Print Pointer where
+  prt i e = case e of
+    PPointer2 -> prPrec i 0 (concatD [doc (showString "^")])
+  prtList _ [x] = (concatD [prt 0 x])
+  prtList _ (x:xs) = (concatD [prt 0 x, prt 0 xs])
 

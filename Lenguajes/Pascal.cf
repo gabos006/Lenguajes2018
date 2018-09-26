@@ -105,7 +105,7 @@ PSimpleInstructionProc . SimpleInstruction ::= CallProc ;
 --Instrucciones Estructuradas--
 
 --Bloque begin end--
-PStructuredInstructionBegEnd . StructuredInstruction ::= "begin" [Instruction] Instruction "end" ;
+--PStructuredInstructionBegEnd . StructuredInstruction ::= "begin" [Instruction] Instruction "end" ;
 PStructuredInstructionCond . StructuredInstruction ::= ConditionalInstruction ;
 PStructuredInstructionComp . StructuredInstruction ::= CompositeInstruction ;
 
@@ -198,11 +198,18 @@ coercions Exp 4 ;
 --Acceso--
 separator nonempty AccId "." ;
 PAccId . AccId ::= Id ;
-PtrAccId . AccId ::= Id "^" ;
+PAccIdPointer . AccId ::= Id [Pointer];
 PtrArrayAccess . AccId ::= ArrayAccess ;
+PtrArrayAccessPointer . AccId ::= ArrayAccess [Pointer] ;
+
+--ArrayAccess
 PArrayAccess . ArrayAccess ::= Id "[" [TypeAccess] "]" ;
 separator nonempty TypeAccess "," ;
 PTypeAccessLiteral . TypeAccess ::= Exp ;
+
+--Pointer
+separator nonempty Pointer "" ;
+PPointer2 . Pointer ::= "^" ;
 
 
 --Terminators--

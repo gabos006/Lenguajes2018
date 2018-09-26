@@ -93,7 +93,6 @@ transSimpleInstruction x = case x of
   PSimpleInstructionProc callproc -> failure x
 transStructuredInstruction :: StructuredInstruction -> Result
 transStructuredInstruction x = case x of
-  PStructuredInstructionBegEnd instructions instruction -> failure x
   PStructuredInstructionCond conditionalinstruction -> failure x
   PStructuredInstructionComp compositeinstruction -> failure x
 transConditionalInstruction :: ConditionalInstruction -> Result
@@ -163,13 +162,16 @@ transMulCom x = case x of
 transAccId :: AccId -> Result
 transAccId x = case x of
   PAccId id -> failure x
-  PtrAccId1 id -> failure x
-  PtrAccId2 id -> failure x
+  PAccIdPointer id pointers -> failure x
   PtrArrayAccess arrayaccess -> failure x
+  PtrArrayAccessPointer arrayaccess pointers -> failure x
 transArrayAccess :: ArrayAccess -> Result
 transArrayAccess x = case x of
   PArrayAccess id typeaccesss -> failure x
 transTypeAccess :: TypeAccess -> Result
 transTypeAccess x = case x of
   PTypeAccessLiteral exp -> failure x
+transPointer :: Pointer -> Result
+transPointer x = case x of
+  PPointer2 -> failure x
 

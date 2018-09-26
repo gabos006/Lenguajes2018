@@ -59,6 +59,8 @@ import ErrM
 %name pArrayAccess ArrayAccess
 %name pListTypeAccess ListTypeAccess
 %name pTypeAccess TypeAccess
+%name pListPointer ListPointer
+%name pPointer Pointer
 %name pListConst ListConst
 %name pListVar ListVar
 %name pListType ListType
@@ -88,34 +90,33 @@ import ErrM
   '[' { PT _ (TS _ 19) }
   ']' { PT _ (TS _ 20) }
   '^' { PT _ (TS _ 21) }
-  '^^' { PT _ (TS _ 22) }
-  'and' { PT _ (TS _ 23) }
-  'array' { PT _ (TS _ 24) }
-  'begin' { PT _ (TS _ 25) }
-  'case' { PT _ (TS _ 26) }
-  'const' { PT _ (TS _ 27) }
-  'div' { PT _ (TS _ 28) }
-  'do' { PT _ (TS _ 29) }
-  'downto' { PT _ (TS _ 30) }
-  'else' { PT _ (TS _ 31) }
-  'end' { PT _ (TS _ 32) }
-  'for' { PT _ (TS _ 33) }
-  'function' { PT _ (TS _ 34) }
-  'if' { PT _ (TS _ 35) }
-  'mod' { PT _ (TS _ 36) }
-  'not' { PT _ (TS _ 37) }
-  'of' { PT _ (TS _ 38) }
-  'or' { PT _ (TS _ 39) }
-  'procedure' { PT _ (TS _ 40) }
-  'program' { PT _ (TS _ 41) }
-  'record' { PT _ (TS _ 42) }
-  'repeat' { PT _ (TS _ 43) }
-  'then' { PT _ (TS _ 44) }
-  'to' { PT _ (TS _ 45) }
-  'type' { PT _ (TS _ 46) }
-  'until' { PT _ (TS _ 47) }
-  'var' { PT _ (TS _ 48) }
-  'while' { PT _ (TS _ 49) }
+  'and' { PT _ (TS _ 22) }
+  'array' { PT _ (TS _ 23) }
+  'begin' { PT _ (TS _ 24) }
+  'case' { PT _ (TS _ 25) }
+  'const' { PT _ (TS _ 26) }
+  'div' { PT _ (TS _ 27) }
+  'do' { PT _ (TS _ 28) }
+  'downto' { PT _ (TS _ 29) }
+  'else' { PT _ (TS _ 30) }
+  'end' { PT _ (TS _ 31) }
+  'for' { PT _ (TS _ 32) }
+  'function' { PT _ (TS _ 33) }
+  'if' { PT _ (TS _ 34) }
+  'mod' { PT _ (TS _ 35) }
+  'not' { PT _ (TS _ 36) }
+  'of' { PT _ (TS _ 37) }
+  'or' { PT _ (TS _ 38) }
+  'procedure' { PT _ (TS _ 39) }
+  'program' { PT _ (TS _ 40) }
+  'record' { PT _ (TS _ 41) }
+  'repeat' { PT _ (TS _ 42) }
+  'then' { PT _ (TS _ 43) }
+  'to' { PT _ (TS _ 44) }
+  'type' { PT _ (TS _ 45) }
+  'until' { PT _ (TS _ 46) }
+  'var' { PT _ (TS _ 47) }
+  'while' { PT _ (TS _ 48) }
 
 L_integ  { PT _ (TI $$) }
 L_doubl  { PT _ (TD $$) }
@@ -210,8 +211,7 @@ SimpleInstruction :: { SimpleInstruction }
 SimpleInstruction : ListAccId ':=' Exp { AbsPascal.PSimpleInstructionAssignment $1 $3 }
                   | CallProc { AbsPascal.PSimpleInstructionProc $1 }
 StructuredInstruction :: { StructuredInstruction }
-StructuredInstruction : 'begin' ListInstruction Instruction 'end' { AbsPascal.PStructuredInstructionBegEnd (reverse $2) $3 }
-                      | ConditionalInstruction { AbsPascal.PStructuredInstructionCond $1 }
+StructuredInstruction : ConditionalInstruction { AbsPascal.PStructuredInstructionCond $1 }
                       | CompositeInstruction { AbsPascal.PStructuredInstructionComp $1 }
 ConditionalInstruction :: { ConditionalInstruction }
 ConditionalInstruction : 'if' Exp 'then' Instruction { AbsPascal.PCompositeInstructionIf $2 $4 }
@@ -290,9 +290,9 @@ ListAccId :: { [AccId] }
 ListAccId : AccId { (:[]) $1 } | AccId '.' ListAccId { (:) $1 $3 }
 AccId :: { AccId }
 AccId : Id { AbsPascal.PAccId $1 }
-      | Id '^' { AbsPascal.PtrAccId1 $1 }
-      | Id '^^' { AbsPascal.PtrAccId2 $1 }
+      | Id ListPointer { AbsPascal.PAccIdPointer $1 $2 }
       | ArrayAccess { AbsPascal.PtrArrayAccess $1 }
+      | ArrayAccess ListPointer { AbsPascal.PtrArrayAccessPointer $1 $2 }
 ArrayAccess :: { ArrayAccess }
 ArrayAccess : Id '[' ListTypeAccess ']' { AbsPascal.PArrayAccess $1 $3 }
 ListTypeAccess :: { [TypeAccess] }
@@ -300,6 +300,11 @@ ListTypeAccess : TypeAccess { (:[]) $1 }
                | TypeAccess ',' ListTypeAccess { (:) $1 $3 }
 TypeAccess :: { TypeAccess }
 TypeAccess : Exp { AbsPascal.PTypeAccessLiteral $1 }
+ListPointer :: { [Pointer] }
+ListPointer : Pointer { (:[]) $1 }
+            | Pointer ListPointer { (:) $1 $2 }
+Pointer :: { Pointer }
+Pointer : '^' { AbsPascal.PPointer2 }
 ListConst :: { [Const] }
 ListConst : {- empty -} { [] }
           | ListConst Const ';' { flip (:) $1 $2 }

@@ -89,8 +89,7 @@ data SimpleInstruction
   deriving (Eq, Ord, Show, Read)
 
 data StructuredInstruction
-    = PStructuredInstructionBegEnd [Instruction] Instruction
-    | PStructuredInstructionCond ConditionalInstruction
+    = PStructuredInstructionCond ConditionalInstruction
     | PStructuredInstructionComp CompositeInstruction
   deriving (Eq, Ord, Show, Read)
 
@@ -161,14 +160,17 @@ data MulCom
 
 data AccId
     = PAccId Id
-    | PtrAccId1 Id
-    | PtrAccId2 Id
+    | PAccIdPointer Id [Pointer]
     | PtrArrayAccess ArrayAccess
+    | PtrArrayAccessPointer ArrayAccess [Pointer]
   deriving (Eq, Ord, Show, Read)
 
 data ArrayAccess = PArrayAccess Id [TypeAccess]
   deriving (Eq, Ord, Show, Read)
 
 data TypeAccess = PTypeAccessLiteral Exp
+  deriving (Eq, Ord, Show, Read)
+
+data Pointer = PPointer2
   deriving (Eq, Ord, Show, Read)
 

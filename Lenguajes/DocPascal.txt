@@ -54,7 +54,7 @@ The symbols used in Pascal are the following:
   | [ | ] | , | :=
   | > | < | >= | <=
   | <> | - | + | *
-  | / | ^^ |  | 
+  | / |  |  | 
 
 ===Comments===
 There are no single-line comments in the grammar.Multiple-line comments are  enclosed with (* and *).
@@ -117,8 +117,7 @@ All other symbols are terminals.
   |  |  **|**  | //StructuredInstruction// 
   | //SimpleInstruction// | -> | //[AccId]// ``:=`` //Exp// 
   |  |  **|**  | //CallProc// 
-  | //StructuredInstruction// | -> | ``begin`` //[Instruction]// //Instruction// ``end`` 
-  |  |  **|**  | //ConditionalInstruction// 
+  | //StructuredInstruction// | -> | //ConditionalInstruction// 
   |  |  **|**  | //CompositeInstruction// 
   | //ConditionalInstruction// | -> | ``if`` //Exp// ``then`` //Instruction// 
   |  |  **|**  | ``if`` //Exp// ``then`` //Instruction// ``else`` //Instruction// 
@@ -178,13 +177,16 @@ All other symbols are terminals.
   | //[AccId]// | -> | //AccId// 
   |  |  **|**  | //AccId// ``.`` //[AccId]// 
   | //AccId// | -> | //Id// 
-  |  |  **|**  | //Id// ``^`` 
-  |  |  **|**  | //Id// ``^^`` 
+  |  |  **|**  | //Id// //[Pointer]// 
   |  |  **|**  | //ArrayAccess// 
+  |  |  **|**  | //ArrayAccess// //[Pointer]// 
   | //ArrayAccess// | -> | //Id// ``[`` //[TypeAccess]// ``]`` 
   | //[TypeAccess]// | -> | //TypeAccess// 
   |  |  **|**  | //TypeAccess// ``,`` //[TypeAccess]// 
   | //TypeAccess// | -> | //Exp// 
+  | //[Pointer]// | -> | //Pointer// 
+  |  |  **|**  | //Pointer// //[Pointer]// 
+  | //Pointer// | -> | ``^`` 
   | //[Const]// | -> | **eps**
   |  |  **|**  | //Const// ``;`` //[Const]// 
   | //[Var]// | -> | **eps**

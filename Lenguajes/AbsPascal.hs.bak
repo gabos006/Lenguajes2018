@@ -159,12 +159,19 @@ data MulCom
     | PTermExpAnd
   deriving (Eq, Ord, Show, Read)
 
-data AccId = PAccId Id | PtrAccId Id | PtrArrayAccess ArrayAccess
+data AccId
+    = PAccId Id
+    | PAccIdPointer Id [Pointer]
+    | PtrArrayAccess ArrayAccess
+    | PtrArrayAccessPointer ArrayAccess [Pointer]
   deriving (Eq, Ord, Show, Read)
 
 data ArrayAccess = PArrayAccess Id [TypeAccess]
   deriving (Eq, Ord, Show, Read)
 
 data TypeAccess = PTypeAccessLiteral Exp
+  deriving (Eq, Ord, Show, Read)
+
+data Pointer = PPointer2
   deriving (Eq, Ord, Show, Read)
 
