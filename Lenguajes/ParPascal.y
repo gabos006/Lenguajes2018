@@ -33,6 +33,8 @@ import ErrM
 %name pListInstruction ListInstruction
 %name pInstruction Instruction
 %name pSimpleInstruction SimpleInstruction
+%name pStructuredInstruction StructuredInstruction
+%name pConditionalInstruction ConditionalInstruction
 %name pCompositeInstruction CompositeInstruction
 %name pListRamas ListRamas
 %name pRamas Ramas
@@ -57,6 +59,8 @@ import ErrM
 %name pArrayAccess ArrayAccess
 %name pListTypeAccess ListTypeAccess
 %name pTypeAccess TypeAccess
+%name pListPointer ListPointer
+%name pPointer Pointer
 %name pListConst ListConst
 %name pListVar ListVar
 %name pListType ListType
@@ -202,18 +206,22 @@ ListInstruction : {- empty -} { [] }
 Instruction :: { Instruction }
 Instruction : {- empty -} { AbsPascal.PInstruction }
             | SimpleInstruction { AbsPascal.PListSimpleInstruction $1 }
-            | CompositeInstruction { AbsPascal.PListCompositeInstruction $1 }
+            | StructuredInstruction { AbsPascal.PListCompositeInstruction $1 }
 SimpleInstruction :: { SimpleInstruction }
 SimpleInstruction : ListAccId ':=' Exp { AbsPascal.PSimpleInstructionAssignment $1 $3 }
                   | CallProc { AbsPascal.PSimpleInstructionProc $1 }
+StructuredInstruction :: { StructuredInstruction }
+StructuredInstruction : ConditionalInstruction { AbsPascal.PStructuredInstructionCond $1 }
+                      | CompositeInstruction { AbsPascal.PStructuredInstructionComp $1 }
+ConditionalInstruction :: { ConditionalInstruction }
+ConditionalInstruction : 'if' Exp 'then' Instruction { AbsPascal.PCompositeInstructionIf $2 $4 }
+                       | 'if' Exp 'then' Instruction 'else' Instruction { AbsPascal.PCompositeInstructionIfElse $2 $4 $6 }
+                       | 'case' Exp 'of' ListRamas 'end' { AbsPascal.PCompositeInstructionCase $2 $4 }
 CompositeInstruction :: { CompositeInstruction }
-CompositeInstruction : 'if' Exp 'then' Instruction { AbsPascal.PCompositeInstructionIf $2 $4 }
-                     | 'if' Exp 'then' Instruction 'else' Instruction { AbsPascal.PCompositeInstructionIfElse $2 $4 $6 }
-                     | 'repeat' ListInstruction Instruction 'until' Exp { AbsPascal.PCompositeInstructionRepeat (reverse $2) $3 $5 }
+CompositeInstruction : 'repeat' ListInstruction Instruction 'until' Exp { AbsPascal.PCompositeInstructionRepeat (reverse $2) $3 $5 }
                      | 'for' Id ':=' Exp 'to' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForTo $2 $4 $6 $8 }
                      | 'for' Id ':=' Exp 'downto' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForDownTo $2 $4 $6 $8 }
                      | 'while' Exp 'do' Body { AbsPascal.PCompositeInstructionWhile $2 $4 }
-                     | 'case' Exp 'of' ListRamas 'end' { AbsPascal.PCompositeInstructionCase $2 $4 }
 ListRamas :: { [Ramas] }
 ListRamas : Ramas { (:[]) $1 } | Ramas ';' ListRamas { (:) $1 $3 }
 Ramas :: { Ramas }
@@ -282,8 +290,9 @@ ListAccId :: { [AccId] }
 ListAccId : AccId { (:[]) $1 } | AccId '.' ListAccId { (:) $1 $3 }
 AccId :: { AccId }
 AccId : Id { AbsPascal.PAccId $1 }
-      | Id '^' { AbsPascal.PtrAccId $1 }
+      | Id ListPointer { AbsPascal.PAccIdPointer $1 $2 }
       | ArrayAccess { AbsPascal.PtrArrayAccess $1 }
+      | ArrayAccess ListPointer { AbsPascal.PtrArrayAccessPointer $1 $2 }
 ArrayAccess :: { ArrayAccess }
 ArrayAccess : Id '[' ListTypeAccess ']' { AbsPascal.PArrayAccess $1 $3 }
 ListTypeAccess :: { [TypeAccess] }
@@ -291,6 +300,11 @@ ListTypeAccess : TypeAccess { (:[]) $1 }
                | TypeAccess ',' ListTypeAccess { (:) $1 $3 }
 TypeAccess :: { TypeAccess }
 TypeAccess : Exp { AbsPascal.PTypeAccessLiteral $1 }
+ListPointer :: { [Pointer] }
+ListPointer : Pointer { (:[]) $1 }
+            | Pointer ListPointer { (:) $1 $2 }
+Pointer :: { Pointer }
+Pointer : '^' { AbsPascal.PPointer2 }
 ListConst :: { [Const] }
 ListConst : {- empty -} { [] }
           | ListConst Const ';' { flip (:) $1 $2 }

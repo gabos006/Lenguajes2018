@@ -114,16 +114,18 @@ All other symbols are terminals.
   |  |  **|**  | //Instruction// ``;`` //[Instruction]// 
   | //Instruction// | -> | **eps**
   |  |  **|**  | //SimpleInstruction// 
-  |  |  **|**  | //CompositeInstruction// 
+  |  |  **|**  | //StructuredInstruction// 
   | //SimpleInstruction// | -> | //[AccId]// ``:=`` //Exp// 
   |  |  **|**  | //CallProc// 
-  | //CompositeInstruction// | -> | ``if`` //Exp// ``then`` //Instruction// 
+  | //StructuredInstruction// | -> | //ConditionalInstruction// 
+  |  |  **|**  | //CompositeInstruction// 
+  | //ConditionalInstruction// | -> | ``if`` //Exp// ``then`` //Instruction// 
   |  |  **|**  | ``if`` //Exp// ``then`` //Instruction// ``else`` //Instruction// 
-  |  |  **|**  | ``repeat`` //[Instruction]// //Instruction// ``until`` //Exp// 
+  |  |  **|**  | ``case`` //Exp// ``of`` //[Ramas]// ``end`` 
+  | //CompositeInstruction// | -> | ``repeat`` //[Instruction]// //Instruction// ``until`` //Exp// 
   |  |  **|**  | ``for`` //Id// ``:=`` //Exp// ``to`` //Exp// ``do`` //Instruction// 
   |  |  **|**  | ``for`` //Id// ``:=`` //Exp// ``downto`` //Exp// ``do`` //Instruction// 
   |  |  **|**  | ``while`` //Exp// ``do`` //Body// 
-  |  |  **|**  | ``case`` //Exp// ``of`` //[Ramas]// ``end`` 
   | //[Ramas]// | -> | //Ramas// 
   |  |  **|**  | //Ramas// ``;`` //[Ramas]// 
   | //Ramas// | -> | //[ConstCase]// ``:`` //BodyRamaCase// 
@@ -175,12 +177,16 @@ All other symbols are terminals.
   | //[AccId]// | -> | //AccId// 
   |  |  **|**  | //AccId// ``.`` //[AccId]// 
   | //AccId// | -> | //Id// 
-  |  |  **|**  | //Id// ``^`` 
+  |  |  **|**  | //Id// //[Pointer]// 
   |  |  **|**  | //ArrayAccess// 
+  |  |  **|**  | //ArrayAccess// //[Pointer]// 
   | //ArrayAccess// | -> | //Id// ``[`` //[TypeAccess]// ``]`` 
   | //[TypeAccess]// | -> | //TypeAccess// 
   |  |  **|**  | //TypeAccess// ``,`` //[TypeAccess]// 
   | //TypeAccess// | -> | //Exp// 
+  | //[Pointer]// | -> | //Pointer// 
+  |  |  **|**  | //Pointer// //[Pointer]// 
+  | //Pointer// | -> | ``^`` 
   | //[Const]// | -> | **eps**
   |  |  **|**  | //Const// ``;`` //[Const]// 
   | //[Var]// | -> | **eps**

@@ -92,7 +92,7 @@ PBody . Body ::= "begin" [Instruction] Instruction "end" ;
 terminator Instruction ";" ;
 PInstruction . Instruction ::= ;
 PListSimpleInstruction . Instruction ::= SimpleInstruction ;
-PListCompositeInstruction . Instruction ::= CompositeInstruction ;
+PListCompositeInstruction . Instruction ::= StructuredInstruction ;
 
 --Instrucciones Simples--
 
@@ -102,13 +102,18 @@ PSimpleInstructionAssignment . SimpleInstruction ::= [AccId] ":=" Exp ;
 --Instruccions Proc y Func--
 PSimpleInstructionProc . SimpleInstruction ::= CallProc ;
 
---Instrucciones Compuestas--
+--Instrucciones Estructuradas--
+
+--Bloque begin end--
+--PStructuredInstructionBegEnd . StructuredInstruction ::= "begin" [Instruction] Instruction "end" ;
+PStructuredInstructionCond . StructuredInstruction ::= ConditionalInstruction ;
+PStructuredInstructionComp . StructuredInstruction ::= CompositeInstruction ;
 
 --Instruccion If--
-PCompositeInstructionIf . CompositeInstruction ::= "if" Exp "then" Instruction ;
+PCompositeInstructionIf . ConditionalInstruction ::= "if" Exp "then" Instruction ;
 
 --Instruccion If Else--
-PCompositeInstructionIfElse . CompositeInstruction ::= "if" Exp "then" Instruction "else" Instruction ;
+PCompositeInstructionIfElse . ConditionalInstruction ::= "if" Exp "then" Instruction "else" Instruction ;
 
 --Instruccion Repeat--
 PCompositeInstructionRepeat . CompositeInstruction ::= "repeat" [Instruction] Instruction "until" Exp ;
@@ -123,7 +128,7 @@ PCompositeInstructionForDownTo . CompositeInstruction ::= "for" Id ":=" Exp "dow
 PCompositeInstructionWhile . CompositeInstruction ::= "while" Exp "do" Body ;
 
 --Instruccion Case--
-PCompositeInstructionCase . CompositeInstruction ::= "case" Exp "of" [Ramas] "end" ;
+PCompositeInstructionCase . ConditionalInstruction ::= "case" Exp "of" [Ramas] "end" ;
 
 --Ramas Case--
 separator nonempty Ramas ";" ;
@@ -142,7 +147,7 @@ PBodyRamaCaseMany . BodyRamaCase ::= Body ;
 --Llamada a Funciones y Procedimientos--
 PCallFuncProc . CallFunProc ::= Id "(" [Exp] ")" ;
 
--- Llamada d Proc --
+-- Llamada de Proc --
 PCallProc . CallProc ::= Id "(" [ExpC] ExpC ")" ;
 PCallProcEmpty . CallProc ::= Id ;
 
@@ -151,10 +156,8 @@ terminator ExpC "," ;
 
 --Expresiones--
 separator Exp "," ;
---terminator Exp "," ;--
 
 --not--
-
 PNotExp . Exp ::= "not" Exp1 ;
 
 --Expresion General--
@@ -195,11 +198,18 @@ coercions Exp 4 ;
 --Acceso--
 separator nonempty AccId "." ;
 PAccId . AccId ::= Id ;
-PtrAccId . AccId ::= Id "^" ;
+PAccIdPointer . AccId ::= Id [Pointer];
 PtrArrayAccess . AccId ::= ArrayAccess ;
+PtrArrayAccessPointer . AccId ::= ArrayAccess [Pointer] ;
+
+--ArrayAccess
 PArrayAccess . ArrayAccess ::= Id "[" [TypeAccess] "]" ;
 separator nonempty TypeAccess "," ;
 PTypeAccessLiteral . TypeAccess ::= Exp ;
+
+--Pointer
+separator nonempty Pointer "" ;
+PPointer2 . Pointer ::= "^" ;
 
 
 --Terminators--

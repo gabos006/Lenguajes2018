@@ -86,20 +86,26 @@ transInstruction :: Instruction -> Result
 transInstruction x = case x of
   PInstruction -> failure x
   PListSimpleInstruction simpleinstruction -> failure x
-  PListCompositeInstruction compositeinstruction -> failure x
+  PListCompositeInstruction structuredinstruction -> failure x
 transSimpleInstruction :: SimpleInstruction -> Result
 transSimpleInstruction x = case x of
   PSimpleInstructionAssignment accids exp -> failure x
   PSimpleInstructionProc callproc -> failure x
-transCompositeInstruction :: CompositeInstruction -> Result
-transCompositeInstruction x = case x of
+transStructuredInstruction :: StructuredInstruction -> Result
+transStructuredInstruction x = case x of
+  PStructuredInstructionCond conditionalinstruction -> failure x
+  PStructuredInstructionComp compositeinstruction -> failure x
+transConditionalInstruction :: ConditionalInstruction -> Result
+transConditionalInstruction x = case x of
   PCompositeInstructionIf exp instruction -> failure x
   PCompositeInstructionIfElse exp instruction1 instruction2 -> failure x
+  PCompositeInstructionCase exp ramass -> failure x
+transCompositeInstruction :: CompositeInstruction -> Result
+transCompositeInstruction x = case x of
   PCompositeInstructionRepeat instructions instruction exp -> failure x
   PCompositeInstructionForTo id exp1 exp2 instruction -> failure x
   PCompositeInstructionForDownTo id exp1 exp2 instruction -> failure x
   PCompositeInstructionWhile exp body -> failure x
-  PCompositeInstructionCase exp ramass -> failure x
 transRamas :: Ramas -> Result
 transRamas x = case x of
   PCaseRamCase constcases bodyramacase -> failure x
@@ -156,12 +162,16 @@ transMulCom x = case x of
 transAccId :: AccId -> Result
 transAccId x = case x of
   PAccId id -> failure x
-  PtrAccId id -> failure x
+  PAccIdPointer id pointers -> failure x
   PtrArrayAccess arrayaccess -> failure x
+  PtrArrayAccessPointer arrayaccess pointers -> failure x
 transArrayAccess :: ArrayAccess -> Result
 transArrayAccess x = case x of
   PArrayAccess id typeaccesss -> failure x
 transTypeAccess :: TypeAccess -> Result
 transTypeAccess x = case x of
   PTypeAccessLiteral exp -> failure x
+transPointer :: Pointer -> Result
+transPointer x = case x of
+  PPointer2 -> failure x
 
