@@ -33,6 +33,8 @@ import ErrM
 %name pListInstruction ListInstruction
 %name pInstruction Instruction
 %name pSimpleInstruction SimpleInstruction
+%name pStructuredInstruction StructuredInstruction
+%name pConditionalInstruction ConditionalInstruction
 %name pCompositeInstruction CompositeInstruction
 %name pListRamas ListRamas
 %name pRamas Ramas
@@ -86,33 +88,34 @@ import ErrM
   '[' { PT _ (TS _ 19) }
   ']' { PT _ (TS _ 20) }
   '^' { PT _ (TS _ 21) }
-  'and' { PT _ (TS _ 22) }
-  'array' { PT _ (TS _ 23) }
-  'begin' { PT _ (TS _ 24) }
-  'case' { PT _ (TS _ 25) }
-  'const' { PT _ (TS _ 26) }
-  'div' { PT _ (TS _ 27) }
-  'do' { PT _ (TS _ 28) }
-  'downto' { PT _ (TS _ 29) }
-  'else' { PT _ (TS _ 30) }
-  'end' { PT _ (TS _ 31) }
-  'for' { PT _ (TS _ 32) }
-  'function' { PT _ (TS _ 33) }
-  'if' { PT _ (TS _ 34) }
-  'mod' { PT _ (TS _ 35) }
-  'not' { PT _ (TS _ 36) }
-  'of' { PT _ (TS _ 37) }
-  'or' { PT _ (TS _ 38) }
-  'procedure' { PT _ (TS _ 39) }
-  'program' { PT _ (TS _ 40) }
-  'record' { PT _ (TS _ 41) }
-  'repeat' { PT _ (TS _ 42) }
-  'then' { PT _ (TS _ 43) }
-  'to' { PT _ (TS _ 44) }
-  'type' { PT _ (TS _ 45) }
-  'until' { PT _ (TS _ 46) }
-  'var' { PT _ (TS _ 47) }
-  'while' { PT _ (TS _ 48) }
+  '^^' { PT _ (TS _ 22) }
+  'and' { PT _ (TS _ 23) }
+  'array' { PT _ (TS _ 24) }
+  'begin' { PT _ (TS _ 25) }
+  'case' { PT _ (TS _ 26) }
+  'const' { PT _ (TS _ 27) }
+  'div' { PT _ (TS _ 28) }
+  'do' { PT _ (TS _ 29) }
+  'downto' { PT _ (TS _ 30) }
+  'else' { PT _ (TS _ 31) }
+  'end' { PT _ (TS _ 32) }
+  'for' { PT _ (TS _ 33) }
+  'function' { PT _ (TS _ 34) }
+  'if' { PT _ (TS _ 35) }
+  'mod' { PT _ (TS _ 36) }
+  'not' { PT _ (TS _ 37) }
+  'of' { PT _ (TS _ 38) }
+  'or' { PT _ (TS _ 39) }
+  'procedure' { PT _ (TS _ 40) }
+  'program' { PT _ (TS _ 41) }
+  'record' { PT _ (TS _ 42) }
+  'repeat' { PT _ (TS _ 43) }
+  'then' { PT _ (TS _ 44) }
+  'to' { PT _ (TS _ 45) }
+  'type' { PT _ (TS _ 46) }
+  'until' { PT _ (TS _ 47) }
+  'var' { PT _ (TS _ 48) }
+  'while' { PT _ (TS _ 49) }
 
 L_integ  { PT _ (TI $$) }
 L_doubl  { PT _ (TD $$) }
@@ -202,18 +205,23 @@ ListInstruction : {- empty -} { [] }
 Instruction :: { Instruction }
 Instruction : {- empty -} { AbsPascal.PInstruction }
             | SimpleInstruction { AbsPascal.PListSimpleInstruction $1 }
-            | CompositeInstruction { AbsPascal.PListCompositeInstruction $1 }
+            | StructuredInstruction { AbsPascal.PListCompositeInstruction $1 }
 SimpleInstruction :: { SimpleInstruction }
 SimpleInstruction : ListAccId ':=' Exp { AbsPascal.PSimpleInstructionAssignment $1 $3 }
                   | CallProc { AbsPascal.PSimpleInstructionProc $1 }
+StructuredInstruction :: { StructuredInstruction }
+StructuredInstruction : 'begin' ListInstruction Instruction 'end' { AbsPascal.PStructuredInstructionBegEnd (reverse $2) $3 }
+                      | ConditionalInstruction { AbsPascal.PStructuredInstructionCond $1 }
+                      | CompositeInstruction { AbsPascal.PStructuredInstructionComp $1 }
+ConditionalInstruction :: { ConditionalInstruction }
+ConditionalInstruction : 'if' Exp 'then' Instruction { AbsPascal.PCompositeInstructionIf $2 $4 }
+                       | 'if' Exp 'then' Instruction 'else' Instruction { AbsPascal.PCompositeInstructionIfElse $2 $4 $6 }
+                       | 'case' Exp 'of' ListRamas 'end' { AbsPascal.PCompositeInstructionCase $2 $4 }
 CompositeInstruction :: { CompositeInstruction }
-CompositeInstruction : 'if' Exp 'then' Instruction { AbsPascal.PCompositeInstructionIf $2 $4 }
-                     | 'if' Exp 'then' Instruction 'else' Instruction { AbsPascal.PCompositeInstructionIfElse $2 $4 $6 }
-                     | 'repeat' ListInstruction Instruction 'until' Exp { AbsPascal.PCompositeInstructionRepeat (reverse $2) $3 $5 }
+CompositeInstruction : 'repeat' ListInstruction Instruction 'until' Exp { AbsPascal.PCompositeInstructionRepeat (reverse $2) $3 $5 }
                      | 'for' Id ':=' Exp 'to' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForTo $2 $4 $6 $8 }
                      | 'for' Id ':=' Exp 'downto' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForDownTo $2 $4 $6 $8 }
                      | 'while' Exp 'do' Body { AbsPascal.PCompositeInstructionWhile $2 $4 }
-                     | 'case' Exp 'of' ListRamas 'end' { AbsPascal.PCompositeInstructionCase $2 $4 }
 ListRamas :: { [Ramas] }
 ListRamas : Ramas { (:[]) $1 } | Ramas ';' ListRamas { (:) $1 $3 }
 Ramas :: { Ramas }
@@ -282,7 +290,8 @@ ListAccId :: { [AccId] }
 ListAccId : AccId { (:[]) $1 } | AccId '.' ListAccId { (:) $1 $3 }
 AccId :: { AccId }
 AccId : Id { AbsPascal.PAccId $1 }
-      | Id '^' { AbsPascal.PtrAccId $1 }
+      | Id '^' { AbsPascal.PtrAccId1 $1 }
+      | Id '^^' { AbsPascal.PtrAccId2 $1 }
       | ArrayAccess { AbsPascal.PtrArrayAccess $1 }
 ArrayAccess :: { ArrayAccess }
 ArrayAccess : Id '[' ListTypeAccess ']' { AbsPascal.PArrayAccess $1 $3 }

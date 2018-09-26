@@ -188,7 +188,7 @@ instance Print Instruction where
   prt i e = case e of
     PInstruction -> prPrec i 0 (concatD [])
     PListSimpleInstruction simpleinstruction -> prPrec i 0 (concatD [prt 0 simpleinstruction])
-    PListCompositeInstruction compositeinstruction -> prPrec i 0 (concatD [prt 0 compositeinstruction])
+    PListCompositeInstruction structuredinstruction -> prPrec i 0 (concatD [prt 0 structuredinstruction])
   prtList _ [] = (concatD [])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
 instance Print SimpleInstruction where
@@ -196,15 +196,24 @@ instance Print SimpleInstruction where
     PSimpleInstructionAssignment accids exp -> prPrec i 0 (concatD [prt 0 accids, doc (showString ":="), prt 0 exp])
     PSimpleInstructionProc callproc -> prPrec i 0 (concatD [prt 0 callproc])
 
-instance Print CompositeInstruction where
+instance Print StructuredInstruction where
+  prt i e = case e of
+    PStructuredInstructionBegEnd instructions instruction -> prPrec i 0 (concatD [doc (showString "begin"), prt 0 instructions, prt 0 instruction, doc (showString "end")])
+    PStructuredInstructionCond conditionalinstruction -> prPrec i 0 (concatD [prt 0 conditionalinstruction])
+    PStructuredInstructionComp compositeinstruction -> prPrec i 0 (concatD [prt 0 compositeinstruction])
+
+instance Print ConditionalInstruction where
   prt i e = case e of
     PCompositeInstructionIf exp instruction -> prPrec i 0 (concatD [doc (showString "if"), prt 0 exp, doc (showString "then"), prt 0 instruction])
     PCompositeInstructionIfElse exp instruction1 instruction2 -> prPrec i 0 (concatD [doc (showString "if"), prt 0 exp, doc (showString "then"), prt 0 instruction1, doc (showString "else"), prt 0 instruction2])
-    PCompositeInstructionRepeat instructions exp -> prPrec i 0 (concatD [doc (showString "repeat"), prt 0 instructions, doc (showString "until"), prt 0 exp])
+    PCompositeInstructionCase exp ramass -> prPrec i 0 (concatD [doc (showString "case"), prt 0 exp, doc (showString "of"), prt 0 ramass, doc (showString "end")])
+
+instance Print CompositeInstruction where
+  prt i e = case e of
+    PCompositeInstructionRepeat instructions instruction exp -> prPrec i 0 (concatD [doc (showString "repeat"), prt 0 instructions, prt 0 instruction, doc (showString "until"), prt 0 exp])
     PCompositeInstructionForTo id exp1 exp2 instruction -> prPrec i 0 (concatD [doc (showString "for"), prt 0 id, doc (showString ":="), prt 0 exp1, doc (showString "to"), prt 0 exp2, doc (showString "do"), prt 0 instruction])
     PCompositeInstructionForDownTo id exp1 exp2 instruction -> prPrec i 0 (concatD [doc (showString "for"), prt 0 id, doc (showString ":="), prt 0 exp1, doc (showString "downto"), prt 0 exp2, doc (showString "do"), prt 0 instruction])
     PCompositeInstructionWhile exp body -> prPrec i 0 (concatD [doc (showString "while"), prt 0 exp, doc (showString "do"), prt 0 body])
-    PCompositeInstructionCase exp ramass -> prPrec i 0 (concatD [doc (showString "case"), prt 0 exp, doc (showString "of"), prt 0 ramass, doc (showString "end")])
 
 instance Print Ramas where
   prt i e = case e of
@@ -278,7 +287,7 @@ instance Print MulCom where
 instance Print AccId where
   prt i e = case e of
     PAccId id -> prPrec i 0 (concatD [prt 0 id])
-    PtrAccId id -> prPrec i 0 (concatD [prt 0 id, doc (showString "^")])
+    PtrAccId id -> prPrec i 0 (concatD [prt 0 id, doc (showString "^^")])
     PtrArrayAccess arrayaccess -> prPrec i 0 (concatD [prt 0 arrayaccess])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString "."), prt 0 xs])
