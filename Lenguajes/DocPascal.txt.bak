@@ -109,15 +109,14 @@ All other symbols are terminals.
   | //DecParm// | -> | ``var`` //[Id]// ``:`` //Id// 
   |  |  **|**  | //[Id]// ``:`` //Id// 
   | //BlockProcFun// | -> | //Parts// //Body// 
-  | //Body// | -> | ``begin`` //[Instruction]// ``end`` 
+  | //Body// | -> | ``begin`` //[Instruction]// //Instruction// ``end`` 
   | //[Instruction]// | -> | **eps**
-  |  |  **|**  | //Instruction// 
   |  |  **|**  | //Instruction// ``;`` //[Instruction]// 
-  | //Instruction// | -> | //SimpleInstruction// 
+  | //Instruction// | -> | **eps**
+  |  |  **|**  | //SimpleInstruction// 
   |  |  **|**  | //CompositeInstruction// 
   | //SimpleInstruction// | -> | //[AccId]// ``:=`` //Exp// 
-  |  |  **|**  | //Id// 
-  |  |  **|**  | //CallFunProc// 
+  |  |  **|**  | //CallProc// 
   | //CompositeInstruction// | -> | ``if`` //Exp// ``then`` //Instruction// 
   |  |  **|**  | ``if`` //Exp// ``then`` //Instruction// ``else`` //Instruction// 
   |  |  **|**  | ``repeat`` //[Instruction]// ``until`` //Exp// 
@@ -136,6 +135,11 @@ All other symbols are terminals.
   | //BodyRamaCase// | -> | //Instruction// 
   |  |  **|**  | //Body// 
   | //CallFunProc// | -> | //Id// ``(`` //[Exp]// ``)`` 
+  | //CallProc// | -> | //Id// ``(`` //[ExpC]// //ExpC// ``)`` 
+  |  |  **|**  | //Id// 
+  | //ExpC// | -> | //Exp// 
+  | //[ExpC]// | -> | **eps**
+  |  |  **|**  | //ExpC// ``,`` //[ExpC]// 
   | //[Exp]// | -> | **eps**
   |  |  **|**  | //Exp// 
   |  |  **|**  | //Exp// ``,`` //[Exp]// 
@@ -150,6 +154,7 @@ All other symbols are terminals.
   |  |  **|**  | ``<=`` 
   |  |  **|**  | ``<>`` 
   | //Exp2// | -> | ``-`` //Exp3// 
+  |  |  **|**  | ``+`` //Exp3// 
   |  |  **|**  | //Exp2// //AddCom// //Exp3// 
   |  |  **|**  | //Exp3// 
   | //AddCom// | -> | ``+`` 
@@ -167,16 +172,15 @@ All other symbols are terminals.
   |  |  **|**  | //AccId// ``.`` //[AccId]// 
   |  |  **|**  | //CallFunProc// 
   |  |  **|**  | ``(`` //Exp// ``)`` 
-  | //ArrayAccess// | -> | //Id// ``[`` //[TypeAccess]// ``]`` 
-  | //[TypeAccess]// | -> | //TypeAccess// 
-  |  |  **|**  | //TypeAccess// ``,`` //[TypeAccess]// 
-  | //TypeAccess// | -> | //Exp// 
-  | //[AccId]// | -> | **eps**
-  |  |  **|**  | //AccId// 
+  | //[AccId]// | -> | //AccId// 
   |  |  **|**  | //AccId// ``.`` //[AccId]// 
   | //AccId// | -> | //Id// 
   |  |  **|**  | //Id// ``^`` 
   |  |  **|**  | //ArrayAccess// 
+  | //ArrayAccess// | -> | //Id// ``[`` //[TypeAccess]// ``]`` 
+  | //[TypeAccess]// | -> | //TypeAccess// 
+  |  |  **|**  | //TypeAccess// ``,`` //[TypeAccess]// 
+  | //TypeAccess// | -> | //Exp// 
   | //[Const]// | -> | **eps**
   |  |  **|**  | //Const// ``;`` //[Const]// 
   | //[Var]// | -> | **eps**

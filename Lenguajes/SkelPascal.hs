@@ -81,21 +81,21 @@ transBlockProcFun x = case x of
   PBlockProcFun parts body -> failure x
 transBody :: Body -> Result
 transBody x = case x of
-  PBody instructions -> failure x
+  PBody instructions instruction -> failure x
 transInstruction :: Instruction -> Result
 transInstruction x = case x of
+  PInstruction -> failure x
   PListSimpleInstruction simpleinstruction -> failure x
   PListCompositeInstruction compositeinstruction -> failure x
 transSimpleInstruction :: SimpleInstruction -> Result
 transSimpleInstruction x = case x of
   PSimpleInstructionAssignment accids exp -> failure x
-  PSimpleInstructionProcFunc callfunproc -> failure x
-  PSimpleInstructionProcFunSinParm id -> failure x
+  PSimpleInstructionProc callproc -> failure x
 transCompositeInstruction :: CompositeInstruction -> Result
 transCompositeInstruction x = case x of
   PCompositeInstructionIf exp instruction -> failure x
   PCompositeInstructionIfElse exp instruction1 instruction2 -> failure x
-  PCompositeInstructionRepeat instructions exp -> failure x
+  PCompositeInstructionRepeat instructions instruction exp -> failure x
   PCompositeInstructionForTo id exp1 exp2 instruction -> failure x
   PCompositeInstructionForDownTo id exp1 exp2 instruction -> failure x
   PCompositeInstructionWhile exp body -> failure x
@@ -114,11 +114,19 @@ transBodyRamaCase x = case x of
 transCallFunProc :: CallFunProc -> Result
 transCallFunProc x = case x of
   PCallFuncProc id exps -> failure x
+transCallProc :: CallProc -> Result
+transCallProc x = case x of
+  PCallProc id expcs expc -> failure x
+  PCallProcEmpty id -> failure x
+transExpC :: ExpC -> Result
+transExpC x = case x of
+  PExpC exp -> failure x
 transExp :: Exp -> Result
 transExp x = case x of
   PNotExp exp -> failure x
   PGeneralExp exp1 gencom exp2 -> failure x
   PSimpleExpInvSign exp -> failure x
+  PSimpleExpPreSum exp -> failure x
   PSimpleExp exp1 addcom exp2 -> failure x
   PTermExp exp1 mulcom exp2 -> failure x
   PFactorLit literal -> failure x

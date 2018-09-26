@@ -40,6 +40,9 @@ import ErrM
 %name pConstCase ConstCase
 %name pBodyRamaCase BodyRamaCase
 %name pCallFunProc CallFunProc
+%name pCallProc CallProc
+%name pExpC ExpC
+%name pListExpC ListExpC
 %name pListExp ListExp
 %name pExp Exp
 %name pExp1 Exp1
@@ -192,22 +195,21 @@ DecParm : 'var' ListId ':' Id { AbsPascal.PDecParamVar $2 $4 }
 BlockProcFun :: { BlockProcFun }
 BlockProcFun : Parts Body { AbsPascal.PBlockProcFun $1 $2 }
 Body :: { Body }
-Body : 'begin' ListInstruction 'end' { AbsPascal.PBody $2 }
+Body : 'begin' ListInstruction Instruction 'end' { AbsPascal.PBody (reverse $2) $3 }
 ListInstruction :: { [Instruction] }
 ListInstruction : {- empty -} { [] }
-                | Instruction { (:[]) $1 }
-                | Instruction ';' ListInstruction { (:) $1 $3 }
+                | ListInstruction Instruction ';' { flip (:) $1 $2 }
 Instruction :: { Instruction }
-Instruction : SimpleInstruction { AbsPascal.PListSimpleInstruction $1 }
+Instruction : {- empty -} { AbsPascal.PInstruction }
+            | SimpleInstruction { AbsPascal.PListSimpleInstruction $1 }
             | CompositeInstruction { AbsPascal.PListCompositeInstruction $1 }
 SimpleInstruction :: { SimpleInstruction }
 SimpleInstruction : ListAccId ':=' Exp { AbsPascal.PSimpleInstructionAssignment $1 $3 }
-                  | CallFunProc { AbsPascal.PSimpleInstructionProcFunc $1 }
-                  | Id { AbsPascal.PSimpleInstructionProcFunSinParm $1 }
+                  | CallProc { AbsPascal.PSimpleInstructionProc $1 }
 CompositeInstruction :: { CompositeInstruction }
 CompositeInstruction : 'if' Exp 'then' Instruction { AbsPascal.PCompositeInstructionIf $2 $4 }
                      | 'if' Exp 'then' Instruction 'else' Instruction { AbsPascal.PCompositeInstructionIfElse $2 $4 $6 }
-                     | 'repeat' ListInstruction 'until' Exp { AbsPascal.PCompositeInstructionRepeat $2 $4 }
+                     | 'repeat' ListInstruction Instruction 'until' Exp { AbsPascal.PCompositeInstructionRepeat (reverse $2) $3 $5 }
                      | 'for' Id ':=' Exp 'to' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForTo $2 $4 $6 $8 }
                      | 'for' Id ':=' Exp 'downto' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForDownTo $2 $4 $6 $8 }
                      | 'while' Exp 'do' Body { AbsPascal.PCompositeInstructionWhile $2 $4 }
@@ -228,6 +230,14 @@ BodyRamaCase : Instruction { AbsPascal.PBodyRamaCaseOne $1 }
              | Body { AbsPascal.PBodyRamaCaseMany $1 }
 CallFunProc :: { CallFunProc }
 CallFunProc : Id '(' ListExp ')' { AbsPascal.PCallFuncProc $1 $3 }
+CallProc :: { CallProc }
+CallProc : Id '(' ListExpC ExpC ')' { AbsPascal.PCallProc $1 (reverse $3) $4 }
+         | Id { AbsPascal.PCallProcEmpty $1 }
+ExpC :: { ExpC }
+ExpC : Exp { AbsPascal.PExpC $1 }
+ListExpC :: { [ExpC] }
+ListExpC : {- empty -} { [] }
+         | ListExpC ExpC ',' { flip (:) $1 $2 }
 ListExp :: { [Exp] }
 ListExp : {- empty -} { [] }
         | Exp { (:[]) $1 }
@@ -246,6 +256,7 @@ GenCom : '>' { AbsPascal.PGeneralExpMayor }
        | '<>' { AbsPascal.PGeneralExpDistinct }
 Exp2 :: { Exp }
 Exp2 : '-' Exp3 { AbsPascal.PSimpleExpInvSign $2 }
+     | '+' Exp3 { AbsPascal.PSimpleExpPreSum $2 }
      | Exp2 AddCom Exp3 { AbsPascal.PSimpleExp $1 $2 $3 }
      | Exp3 { $1 }
 AddCom :: { AddCom }

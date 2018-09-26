@@ -74,24 +74,24 @@ data DecParm = PDecParamVar [Id] Id | PDecParam [Id] Id
 data BlockProcFun = PBlockProcFun Parts Body
   deriving (Eq, Ord, Show, Read)
 
-data Body = PBody [Instruction]
+data Body = PBody [Instruction] Instruction
   deriving (Eq, Ord, Show, Read)
 
 data Instruction
-    = PListSimpleInstruction SimpleInstruction
+    = PInstruction
+    | PListSimpleInstruction SimpleInstruction
     | PListCompositeInstruction CompositeInstruction
   deriving (Eq, Ord, Show, Read)
 
 data SimpleInstruction
     = PSimpleInstructionAssignment [AccId] Exp
-    | PSimpleInstructionProcFunc CallFunProc
-    | PSimpleInstructionProcFunSinParm Id
+    | PSimpleInstructionProc CallProc
   deriving (Eq, Ord, Show, Read)
 
 data CompositeInstruction
     = PCompositeInstructionIf Exp Instruction
     | PCompositeInstructionIfElse Exp Instruction Instruction
-    | PCompositeInstructionRepeat [Instruction] Exp
+    | PCompositeInstructionRepeat [Instruction] Instruction Exp
     | PCompositeInstructionForTo Id Exp Exp Instruction
     | PCompositeInstructionForDownTo Id Exp Exp Instruction
     | PCompositeInstructionWhile Exp Body
@@ -111,10 +111,17 @@ data BodyRamaCase
 data CallFunProc = PCallFuncProc Id [Exp]
   deriving (Eq, Ord, Show, Read)
 
+data CallProc = PCallProc Id [ExpC] ExpC | PCallProcEmpty Id
+  deriving (Eq, Ord, Show, Read)
+
+data ExpC = PExpC Exp
+  deriving (Eq, Ord, Show, Read)
+
 data Exp
     = PNotExp Exp
     | PGeneralExp Exp GenCom Exp
     | PSimpleExpInvSign Exp
+    | PSimpleExpPreSum Exp
     | PSimpleExp Exp AddCom Exp
     | PTermExp Exp MulCom Exp
     | PFactorLit Literal

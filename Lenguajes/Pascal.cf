@@ -85,11 +85,12 @@ PDecParam . DecParm ::= [Id] ":" Id ;
 PBlockProcFun . BlockProcFun ::= Parts Body ;
 
 --Cuerpo Programa--
-PBody . Body ::= "begin" [Instruction] "end" ;
+PBody . Body ::= "begin" [Instruction] Instruction "end" ;
 
 
 --Instrucciones--
-separator Instruction ";" ;
+terminator Instruction ";" ;
+PInstruction . Instruction ::= ;
 PListSimpleInstruction . Instruction ::= SimpleInstruction ;
 PListCompositeInstruction . Instruction ::= CompositeInstruction ;
 
@@ -110,7 +111,7 @@ PCompositeInstructionIf . CompositeInstruction ::= "if" Exp "then" Instruction ;
 PCompositeInstructionIfElse . CompositeInstruction ::= "if" Exp "then" Instruction "else" Instruction ;
 
 --Instruccion Repeat--
-PCompositeInstructionRepeat . CompositeInstruction ::= "repeat" [Instruction] "until" Exp ;
+PCompositeInstructionRepeat . CompositeInstruction ::= "repeat" [Instruction] Instruction "until" Exp ;
 
 --Instruccion For To--
 PCompositeInstructionForTo . CompositeInstruction ::= "for" Id ":=" Exp "to" Exp "do" Instruction ;
