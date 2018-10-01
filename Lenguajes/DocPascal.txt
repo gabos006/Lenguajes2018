@@ -108,7 +108,7 @@ All other symbols are terminals.
   |  |  **|**  | //DecParm// ``;`` //[DecParm]// 
   | //DecParm// | -> | ``var`` //[Id]// ``:`` //Id// 
   |  |  **|**  | //[Id]// ``:`` //Id// 
-  | //BlockProcFun// | -> | //Parts// //Body// 
+  | //BlockProcFun// | -> | //Parts// //StructuredInstruction// 
   | //Body// | -> | ``begin`` //[Instruction]// ``end.`` 
   | //[Instruction]// | -> | //Instruction// 
   |  |  **|**  | //Instruction// ``;`` //[Instruction]// 
@@ -123,10 +123,10 @@ All other symbols are terminals.
   | //ConditionalInstruction// | -> | ``if`` //Exp// ``then`` //Instruction// 
   |  |  **|**  | ``if`` //Exp// ``then`` //Instruction// ``else`` //Instruction// 
   |  |  **|**  | ``case`` //Exp// ``of`` //[Ramas]// ``end`` 
-  | //CompositeInstruction// | -> | ``repeat`` //[Instruction]// //Instruction// ``until`` //Exp// 
+  | //CompositeInstruction// | -> | ``repeat`` //[Instruction]// ``until`` //Exp// 
   |  |  **|**  | ``for`` //Id// ``:=`` //Exp// ``to`` //Exp// ``do`` //Instruction// 
   |  |  **|**  | ``for`` //Id// ``:=`` //Exp// ``downto`` //Exp// ``do`` //Instruction// 
-  |  |  **|**  | ``while`` //Exp// ``do`` //Body// 
+  |  |  **|**  | ``while`` //Exp// ``do`` //StructuredInstruction// 
   | //[Ramas]// | -> | //Ramas// 
   |  |  **|**  | //Ramas// ``;`` //[Ramas]// 
   | //Ramas// | -> | //[ConstCase]// ``:`` //Instruction// 

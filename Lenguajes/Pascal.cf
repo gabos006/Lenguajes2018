@@ -7,7 +7,7 @@ PProgram . Program ::= "program" Id ";" Block ;
 
 
 --Bloque--
-PBlock . Block ::= Parts Body "." ;
+PBlock . Block ::= Parts Body ;
 
 
 --Partes--
@@ -82,14 +82,14 @@ PDecParamVar . DecParm ::= "var" [Id] ":" Id ;
 PDecParam . DecParm ::= [Id] ":" Id ;
 
 --Bloque Proc y Fun--
-PBlockProcFun . BlockProcFun ::= Parts Body ;
+PBlockProcFun . BlockProcFun ::= Parts StructuredInstruction ;
 
 --Cuerpo Programa--
-PBody . Body ::= "begin" [Instruction] Instruction "end" ;
+PBody . Body ::= "begin" [Instruction] "end." ;
 
 
 --Instrucciones--
-terminator Instruction ";" ;
+separator nonempty Instruction ";" ;
 PInstruction . Instruction ::= ;
 PListSimpleInstruction . Instruction ::= SimpleInstruction ;
 PListCompositeInstruction . Instruction ::= StructuredInstruction ;
@@ -105,7 +105,7 @@ PSimpleInstructionProc . SimpleInstruction ::= CallProc ;
 --Instrucciones Estructuradas--
 
 --Bloque begin end--
---PStructuredInstructionBegEnd . StructuredInstruction ::= "begin" [Instruction] Instruction "end" ;
+PStructuredInstructionBegEnd . StructuredInstruction ::= "begin" [Instruction] "end" ;
 PStructuredInstructionCond . StructuredInstruction ::= ConditionalInstruction ;
 PStructuredInstructionComp . StructuredInstruction ::= CompositeInstruction ;
 
@@ -116,7 +116,7 @@ PCompositeInstructionIf . ConditionalInstruction ::= "if" Exp "then" Instruction
 PCompositeInstructionIfElse . ConditionalInstruction ::= "if" Exp "then" Instruction "else" Instruction ;
 
 --Instruccion Repeat--
-PCompositeInstructionRepeat . CompositeInstruction ::= "repeat" [Instruction] Instruction "until" Exp ;
+PCompositeInstructionRepeat . CompositeInstruction ::= "repeat" [Instruction] "until" Exp ;
 
 --Instruccion For To--
 PCompositeInstructionForTo . CompositeInstruction ::= "for" Id ":=" Exp "to" Exp "do" Instruction ;
@@ -125,14 +125,14 @@ PCompositeInstructionForTo . CompositeInstruction ::= "for" Id ":=" Exp "to" Exp
 PCompositeInstructionForDownTo . CompositeInstruction ::= "for" Id ":=" Exp "downto" Exp "do" Instruction ;
 
 --Instruccion While--
-PCompositeInstructionWhile . CompositeInstruction ::= "while" Exp "do" Body ;
+PCompositeInstructionWhile . CompositeInstruction ::= "while" Exp "do" StructuredInstruction ;
 
 --Instruccion Case--
 PCompositeInstructionCase . ConditionalInstruction ::= "case" Exp "of" [Ramas] "end" ;
 
 --Ramas Case--
 separator nonempty Ramas ";" ;
-PCaseRamCase . Ramas ::= [ConstCase] ":" BodyRamaCase ;
+PCaseRamCase . Ramas ::= [ConstCase] ":" Instruction ;
 
 --Costantes Case--
 separator ConstCase "," ;
@@ -140,8 +140,8 @@ PConstCaseLiteral . ConstCase ::= Literal ;
 PConsCaseId . ConstCase ::= Id ;
 
 --Body rama Case--
-PBodyRamaCaseOne . BodyRamaCase ::= Instruction ;
-PBodyRamaCaseMany . BodyRamaCase ::= Body ;
+--PBodyRamaCaseOne . BodyRamaCase ::= Instruction ;
+--PBodyRamaCaseMany . BodyRamaCase ::= Body ;
  
 
 --Llamada a Funciones y Procedimientos--

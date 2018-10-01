@@ -197,7 +197,7 @@ DecParm :: { DecParm }
 DecParm : 'var' ListId ':' Id { AbsPascal.PDecParamVar $2 $4 }
         | ListId ':' Id { AbsPascal.PDecParam $1 $3 }
 BlockProcFun :: { BlockProcFun }
-BlockProcFun : Parts Body { AbsPascal.PBlockProcFun $1 $2 }
+BlockProcFun : Parts StructuredInstruction { AbsPascal.PBlockProcFun $1 $2 }
 Body :: { Body }
 Body : 'begin' ListInstruction 'end.' { AbsPascal.PBody $2 }
 ListInstruction :: { [Instruction] }
@@ -219,10 +219,10 @@ ConditionalInstruction : 'if' Exp 'then' Instruction { AbsPascal.PCompositeInstr
                        | 'if' Exp 'then' Instruction 'else' Instruction { AbsPascal.PCompositeInstructionIfElse $2 $4 $6 }
                        | 'case' Exp 'of' ListRamas 'end' { AbsPascal.PCompositeInstructionCase $2 $4 }
 CompositeInstruction :: { CompositeInstruction }
-CompositeInstruction : 'repeat' ListInstruction Instruction 'until' Exp { AbsPascal.PCompositeInstructionRepeat $2 $3 $5 }
+CompositeInstruction : 'repeat' ListInstruction 'until' Exp { AbsPascal.PCompositeInstructionRepeat $2 $4 }
                      | 'for' Id ':=' Exp 'to' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForTo $2 $4 $6 $8 }
                      | 'for' Id ':=' Exp 'downto' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForDownTo $2 $4 $6 $8 }
-                     | 'while' Exp 'do' Body { AbsPascal.PCompositeInstructionWhile $2 $4 }
+                     | 'while' Exp 'do' StructuredInstruction { AbsPascal.PCompositeInstructionWhile $2 $4 }
 ListRamas :: { [Ramas] }
 ListRamas : Ramas { (:[]) $1 } | Ramas ';' ListRamas { (:) $1 $3 }
 Ramas :: { Ramas }

@@ -71,7 +71,7 @@ data ProcsYFuncs
 data DecParm = PDecParamVar [Id] Id | PDecParam [Id] Id
   deriving (Eq, Ord, Show, Read)
 
-data BlockProcFun = PBlockProcFun Parts Body
+data BlockProcFun = PBlockProcFun Parts StructuredInstruction
   deriving (Eq, Ord, Show, Read)
 
 data Body = PBody [Instruction]
@@ -101,10 +101,10 @@ data ConditionalInstruction
   deriving (Eq, Ord, Show, Read)
 
 data CompositeInstruction
-    = PCompositeInstructionRepeat [Instruction] Instruction Exp
+    = PCompositeInstructionRepeat [Instruction] Exp
     | PCompositeInstructionForTo Id Exp Exp Instruction
     | PCompositeInstructionForDownTo Id Exp Exp Instruction
-    | PCompositeInstructionWhile Exp Body
+    | PCompositeInstructionWhile Exp StructuredInstruction
   deriving (Eq, Ord, Show, Read)
 
 data Ramas = PCaseRamCase [ConstCase] Instruction
