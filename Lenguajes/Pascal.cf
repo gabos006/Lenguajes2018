@@ -85,14 +85,14 @@ PDecParam . DecParm ::= [Id] ":" Id ;
 PBlockProcFun . BlockProcFun ::= Parts Body ;
 
 --Cuerpo Programa--
-PBody . Body ::= "begin" [Instruction] "end" ;
+PBody . Body ::= "begin" [Instruction] Instruction "end" ;
 
 
 --Instrucciones--
-separator Instruction ";" ;
+terminator Instruction ";" ;
+PInstruction . Instruction ::= ;
 PListSimpleInstruction . Instruction ::= SimpleInstruction ;
 PListCompositeInstruction . Instruction ::= StructuredInstruction ;
-
 
 --Instrucciones Simples--
 
@@ -102,13 +102,12 @@ PSimpleInstructionAssignment . SimpleInstruction ::= [AccId] ":=" Exp ;
 --Instruccions Proc y Func--
 PSimpleInstructionProc . SimpleInstruction ::= CallProc ;
 
-
 --Instrucciones Estructuradas--
 
-PStructuredInstructionComp . StructuredInstruction ::= CompositeInstruction ;
+--Bloque begin end--
+--PStructuredInstructionBegEnd . StructuredInstruction ::= "begin" [Instruction] Instruction "end" ;
 PStructuredInstructionCond . StructuredInstruction ::= ConditionalInstruction ;
-PStructuredInstructionRepe . StructuredInstruction ::= RepetitiveInstruction ;
-
+PStructuredInstructionComp . StructuredInstruction ::= CompositeInstruction ;
 
 --Instruccion If--
 PCompositeInstructionIf . ConditionalInstruction ::= "if" Exp "then" Instruction ;
@@ -117,16 +116,16 @@ PCompositeInstructionIf . ConditionalInstruction ::= "if" Exp "then" Instruction
 PCompositeInstructionIfElse . ConditionalInstruction ::= "if" Exp "then" Instruction "else" Instruction ;
 
 --Instruccion Repeat--
-PCompositeInstructionRepeat . RepetitiveInstruction ::= "repeat" [Instruction] "until" Exp ;
+PCompositeInstructionRepeat . CompositeInstruction ::= "repeat" [Instruction] Instruction "until" Exp ;
 
 --Instruccion For To--
-PCompositeInstructionForTo . RepetitiveInstruction ::= "for" Id ":=" Exp "to" Exp "do" Instruction ;
+PCompositeInstructionForTo . CompositeInstruction ::= "for" Id ":=" Exp "to" Exp "do" Instruction ;
 
 --Instruccion For DownTo--
-PCompositeInstructionForDownTo . RepetitiveInstruction ::= "for" Id ":=" Exp "downto" Exp "do" Instruction ;
+PCompositeInstructionForDownTo . CompositeInstruction ::= "for" Id ":=" Exp "downto" Exp "do" Instruction ;
 
 --Instruccion While--
-PCompositeInstructionWhile . RepetitiveInstruction ::= "while" Exp "do" Body ;
+PCompositeInstructionWhile . CompositeInstruction ::= "while" Exp "do" Body ;
 
 --Instruccion Case--
 PCompositeInstructionCase . ConditionalInstruction ::= "case" Exp "of" [Ramas] "end" ;
@@ -143,16 +142,12 @@ PConsCaseId . ConstCase ::= Id ;
 --Body rama Case--
 PBodyRamaCaseOne . BodyRamaCase ::= Instruction ;
 PBodyRamaCaseMany . BodyRamaCase ::= Body ;
-
-
---Instruccion estructurada
-PSimpleInstructionBegEnd . CompositeInstruction ::= Body ;
-
+ 
 
 --Llamada a Funciones y Procedimientos--
 PCallFuncProc . CallFunProc ::= Id "(" [Exp] ")" ;
 
--- Llamada d Proc --
+-- Llamada de Proc --
 PCallProc . CallProc ::= Id "(" [ExpC] ExpC ")" ;
 PCallProcEmpty . CallProc ::= Id ;
 
@@ -161,7 +156,6 @@ terminator ExpC "," ;
 
 --Expresiones--
 separator Exp "," ;
---terminator Exp "," ;--
 
 --not--
 PNotExp . Exp ::= "not" Exp1 ;
@@ -204,11 +198,18 @@ coercions Exp 4 ;
 --Acceso--
 separator nonempty AccId "." ;
 PAccId . AccId ::= Id ;
-PtrAccId . AccId ::= Id "^" ;
+PAccIdPointer . AccId ::= Id [Pointer];
 PtrArrayAccess . AccId ::= ArrayAccess ;
+PtrArrayAccessPointer . AccId ::= ArrayAccess [Pointer] ;
+
+--ArrayAccess
 PArrayAccess . ArrayAccess ::= Id "[" [TypeAccess] "]" ;
 separator nonempty TypeAccess "," ;
 PTypeAccessLiteral . TypeAccess ::= Exp ;
+
+--Pointer
+separator nonempty Pointer "" ;
+PPointer2 . Pointer ::= "^" ;
 
 
 --Terminators--

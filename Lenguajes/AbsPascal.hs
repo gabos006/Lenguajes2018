@@ -78,19 +78,20 @@ data Body = PBody [Instruction]
   deriving (Eq, Ord, Show, Read)
 
 data Instruction
-    = PListSimpleInstruction SimpleInstruction
+    = PInstruction
+    | PListSimpleInstruction SimpleInstruction
     | PListCompositeInstruction StructuredInstruction
-  deriving (Eq, Ord, Show, Read)
-
-data StructuredInstruction
-    = PStructuredInstructionComp CompositeInstruction
-    | PStructuredInstructionCond ConditionalInstruction
-    | PStructuredInstructionRepe RepetitiveInstruction
   deriving (Eq, Ord, Show, Read)
 
 data SimpleInstruction
     = PSimpleInstructionAssignment [AccId] Exp
     | PSimpleInstructionProc CallProc
+  deriving (Eq, Ord, Show, Read)
+
+data StructuredInstruction
+    = PStructuredInstructionBegEnd [Instruction]
+    | PStructuredInstructionCond ConditionalInstruction
+    | PStructuredInstructionComp CompositeInstruction
   deriving (Eq, Ord, Show, Read)
 
 data ConditionalInstruction
@@ -99,24 +100,17 @@ data ConditionalInstruction
     | PCompositeInstructionCase Exp [Ramas]
   deriving (Eq, Ord, Show, Read)
 
-data RepetitiveInstruction
-    = PCompositeInstructionRepeat [Instruction] Exp
+data CompositeInstruction
+    = PCompositeInstructionRepeat [Instruction] Instruction Exp
     | PCompositeInstructionForTo Id Exp Exp Instruction
     | PCompositeInstructionForDownTo Id Exp Exp Instruction
     | PCompositeInstructionWhile Exp Body
   deriving (Eq, Ord, Show, Read)
 
-data CompositeInstruction = PSimpleInstructionBegEnd Body
-  deriving (Eq, Ord, Show, Read)
-
-data Ramas = PCaseRamCase [ConstCase] BodyRamaCase
+data Ramas = PCaseRamCase [ConstCase] Instruction
   deriving (Eq, Ord, Show, Read)
 
 data ConstCase = PConstCaseLiteral Literal | PConsCaseId Id
-  deriving (Eq, Ord, Show, Read)
-
-data BodyRamaCase
-    = PBodyRamaCaseOne Instruction | PBodyRamaCaseMany Body
   deriving (Eq, Ord, Show, Read)
 
 data CallFunProc = PCallFuncProc Id [Exp]
@@ -161,12 +155,19 @@ data MulCom
     | PTermExpAnd
   deriving (Eq, Ord, Show, Read)
 
-data AccId = PAccId Id | PtrAccId Id | PtrArrayAccess ArrayAccess
+data AccId
+    = PAccId Id
+    | PAccIdPointer Id [Pointer]
+    | PtrArrayAccess ArrayAccess
+    | PtrArrayAccessPointer ArrayAccess [Pointer]
   deriving (Eq, Ord, Show, Read)
 
 data ArrayAccess = PArrayAccess Id [TypeAccess]
   deriving (Eq, Ord, Show, Read)
 
 data TypeAccess = PTypeAccessLiteral Exp
+  deriving (Eq, Ord, Show, Read)
+
+data Pointer = PPointer2
   deriving (Eq, Ord, Show, Read)
 
