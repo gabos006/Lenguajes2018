@@ -49,12 +49,12 @@ The reserved words used in Pascal are the following:
   | ``until`` | ``var`` | ``while`` | 
 
 The symbols used in Pascal are the following:
-  | ; | = | : | (
-  | ) | .. | ^ | [
-  | ] | , | end. | :=
+  | ; | . | = | :
+  | ( | ) | .. | ^
+  | [ | ] | , | :=
   | > | < | >= | <=
   | <> | - | + | *
-  | / | . |  | 
+  | / |  |  | 
 
 ===Comments===
 There are no single-line comments in the grammar.Multiple-line comments are  enclosed with (* and *).
@@ -66,7 +66,7 @@ and **eps** (empty rule) belong to the BNF notation.
 All other symbols are terminals.
 
   | //Program// | -> | ``program`` //Id// ``;`` //Block// 
-  | //Block// | -> | //Parts// //Body// 
+  | //Block// | -> | //Parts// //Body// ``.`` 
   | //Parts// | -> | //Consts// //Types// //Vars// //[ProcsYFuncs]// 
   | //Consts// | -> | **eps**
   |  |  **|**  | ``const`` //[Const]// //Const// ``;`` 
@@ -108,8 +108,8 @@ All other symbols are terminals.
   |  |  **|**  | //DecParm// ``;`` //[DecParm]// 
   | //DecParm// | -> | ``var`` //[Id]// ``:`` //Id// 
   |  |  **|**  | //[Id]// ``:`` //Id// 
-  | //BlockProcFun// | -> | //Parts// //StructuredInstruction// 
-  | //Body// | -> | ``begin`` //[Instruction]// ``end.`` 
+  | //BlockProcFun// | -> | //Parts// //Body// 
+  | //Body// | -> | ``begin`` //[Instruction]// ``end`` 
   | //[Instruction]// | -> | //Instruction// 
   |  |  **|**  | //Instruction// ``;`` //[Instruction]// 
   | //Instruction// | -> | **eps**
@@ -126,7 +126,7 @@ All other symbols are terminals.
   | //CompositeInstruction// | -> | ``repeat`` //[Instruction]// ``until`` //Exp// 
   |  |  **|**  | ``for`` //Id// ``:=`` //Exp// ``to`` //Exp// ``do`` //Instruction// 
   |  |  **|**  | ``for`` //Id// ``:=`` //Exp// ``downto`` //Exp// ``do`` //Instruction// 
-  |  |  **|**  | ``while`` //Exp// ``do`` //StructuredInstruction// 
+  |  |  **|**  | ``while`` //Exp// ``do`` //Body// 
   | //[Ramas]// | -> | //Ramas// 
   |  |  **|**  | //Ramas// ``;`` //[Ramas]// 
   | //Ramas// | -> | //[ConstCase]// ``:`` //Instruction// 

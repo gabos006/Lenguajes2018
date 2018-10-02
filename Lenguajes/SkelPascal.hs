@@ -78,7 +78,7 @@ transDecParm x = case x of
   PDecParam ids id -> failure x
 transBlockProcFun :: BlockProcFun -> Result
 transBlockProcFun x = case x of
-  PBlockProcFun parts structuredinstruction -> failure x
+  PBlockProcFun parts body -> failure x
 transBody :: Body -> Result
 transBody x = case x of
   PBody instructions -> failure x
@@ -106,7 +106,7 @@ transCompositeInstruction x = case x of
   PCompositeInstructionRepeat instructions exp -> failure x
   PCompositeInstructionForTo id exp1 exp2 instruction -> failure x
   PCompositeInstructionForDownTo id exp1 exp2 instruction -> failure x
-  PCompositeInstructionWhile exp structuredinstruction -> failure x
+  PCompositeInstructionWhile exp body -> failure x
 transRamas :: Ramas -> Result
 transRamas x = case x of
   PCaseRamCase constcases instruction -> failure x

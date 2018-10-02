@@ -7,7 +7,7 @@ PProgram . Program ::= "program" Id ";" Block ;
 
 
 --Bloque--
-PBlock . Block ::= Parts Body ;
+PBlock . Block ::= Parts Body "." ;
 
 
 --Partes--
@@ -82,10 +82,10 @@ PDecParamVar . DecParm ::= "var" [Id] ":" Id ;
 PDecParam . DecParm ::= [Id] ":" Id ;
 
 --Bloque Proc y Fun--
-PBlockProcFun . BlockProcFun ::= Parts StructuredInstruction ;
+PBlockProcFun . BlockProcFun ::= Parts Body ;
 
 --Cuerpo Programa--
-PBody . Body ::= "begin" [Instruction] "end." ;
+PBody . Body ::= "begin" [Instruction] "end" ;
 
 
 --Instrucciones--
@@ -125,7 +125,7 @@ PCompositeInstructionForTo . CompositeInstruction ::= "for" Id ":=" Exp "to" Exp
 PCompositeInstructionForDownTo . CompositeInstruction ::= "for" Id ":=" Exp "downto" Exp "do" Instruction ;
 
 --Instruccion While--
-PCompositeInstructionWhile . CompositeInstruction ::= "while" Exp "do" StructuredInstruction ;
+PCompositeInstructionWhile . CompositeInstruction ::= "while" Exp "do" Body ;
 
 --Instruccion Case--
 PCompositeInstructionCase . ConditionalInstruction ::= "case" Exp "of" [Ramas] "end" ;
@@ -138,10 +138,6 @@ PCaseRamCase . Ramas ::= [ConstCase] ":" Instruction ;
 separator ConstCase "," ;
 PConstCaseLiteral . ConstCase ::= Literal ;
 PConsCaseId . ConstCase ::= Id ;
-
---Body rama Case--
---PBodyRamaCaseOne . BodyRamaCase ::= Instruction ;
---PBodyRamaCaseMany . BodyRamaCase ::= Body ;
  
 
 --Llamada a Funciones y Procedimientos--

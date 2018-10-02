@@ -99,24 +99,23 @@ import ErrM
   'downto' { PT _ (TS _ 29) }
   'else' { PT _ (TS _ 30) }
   'end' { PT _ (TS _ 31) }
-  'end.' { PT _ (TS _ 32) }
-  'for' { PT _ (TS _ 33) }
-  'function' { PT _ (TS _ 34) }
-  'if' { PT _ (TS _ 35) }
-  'mod' { PT _ (TS _ 36) }
-  'not' { PT _ (TS _ 37) }
-  'of' { PT _ (TS _ 38) }
-  'or' { PT _ (TS _ 39) }
-  'procedure' { PT _ (TS _ 40) }
-  'program' { PT _ (TS _ 41) }
-  'record' { PT _ (TS _ 42) }
-  'repeat' { PT _ (TS _ 43) }
-  'then' { PT _ (TS _ 44) }
-  'to' { PT _ (TS _ 45) }
-  'type' { PT _ (TS _ 46) }
-  'until' { PT _ (TS _ 47) }
-  'var' { PT _ (TS _ 48) }
-  'while' { PT _ (TS _ 49) }
+  'for' { PT _ (TS _ 32) }
+  'function' { PT _ (TS _ 33) }
+  'if' { PT _ (TS _ 34) }
+  'mod' { PT _ (TS _ 35) }
+  'not' { PT _ (TS _ 36) }
+  'of' { PT _ (TS _ 37) }
+  'or' { PT _ (TS _ 38) }
+  'procedure' { PT _ (TS _ 39) }
+  'program' { PT _ (TS _ 40) }
+  'record' { PT _ (TS _ 41) }
+  'repeat' { PT _ (TS _ 42) }
+  'then' { PT _ (TS _ 43) }
+  'to' { PT _ (TS _ 44) }
+  'type' { PT _ (TS _ 45) }
+  'until' { PT _ (TS _ 46) }
+  'var' { PT _ (TS _ 47) }
+  'while' { PT _ (TS _ 48) }
 
 L_integ  { PT _ (TI $$) }
 L_doubl  { PT _ (TD $$) }
@@ -136,7 +135,7 @@ Id    :: { Id} : L_Id { Id ($1)}
 Program :: { Program }
 Program : 'program' Id ';' Block { AbsPascal.PProgram $2 $4 }
 Block :: { Block }
-Block : Parts Body { AbsPascal.PBlock $1 $2 }
+Block : Parts Body '.' { AbsPascal.PBlock $1 $2 }
 Parts :: { Parts }
 Parts : Consts Types Vars ListProcsYFuncs { AbsPascal.PPart $1 $2 $3 (reverse $4) }
 Consts :: { Consts }
@@ -197,9 +196,9 @@ DecParm :: { DecParm }
 DecParm : 'var' ListId ':' Id { AbsPascal.PDecParamVar $2 $4 }
         | ListId ':' Id { AbsPascal.PDecParam $1 $3 }
 BlockProcFun :: { BlockProcFun }
-BlockProcFun : Parts StructuredInstruction { AbsPascal.PBlockProcFun $1 $2 }
+BlockProcFun : Parts Body { AbsPascal.PBlockProcFun $1 $2 }
 Body :: { Body }
-Body : 'begin' ListInstruction 'end.' { AbsPascal.PBody $2 }
+Body : 'begin' ListInstruction 'end' { AbsPascal.PBody $2 }
 ListInstruction :: { [Instruction] }
 ListInstruction : Instruction { (:[]) $1 }
                 | Instruction ';' ListInstruction { (:) $1 $3 }
@@ -222,7 +221,7 @@ CompositeInstruction :: { CompositeInstruction }
 CompositeInstruction : 'repeat' ListInstruction 'until' Exp { AbsPascal.PCompositeInstructionRepeat $2 $4 }
                      | 'for' Id ':=' Exp 'to' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForTo $2 $4 $6 $8 }
                      | 'for' Id ':=' Exp 'downto' Exp 'do' Instruction { AbsPascal.PCompositeInstructionForDownTo $2 $4 $6 $8 }
-                     | 'while' Exp 'do' StructuredInstruction { AbsPascal.PCompositeInstructionWhile $2 $4 }
+                     | 'while' Exp 'do' Body { AbsPascal.PCompositeInstructionWhile $2 $4 }
 ListRamas :: { [Ramas] }
 ListRamas : Ramas { (:[]) $1 } | Ramas ';' ListRamas { (:) $1 $3 }
 Ramas :: { Ramas }

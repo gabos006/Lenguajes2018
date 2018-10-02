@@ -92,7 +92,7 @@ instance Print Program where
 
 instance Print Block where
   prt i e = case e of
-    PBlock parts body -> prPrec i 0 (concatD [prt 0 parts, prt 0 body])
+    PBlock parts body -> prPrec i 0 (concatD [prt 0 parts, prt 0 body, doc (showString ".")])
 
 instance Print Parts where
   prt i e = case e of
@@ -178,11 +178,11 @@ instance Print DecParm where
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
 instance Print BlockProcFun where
   prt i e = case e of
-    PBlockProcFun parts structuredinstruction -> prPrec i 0 (concatD [prt 0 parts, prt 0 structuredinstruction])
+    PBlockProcFun parts body -> prPrec i 0 (concatD [prt 0 parts, prt 0 body])
 
 instance Print Body where
   prt i e = case e of
-    PBody instructions -> prPrec i 0 (concatD [doc (showString "begin"), prt 0 instructions, doc (showString "end.")])
+    PBody instructions -> prPrec i 0 (concatD [doc (showString "begin"), prt 0 instructions, doc (showString "end")])
 
 instance Print Instruction where
   prt i e = case e of
@@ -213,7 +213,7 @@ instance Print CompositeInstruction where
     PCompositeInstructionRepeat instructions exp -> prPrec i 0 (concatD [doc (showString "repeat"), prt 0 instructions, doc (showString "until"), prt 0 exp])
     PCompositeInstructionForTo id exp1 exp2 instruction -> prPrec i 0 (concatD [doc (showString "for"), prt 0 id, doc (showString ":="), prt 0 exp1, doc (showString "to"), prt 0 exp2, doc (showString "do"), prt 0 instruction])
     PCompositeInstructionForDownTo id exp1 exp2 instruction -> prPrec i 0 (concatD [doc (showString "for"), prt 0 id, doc (showString ":="), prt 0 exp1, doc (showString "downto"), prt 0 exp2, doc (showString "do"), prt 0 instruction])
-    PCompositeInstructionWhile exp structuredinstruction -> prPrec i 0 (concatD [doc (showString "while"), prt 0 exp, doc (showString "do"), prt 0 structuredinstruction])
+    PCompositeInstructionWhile exp body -> prPrec i 0 (concatD [doc (showString "while"), prt 0 exp, doc (showString "do"), prt 0 body])
 
 instance Print Ramas where
   prt i e = case e of
