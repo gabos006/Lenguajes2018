@@ -1,3 +1,6 @@
+-- 224435 - Gabriel Pereyra
+-- 168772 - Mario Souto
+
 comment "(*" "*)" ;
 
 token Id (letter (letter | digit)*) ;
@@ -15,8 +18,8 @@ PPart . Parts ::=  Consts Types Vars [ProcsYFuncs] ;
 
 
 --Constantes--
-PPartConstEmpty . Consts ::= ;
-PPartConst . Consts ::= "const" [Const] Const ";" ;
+PPartConstsEmpty . Consts ::= ;
+PPartConst . Consts ::= "const" [Const] ;
 PConst . Const ::= Id "=" Literal ;
 
 
@@ -29,13 +32,13 @@ PValChar . Literal ::= Char ;
 
 --Variables--
 PPartVarsEmpty . Vars ::= ;
-PPartVars . Vars ::= "var" [Var] Var ";" ;
+PPartVars . Vars ::= "var" [Var] ;
 PVar . Var ::= [Id] ":" CustomType ;
 
 
 --Tipos--
 PPartTypesEmpty . Types ::= ;
-PPartTypes . Types ::= "type" [Type] Type ";" ;
+PPartTypes . Types ::= "type" [Type] ;
 PType . Type ::= Id "=" CustomType ;
 
 
@@ -157,30 +160,26 @@ separator Exp "," ;
 PNotExp . Exp ::= "not" Exp1 ;
 
 --Expresion General--
-PGeneralExp . Exp1 ::= Exp1 GenCom Exp2 ;
-PGeneralExpMayor . GenCom ::= ">" ;
-PGeneralExpMinor . GenCom ::= "<" ;
-PGeneralExpEqual . GenCom ::= "=" ;
-PGeneralExpMayorEqual . GenCom ::= ">=" ;
-PGeneralExpMinorEqual . GenCom ::= "<=" ;
-PGeneralExpDistinct . GenCom ::= "<>" ;
+PGeneralExpMayor . Exp1 ::= Exp1 ">" Exp2 ;
+PGeneralExpMinor . Exp1 ::= Exp1 "<" Exp2 ;
+PGeneralExpEqual . Exp1 ::= Exp1 "=" Exp2 ;
+PGeneralExpMyorEqual . Exp1 ::= Exp1 ">=" Exp2 ;
+PGeneralExpMinorEqual . Exp1 ::= Exp1 "<=" Exp2 ;
+PGeneralExpDistinct . Exp1 ::= Exp1 "<>" Exp2 ;
 
 --Expresion simple--
 PSimpleExpInvSign . Exp2 ::= "-" Exp3 ;
 PSimpleExpPreSum . Exp2 ::= "+" Exp3 ;
-PSimpleExp . Exp2 ::= Exp2 AddCom Exp3 ;
-
-PSimpleExpAdd . AddCom ::= "+" ;
-PSimpleExpEquals . AddCom ::= "or" ;
-PSimpleExpMinus . AddCom ::= "-" ;
+PSimpleExpPlus . Exp2 ::= Exp2 "+" Exp3 ;
+PSimpleExpOr . Exp2 ::= Exp2 "or" Exp3 ;
+PSimpleExpMinus . Exp2 ::= Exp2 "-" Exp3 ;
 
 --Terminos--
-PTermExp . Exp3 ::= Exp3 MulCom Exp4 ;
-PTermExpMul . MulCom ::= "*" ;
-PTermExpDiv1 . MulCom ::= "/" ;
-PTermExpDiv2 . MulCom ::= "div" ;
-PTermExpMod . MulCom ::= "mod" ;
-PTermExpAnd . MulCom ::= "and" ;
+PTermExpMul . Exp3 ::= Exp3 "*" Exp4 ;
+PTermExpDiv . Exp3 ::= Exp3 "/" Exp4 ;
+PTermExpDiv2 . Exp3 ::= Exp3 "div" Exp4 ;
+PTermExpMod . Exp3 ::= Exp3 "mod" Exp4 ;
+PTermExpAnd . Exp3 ::= Exp3 "and" Exp4 ;
 
 --Factor--
 PFactorLit . Exp4 ::= Literal ;
@@ -209,7 +208,7 @@ PPointer2 . Pointer ::= "^" ;
 
 
 --Terminators--
-terminator Const ";" ;
-terminator Var ";" ;
-terminator Type ";" ;
+terminator nonempty Const ";" ;
+terminator nonempty Var ";" ;
+terminator nonempty Type ";" ;
 separator Id "," ;

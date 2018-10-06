@@ -100,13 +100,13 @@ instance Print Parts where
 
 instance Print Consts where
   prt i e = case e of
-    PPartConstEmpty -> prPrec i 0 (concatD [])
-    PPartConst consts const -> prPrec i 0 (concatD [doc (showString "const"), prt 0 consts, prt 0 const, doc (showString ";")])
+    PPartConstsEmpty -> prPrec i 0 (concatD [])
+    PPartConst consts -> prPrec i 0 (concatD [doc (showString "const"), prt 0 consts])
 
 instance Print Const where
   prt i e = case e of
     PConst id literal -> prPrec i 0 (concatD [prt 0 id, doc (showString "="), prt 0 literal])
-  prtList _ [] = (concatD [])
+  prtList _ [x] = (concatD [prt 0 x, doc (showString ";")])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
 instance Print Literal where
   prt i e = case e of
@@ -118,22 +118,22 @@ instance Print Literal where
 instance Print Vars where
   prt i e = case e of
     PPartVarsEmpty -> prPrec i 0 (concatD [])
-    PPartVars vars var -> prPrec i 0 (concatD [doc (showString "var"), prt 0 vars, prt 0 var, doc (showString ";")])
+    PPartVars vars -> prPrec i 0 (concatD [doc (showString "var"), prt 0 vars])
 
 instance Print Var where
   prt i e = case e of
     PVar ids customtype -> prPrec i 0 (concatD [prt 0 ids, doc (showString ":"), prt 0 customtype])
-  prtList _ [] = (concatD [])
+  prtList _ [x] = (concatD [prt 0 x, doc (showString ";")])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
 instance Print Types where
   prt i e = case e of
     PPartTypesEmpty -> prPrec i 0 (concatD [])
-    PPartTypes types type_ -> prPrec i 0 (concatD [doc (showString "type"), prt 0 types, prt 0 type_, doc (showString ";")])
+    PPartTypes types -> prPrec i 0 (concatD [doc (showString "type"), prt 0 types])
 
 instance Print Type where
   prt i e = case e of
     PType id customtype -> prPrec i 0 (concatD [prt 0 id, doc (showString "="), prt 0 customtype])
-  prtList _ [] = (concatD [])
+  prtList _ [x] = (concatD [prt 0 x, doc (showString ";")])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
 instance Print CustomType where
   prt i e = case e of
@@ -244,11 +244,22 @@ instance Print ExpC where
 instance Print Exp where
   prt i e = case e of
     PNotExp exp -> prPrec i 0 (concatD [doc (showString "not"), prt 1 exp])
-    PGeneralExp exp1 gencom exp2 -> prPrec i 1 (concatD [prt 1 exp1, prt 0 gencom, prt 2 exp2])
+    PGeneralExpMayor exp1 exp2 -> prPrec i 1 (concatD [prt 1 exp1, doc (showString ">"), prt 2 exp2])
+    PGeneralExpMinor exp1 exp2 -> prPrec i 1 (concatD [prt 1 exp1, doc (showString "<"), prt 2 exp2])
+    PGeneralExpEqual exp1 exp2 -> prPrec i 1 (concatD [prt 1 exp1, doc (showString "="), prt 2 exp2])
+    PGeneralExpMyorEqual exp1 exp2 -> prPrec i 1 (concatD [prt 1 exp1, doc (showString ">="), prt 2 exp2])
+    PGeneralExpMinorEqual exp1 exp2 -> prPrec i 1 (concatD [prt 1 exp1, doc (showString "<="), prt 2 exp2])
+    PGeneralExpDistinct exp1 exp2 -> prPrec i 1 (concatD [prt 1 exp1, doc (showString "<>"), prt 2 exp2])
     PSimpleExpInvSign exp -> prPrec i 2 (concatD [doc (showString "-"), prt 3 exp])
     PSimpleExpPreSum exp -> prPrec i 2 (concatD [doc (showString "+"), prt 3 exp])
-    PSimpleExp exp1 addcom exp2 -> prPrec i 2 (concatD [prt 2 exp1, prt 0 addcom, prt 3 exp2])
-    PTermExp exp1 mulcom exp2 -> prPrec i 3 (concatD [prt 3 exp1, prt 0 mulcom, prt 4 exp2])
+    PSimpleExpPlus exp1 exp2 -> prPrec i 2 (concatD [prt 2 exp1, doc (showString "+"), prt 3 exp2])
+    PSimpleExpOr exp1 exp2 -> prPrec i 2 (concatD [prt 2 exp1, doc (showString "or"), prt 3 exp2])
+    PSimpleExpMinus exp1 exp2 -> prPrec i 2 (concatD [prt 2 exp1, doc (showString "-"), prt 3 exp2])
+    PTermExpMul exp1 exp2 -> prPrec i 3 (concatD [prt 3 exp1, doc (showString "*"), prt 4 exp2])
+    PTermExpDiv exp1 exp2 -> prPrec i 3 (concatD [prt 3 exp1, doc (showString "/"), prt 4 exp2])
+    PTermExpDiv2 exp1 exp2 -> prPrec i 3 (concatD [prt 3 exp1, doc (showString "div"), prt 4 exp2])
+    PTermExpMod exp1 exp2 -> prPrec i 3 (concatD [prt 3 exp1, doc (showString "mod"), prt 4 exp2])
+    PTermExpAnd exp1 exp2 -> prPrec i 3 (concatD [prt 3 exp1, doc (showString "and"), prt 4 exp2])
     PFactorLit literal -> prPrec i 4 (concatD [prt 0 literal])
     PFactorId accid -> prPrec i 4 (concatD [prt 0 accid])
     PFactorAccId accid accids -> prPrec i 4 (concatD [prt 0 accid, doc (showString "."), prt 0 accids])
@@ -256,29 +267,6 @@ instance Print Exp where
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
-instance Print GenCom where
-  prt i e = case e of
-    PGeneralExpMayor -> prPrec i 0 (concatD [doc (showString ">")])
-    PGeneralExpMinor -> prPrec i 0 (concatD [doc (showString "<")])
-    PGeneralExpEqual -> prPrec i 0 (concatD [doc (showString "=")])
-    PGeneralExpMayorEqual -> prPrec i 0 (concatD [doc (showString ">=")])
-    PGeneralExpMinorEqual -> prPrec i 0 (concatD [doc (showString "<=")])
-    PGeneralExpDistinct -> prPrec i 0 (concatD [doc (showString "<>")])
-
-instance Print AddCom where
-  prt i e = case e of
-    PSimpleExpAdd -> prPrec i 0 (concatD [doc (showString "+")])
-    PSimpleExpEquals -> prPrec i 0 (concatD [doc (showString "or")])
-    PSimpleExpMinus -> prPrec i 0 (concatD [doc (showString "-")])
-
-instance Print MulCom where
-  prt i e = case e of
-    PTermExpMul -> prPrec i 0 (concatD [doc (showString "*")])
-    PTermExpDiv1 -> prPrec i 0 (concatD [doc (showString "/")])
-    PTermExpDiv2 -> prPrec i 0 (concatD [doc (showString "div")])
-    PTermExpMod -> prPrec i 0 (concatD [doc (showString "mod")])
-    PTermExpAnd -> prPrec i 0 (concatD [doc (showString "and")])
-
 instance Print AccId where
   prt i e = case e of
     PAccId id -> prPrec i 0 (concatD [prt 0 id])

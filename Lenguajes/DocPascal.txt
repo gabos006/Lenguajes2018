@@ -69,17 +69,17 @@ All other symbols are terminals.
   | //Block// | -> | //Parts// //Body// ``.`` 
   | //Parts// | -> | //Consts// //Types// //Vars// //[ProcsYFuncs]// 
   | //Consts// | -> | **eps**
-  |  |  **|**  | ``const`` //[Const]// //Const// ``;`` 
+  |  |  **|**  | ``const`` //[Const]// 
   | //Const// | -> | //Id// ``=`` //Literal// 
   | //Literal// | -> | //Integer// 
   |  |  **|**  | //Double// 
   |  |  **|**  | //String// 
   |  |  **|**  | //Char// 
   | //Vars// | -> | **eps**
-  |  |  **|**  | ``var`` //[Var]// //Var// ``;`` 
+  |  |  **|**  | ``var`` //[Var]// 
   | //Var// | -> | //[Id]// ``:`` //CustomType// 
   | //Types// | -> | **eps**
-  |  |  **|**  | ``type`` //[Type]// //Type// ``;`` 
+  |  |  **|**  | ``type`` //[Type]// 
   | //Type// | -> | //Id// ``=`` //CustomType// 
   | //CustomType// | -> | ``(`` //[Id]// ``)`` 
   |  |  **|**  | //RangeType// ``..`` //RangeType// 
@@ -146,28 +146,25 @@ All other symbols are terminals.
   |  |  **|**  | //Exp// ``,`` //[Exp]// 
   | //Exp// | -> | ``not`` //Exp1// 
   |  |  **|**  | //Exp1// 
-  | //Exp1// | -> | //Exp1// //GenCom// //Exp2// 
+  | //Exp1// | -> | //Exp1// ``>`` //Exp2// 
+  |  |  **|**  | //Exp1// ``<`` //Exp2// 
+  |  |  **|**  | //Exp1// ``=`` //Exp2// 
+  |  |  **|**  | //Exp1// ``>=`` //Exp2// 
+  |  |  **|**  | //Exp1// ``<=`` //Exp2// 
+  |  |  **|**  | //Exp1// ``<>`` //Exp2// 
   |  |  **|**  | //Exp2// 
-  | //GenCom// | -> | ``>`` 
-  |  |  **|**  | ``<`` 
-  |  |  **|**  | ``=`` 
-  |  |  **|**  | ``>=`` 
-  |  |  **|**  | ``<=`` 
-  |  |  **|**  | ``<>`` 
   | //Exp2// | -> | ``-`` //Exp3// 
   |  |  **|**  | ``+`` //Exp3// 
-  |  |  **|**  | //Exp2// //AddCom// //Exp3// 
+  |  |  **|**  | //Exp2// ``+`` //Exp3// 
+  |  |  **|**  | //Exp2// ``or`` //Exp3// 
+  |  |  **|**  | //Exp2// ``-`` //Exp3// 
   |  |  **|**  | //Exp3// 
-  | //AddCom// | -> | ``+`` 
-  |  |  **|**  | ``or`` 
-  |  |  **|**  | ``-`` 
-  | //Exp3// | -> | //Exp3// //MulCom// //Exp4// 
+  | //Exp3// | -> | //Exp3// ``*`` //Exp4// 
+  |  |  **|**  | //Exp3// ``/`` //Exp4// 
+  |  |  **|**  | //Exp3// ``div`` //Exp4// 
+  |  |  **|**  | //Exp3// ``mod`` //Exp4// 
+  |  |  **|**  | //Exp3// ``and`` //Exp4// 
   |  |  **|**  | //Exp4// 
-  | //MulCom// | -> | ``*`` 
-  |  |  **|**  | ``/`` 
-  |  |  **|**  | ``div`` 
-  |  |  **|**  | ``mod`` 
-  |  |  **|**  | ``and`` 
   | //Exp4// | -> | //Literal// 
   |  |  **|**  | //AccId// 
   |  |  **|**  | //AccId// ``.`` //[AccId]// 
@@ -186,11 +183,11 @@ All other symbols are terminals.
   | //[Pointer]// | -> | //Pointer// 
   |  |  **|**  | //Pointer// //[Pointer]// 
   | //Pointer// | -> | ``^`` 
-  | //[Const]// | -> | **eps**
+  | //[Const]// | -> | //Const// ``;`` 
   |  |  **|**  | //Const// ``;`` //[Const]// 
-  | //[Var]// | -> | **eps**
+  | //[Var]// | -> | //Var// ``;`` 
   |  |  **|**  | //Var// ``;`` //[Var]// 
-  | //[Type]// | -> | **eps**
+  | //[Type]// | -> | //Type// ``;`` 
   |  |  **|**  | //Type// ``;`` //[Type]// 
   | //[Id]// | -> | **eps**
   |  |  **|**  | //Id// 

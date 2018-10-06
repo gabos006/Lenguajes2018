@@ -17,7 +17,7 @@ data Block = PBlock Parts Body
 data Parts = PPart Consts Types Vars [ProcsYFuncs]
   deriving (Eq, Ord, Show, Read)
 
-data Consts = PPartConstEmpty | PPartConst [Const] Const
+data Consts = PPartConstsEmpty | PPartConst [Const]
   deriving (Eq, Ord, Show, Read)
 
 data Const = PConst Id Literal
@@ -30,13 +30,13 @@ data Literal
     | PValChar Char
   deriving (Eq, Ord, Show, Read)
 
-data Vars = PPartVarsEmpty | PPartVars [Var] Var
+data Vars = PPartVarsEmpty | PPartVars [Var]
   deriving (Eq, Ord, Show, Read)
 
 data Var = PVar [Id] CustomType
   deriving (Eq, Ord, Show, Read)
 
-data Types = PPartTypesEmpty | PPartTypes [Type] Type
+data Types = PPartTypesEmpty | PPartTypes [Type]
   deriving (Eq, Ord, Show, Read)
 
 data Type = PType Id CustomType
@@ -124,35 +124,26 @@ data ExpC = PExpC Exp
 
 data Exp
     = PNotExp Exp
-    | PGeneralExp Exp GenCom Exp
+    | PGeneralExpMayor Exp Exp
+    | PGeneralExpMinor Exp Exp
+    | PGeneralExpEqual Exp Exp
+    | PGeneralExpMyorEqual Exp Exp
+    | PGeneralExpMinorEqual Exp Exp
+    | PGeneralExpDistinct Exp Exp
     | PSimpleExpInvSign Exp
     | PSimpleExpPreSum Exp
-    | PSimpleExp Exp AddCom Exp
-    | PTermExp Exp MulCom Exp
+    | PSimpleExpPlus Exp Exp
+    | PSimpleExpOr Exp Exp
+    | PSimpleExpMinus Exp Exp
+    | PTermExpMul Exp Exp
+    | PTermExpDiv Exp Exp
+    | PTermExpDiv2 Exp Exp
+    | PTermExpMod Exp Exp
+    | PTermExpAnd Exp Exp
     | PFactorLit Literal
     | PFactorId AccId
     | PFactorAccId AccId [AccId]
     | PFactorCall CallFunProc
-  deriving (Eq, Ord, Show, Read)
-
-data GenCom
-    = PGeneralExpMayor
-    | PGeneralExpMinor
-    | PGeneralExpEqual
-    | PGeneralExpMayorEqual
-    | PGeneralExpMinorEqual
-    | PGeneralExpDistinct
-  deriving (Eq, Ord, Show, Read)
-
-data AddCom = PSimpleExpAdd | PSimpleExpEquals | PSimpleExpMinus
-  deriving (Eq, Ord, Show, Read)
-
-data MulCom
-    = PTermExpMul
-    | PTermExpDiv1
-    | PTermExpDiv2
-    | PTermExpMod
-    | PTermExpAnd
   deriving (Eq, Ord, Show, Read)
 
 data AccId

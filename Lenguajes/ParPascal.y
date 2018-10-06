@@ -47,11 +47,8 @@ import ErrM
 %name pListExp ListExp
 %name pExp Exp
 %name pExp1 Exp1
-%name pGenCom GenCom
 %name pExp2 Exp2
-%name pAddCom AddCom
 %name pExp3 Exp3
-%name pMulCom MulCom
 %name pExp4 Exp4
 %name pListAccId ListAccId
 %name pAccId AccId
@@ -139,8 +136,8 @@ Block : Parts Body '.' { AbsPascal.PBlock $1 $2 }
 Parts :: { Parts }
 Parts : Consts Types Vars ListProcsYFuncs { AbsPascal.PPart $1 $2 $3 (reverse $4) }
 Consts :: { Consts }
-Consts : {- empty -} { AbsPascal.PPartConstEmpty }
-       | 'const' ListConst Const ';' { AbsPascal.PPartConst (reverse $2) $3 }
+Consts : {- empty -} { AbsPascal.PPartConstsEmpty }
+       | 'const' ListConst { AbsPascal.PPartConst $2 }
 Const :: { Const }
 Const : Id '=' Literal { AbsPascal.PConst $1 $3 }
 Literal :: { Literal }
@@ -150,12 +147,12 @@ Literal : Integer { AbsPascal.PValInteger $1 }
         | Char { AbsPascal.PValChar $1 }
 Vars :: { Vars }
 Vars : {- empty -} { AbsPascal.PPartVarsEmpty }
-     | 'var' ListVar Var ';' { AbsPascal.PPartVars (reverse $2) $3 }
+     | 'var' ListVar { AbsPascal.PPartVars $2 }
 Var :: { Var }
 Var : ListId ':' CustomType { AbsPascal.PVar $1 $3 }
 Types :: { Types }
 Types : {- empty -} { AbsPascal.PPartTypesEmpty }
-      | 'type' ListType Type ';' { AbsPascal.PPartTypes (reverse $2) $3 }
+      | 'type' ListType { AbsPascal.PPartTypes $2 }
 Type :: { Type }
 Type : Id '=' CustomType { AbsPascal.PType $1 $3 }
 CustomType :: { CustomType }
@@ -250,33 +247,27 @@ ListExp : {- empty -} { [] }
 Exp :: { Exp }
 Exp : 'not' Exp1 { AbsPascal.PNotExp $2 } | Exp1 { $1 }
 Exp1 :: { Exp }
-Exp1 : Exp1 GenCom Exp2 { AbsPascal.PGeneralExp $1 $2 $3 }
+Exp1 : Exp1 '>' Exp2 { AbsPascal.PGeneralExpMayor $1 $3 }
+     | Exp1 '<' Exp2 { AbsPascal.PGeneralExpMinor $1 $3 }
+     | Exp1 '=' Exp2 { AbsPascal.PGeneralExpEqual $1 $3 }
+     | Exp1 '>=' Exp2 { AbsPascal.PGeneralExpMyorEqual $1 $3 }
+     | Exp1 '<=' Exp2 { AbsPascal.PGeneralExpMinorEqual $1 $3 }
+     | Exp1 '<>' Exp2 { AbsPascal.PGeneralExpDistinct $1 $3 }
      | Exp2 { $1 }
-GenCom :: { GenCom }
-GenCom : '>' { AbsPascal.PGeneralExpMayor }
-       | '<' { AbsPascal.PGeneralExpMinor }
-       | '=' { AbsPascal.PGeneralExpEqual }
-       | '>=' { AbsPascal.PGeneralExpMayorEqual }
-       | '<=' { AbsPascal.PGeneralExpMinorEqual }
-       | '<>' { AbsPascal.PGeneralExpDistinct }
 Exp2 :: { Exp }
 Exp2 : '-' Exp3 { AbsPascal.PSimpleExpInvSign $2 }
      | '+' Exp3 { AbsPascal.PSimpleExpPreSum $2 }
-     | Exp2 AddCom Exp3 { AbsPascal.PSimpleExp $1 $2 $3 }
+     | Exp2 '+' Exp3 { AbsPascal.PSimpleExpPlus $1 $3 }
+     | Exp2 'or' Exp3 { AbsPascal.PSimpleExpOr $1 $3 }
+     | Exp2 '-' Exp3 { AbsPascal.PSimpleExpMinus $1 $3 }
      | Exp3 { $1 }
-AddCom :: { AddCom }
-AddCom : '+' { AbsPascal.PSimpleExpAdd }
-       | 'or' { AbsPascal.PSimpleExpEquals }
-       | '-' { AbsPascal.PSimpleExpMinus }
 Exp3 :: { Exp }
-Exp3 : Exp3 MulCom Exp4 { AbsPascal.PTermExp $1 $2 $3 }
+Exp3 : Exp3 '*' Exp4 { AbsPascal.PTermExpMul $1 $3 }
+     | Exp3 '/' Exp4 { AbsPascal.PTermExpDiv $1 $3 }
+     | Exp3 'div' Exp4 { AbsPascal.PTermExpDiv2 $1 $3 }
+     | Exp3 'mod' Exp4 { AbsPascal.PTermExpMod $1 $3 }
+     | Exp3 'and' Exp4 { AbsPascal.PTermExpAnd $1 $3 }
      | Exp4 { $1 }
-MulCom :: { MulCom }
-MulCom : '*' { AbsPascal.PTermExpMul }
-       | '/' { AbsPascal.PTermExpDiv1 }
-       | 'div' { AbsPascal.PTermExpDiv2 }
-       | 'mod' { AbsPascal.PTermExpMod }
-       | 'and' { AbsPascal.PTermExpAnd }
 Exp4 :: { Exp }
 Exp4 : Literal { AbsPascal.PFactorLit $1 }
      | AccId { AbsPascal.PFactorId $1 }
@@ -303,13 +294,12 @@ ListPointer : Pointer { (:[]) $1 }
 Pointer :: { Pointer }
 Pointer : '^' { AbsPascal.PPointer2 }
 ListConst :: { [Const] }
-ListConst : {- empty -} { [] }
-          | ListConst Const ';' { flip (:) $1 $2 }
+ListConst : Const ';' { (:[]) $1 }
+          | Const ';' ListConst { (:) $1 $3 }
 ListVar :: { [Var] }
-ListVar : {- empty -} { [] } | ListVar Var ';' { flip (:) $1 $2 }
+ListVar : Var ';' { (:[]) $1 } | Var ';' ListVar { (:) $1 $3 }
 ListType :: { [Type] }
-ListType : {- empty -} { [] }
-         | ListType Type ';' { flip (:) $1 $2 }
+ListType : Type ';' { (:[]) $1 } | Type ';' ListType { (:) $1 $3 }
 ListId :: { [Id] }
 ListId : {- empty -} { [] }
        | Id { (:[]) $1 }
