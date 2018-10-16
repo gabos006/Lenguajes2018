@@ -12,8 +12,8 @@ import Control.Monad
 
 type Context = Map Ident Type
 
-type ValSig =  ([(Bool,Type)],Type)
 type Signatures = Map Ident ValSig
+type ValSig =  ([(Bool,Type)],Type)
 
 type Env = (Context,Signatures)
 
@@ -40,11 +40,10 @@ checkAddContext :: VarDecl -> Context -> Err (Context)
 checkAddContext (VDecl [] t) context = return context
 checkAddContext (VDecl (i:is) t) context = case Map.lookup i context of
                                               (Just a) -> fail "Variable ya existente";
-                                              Nothing -> do {
-                                                              a <- Map.update i t context;
-                                                              b <- checkAddContext (VDecl is t) a;
-                                                              return b
-                                                            }
+                                               Nothing -> do {
+                                                               newContext <- checkAddContext (VDecl is t) (Map.insert i t context);
+                                                               return newContext
+                                                             }
 
 
 --checkStms ::
