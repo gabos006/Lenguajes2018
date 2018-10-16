@@ -39,7 +39,7 @@ loadContext (VPart (i:is)) context = do {
 checkAddContext :: VarDecl -> Context -> Err (Context)
 checkAddContext (VDecl [] t) context = return context
 checkAddContext (VDecl (i:is) t) context = case Map.lookup i context of
-                                              (Just a) -> fail "Variable ya existente";
+                                              (Just a) -> fail ("Variable " ++ show(i) ++ " ya existente");
                                                Nothing -> do {
                                                                newContext <- checkAddContext (VDecl is t) (Map.insert i t context);
                                                                return newContext
