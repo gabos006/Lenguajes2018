@@ -24,15 +24,22 @@ typeCheck program = checkProgram program
 -- CHECK Program
 checkProgram :: Program -> Err ()
 checkProgram (PBlock name varPart procFuns stms) = do {
-                                                        context <- buildContext varPart Map.empty;
-                                                        signatures <- buildSignatures context Map.empty procFuns;
-                                                        checkStms ((context,signatures)) stms
+                                                        env <- buildEnv varPart procFuns;
+                                                        chekBodyAndFunctions procFuns stms env
                                                       }
 
-buildSignatures :: Context -> Signatures -> [Def] -> Err (Signatures)
-buildSignatures context signatures (d:ds) = do {
-                                     resultSignatures <- chkAddSignature context signatures d;
-                                     buildSignatures context resultSignatures ds
+buildEnv :: VarPart -> [Def] -> Err ((Context,Signatures))
+buildEnv varPart procFuns = do {
+                                        resultContext <- buildContext varPart Map.empty;
+                                        resultSignatures <- buildSignatures procFuns Map.empty;
+                                        return (resultContext,resultSignatures)
+                                      }
+
+
+buildSignatures :: [Def] -> Signatures -> Err (Signatures)
+buildSignatures (d:ds) signatures = do {
+                                     resultSignatures <- chkAddSignature signatures d;
+                                     buildSignatures  ds resultSignatures
                                    }
 
 
@@ -40,9 +47,9 @@ buildSignatures context signatures (d:ds) = do {
 -- LUEGO CON EL ENV RESULTADO DE LA PRIMERA RECORRIDA SE COMIENZA A HACER LAS STMS
 
 
-chkAddSignature :: Context -> Signatures -> Def -> Err (Signatures)
-chkAddSignature context signatures (DProc name parms varPart stms) = return (Map.empty)
-chkAddSignature context signatures (DFun name parms funType varPart stms) = return (Map.empty)
+chkAddSignature :: Signatures -> Def -> Err (Signatures)
+chkAddSignature signatures (DProc name parms varPart stms) = return (Map.empty)
+chkAddSignature signatures (DFun name parms funType varPart stms) = return (Map.empty)
 
 
 --checkParms :: Signatures -> Ident -> [Param] -> Err (Signatures)
@@ -73,6 +80,10 @@ chkAddContext (VDecl (i:is) t) context = case Map.lookup i context of
                                                Nothing -> do {
                                                                chkAddContext (VDecl is t) (Map.insert i t context);
                                                              }
+
+
+chekBodyAndFunctions :: [Def] -> [Stm] -> Env -> Err ()
+chekBodyAndFunctions procFuns stms env = return () -- ACA SE DEBERIA TENER QUE EMPEZAR A LLAMAR AL checkStms
 
 checkStms :: Env -> [Stm] -> Err ()
 checkStms env stms = return ()
