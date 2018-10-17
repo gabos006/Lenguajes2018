@@ -15,7 +15,7 @@ type Context = Map Ident Type
 
 type Signatures = Map Ident ValSig
 type ValSig =  ([SignParameter],Maybe Type)
-type SignParameter = (Ident,Type)
+type SignParameter = (Ident,(Bool,Type))
 
 
 -- MAIN
@@ -56,19 +56,19 @@ checkListParams :: [SignParameter] -> Ident -> [Param] -> Err ([SignParameter])
 checkListParams sigParams name [] = return (sigParams);
 checkListParams sigParams name (p:ps) = do {
                                              resultSigParms <- checkParams p sigParams name;
-                                             checkListParams  resultSigParms name ps 
+                                             checkListParams  resultSigParms name ps
                                            }
 
 checkParams :: Param -> [SignParameter] -> Ident -> Err ([SignParameter])
 checkParams (ParamSingle [] t) sigParams name = return (sigParams)
 checkParams (ParamSingle (i:is) t) sigParams name = case lookup i sigParams of {
                                                       (Just a) -> fail ("Variable " ++ show(i) ++ " ya se encuentra delacarada en la firma de " ++ show(name));
-                                                       Nothing -> return ((i,t):sigParams) -- SE AGREGAR A LA LISTA sigParams 
+                                                       Nothing -> return ((i,(False,t)):sigParams) -- SE AGREGAR A LA LISTA sigParams
                                                     }
 checkParams (ParamRef [] t) sigParams name = return (sigParams)
 checkParams (ParamRef (i:is) t) sigParams name = case lookup i sigParams of {
                                                       (Just a) -> fail ("Variable " ++ show(i) ++ " ya se encuentra delacarada en la firma de " ++ show(name));
-                                                       Nothing -> return ((i,t):sigParams) -- SE AGREGAR A LA LISTA sigParams 
+                                                       Nothing -> return ((i,(True,t)):sigParams) -- SE AGREGAR A LA LISTA sigParams
                                                     }
 
 
