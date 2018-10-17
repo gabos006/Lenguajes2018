@@ -14,12 +14,18 @@ type Env = (Context,Signatures)
 type Context = Map Ident Type
 
 type Signatures = Map Ident ValSig
-type ValSig =  ([(Bool,Type)],Maybe Type)
+type ValSig =  ([SignParameter],Maybe Type)
+type SignParameter = (Ident,Type)
 
 
 -- MAIN
 typeCheck :: Program -> Err ()
 typeCheck program = checkProgram program
+
+
+-- SE DEBE HACER DOS RECORRIDAS SUPUESTAMENTE, EN LA PRIMERA SE CARGA EL CONTEXT Y EL SIGNATURES Y
+-- LUEGO CON EL ENV RESULTADO DE LA PRIMERA RECORRIDA SE COMIENZA A HACER LAS STMS
+
 
 -- CHECK Program
 checkProgram :: Program -> Err ()
@@ -30,48 +36,49 @@ checkProgram (PBlock name varPart procFuns stms) = do {
 
 buildEnv :: VarPart -> [Def] -> Err ((Context,Signatures))
 buildEnv varPart procFuns = do {
-                                        resultContext <- buildContext varPart Map.empty;
-                                        resultSignatures <- buildSignatures procFuns Map.empty;
-                                        return (resultContext,resultSignatures)
-                                      }
-
+                                 resultContext <- buildContext varPart Map.empty;
+                                 resultSignatures <- buildSignatures procFuns Map.empty;
+                                 return (resultContext,resultSignatures)
+                               }
 
 buildSignatures :: [Def] -> Signatures -> Err (Signatures)
 buildSignatures (d:ds) signatures = do {
-                                     resultSignatures <- chkAddSignature signatures d;
-                                     buildSignatures  ds resultSignatures
-                                   }
+                                         resultSignatures <- buildSignature signatures d;
+                                         buildSignatures  ds resultSignatures
+                                       }
+
+buildSignature :: Signatures -> Def -> Err (Signatures)
+buildSignature signatures (DProc name parms varPart stms) = return (Map.empty)
+buildSignature signatures (DFun name parms funType varPart stms) = return (Map.empty)
 
 
--- SE DEBE HACER DOS RECORRIDAS SUPUESTAMENTE, EN LA PRIMERA SE CARGA EL CONTEXT Y EL SIGNATURES Y
--- LUEGO CON EL ENV RESULTADO DE LA PRIMERA RECORRIDA SE COMIENZA A HACER LAS STMS
+checkListParams :: [SignParameter] -> Ident -> [Param] -> Err ([SignParameter])
+checkListParams sigParams name [] = return (sigParams);
+checkListParams sigParams name (p:ps) = do {
+                                             resultSigParms <- checkParams p sigParams name;
+                                             checkListParams  resultSigParms name ps 
+                                           }
 
-
-chkAddSignature :: Signatures -> Def -> Err (Signatures)
-chkAddSignature signatures (DProc name parms varPart stms) = return (Map.empty)
-chkAddSignature signatures (DFun name parms funType varPart stms) = return (Map.empty)
-
-
---checkParms :: Signatures -> Ident -> [Param] -> Err (Signatures)
---checkParms sigs name [] = return sigs;
---checkParms sigs name (p:ps) = case elem p ps of
---                    {
---                      True -> fail "La variable " ++ show(p) ++ "se redefine en " ++ show(name);
---                      False -> return checkParms (addSignature sigs p) name ps;
---                    }
-
---addSignature :: Signatures -> Param -> Signatures
---addSignature sigs (ParamSingle [Ident] t) =
---addSignature sigs (ParamRef [Ident] t) =
+checkParams :: Param -> [SignParameter] -> Ident -> Err ([SignParameter])
+checkParams (ParamSingle [] t) sigParams name = return (sigParams)
+checkParams (ParamSingle (i:is) t) sigParams name = case lookup i sigParams of {
+                                                      (Just a) -> fail ("Variable " ++ show(i) ++ " ya se encuentra delacarada en la firma de " ++ show(name));
+                                                       Nothing -> return ((i,t):sigParams) -- SE AGREGAR A LA LISTA sigParams 
+                                                    }
+checkParams (ParamRef [] t) sigParams name = return (sigParams)
+checkParams (ParamRef (i:is) t) sigParams name = case lookup i sigParams of {
+                                                      (Just a) -> fail ("Variable " ++ show(i) ++ " ya se encuentra delacarada en la firma de " ++ show(name));
+                                                       Nothing -> return ((i,t):sigParams) -- SE AGREGAR A LA LISTA sigParams 
+                                                    }
 
 
 buildContext :: VarPart -> Context -> Err (Context)
 buildContext VPartEmpty context = return (Map.empty)
 buildContext (VPart []) context = return (Map.empty)
 buildContext (VPart (i:is)) context = do {
-                                          resultContext <- chkAddContext i context;
-                                          buildContext (VPart is) resultContext;
-                                        }
+                                           resultContext <- chkAddContext i context;
+                                           buildContext (VPart is) resultContext;
+                                         }
 
 chkAddContext :: VarDecl -> Context -> Err (Context)
 chkAddContext (VDecl [] t) context = return context
