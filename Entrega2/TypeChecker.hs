@@ -42,15 +42,18 @@ buildEnv varPart procFuns = do {
                                }
 
 buildSignatures :: [Def] -> Signatures -> Err (Signatures)
+buildSignatures [] signatures = return (signatures)
 buildSignatures (d:ds) signatures = do {
                                          resultSignatures <- buildSignature signatures d;
-                                         buildSignatures  ds resultSignatures
+                                         buildSignatures ds resultSignatures
                                        }
 
 buildSignature :: Signatures -> Def -> Err (Signatures)
 buildSignature signatures (DProc name parms varPart stms) = return (Map.empty)
-buildSignature signatures (DFun name parms funType varPart stms) = return (Map.empty)
-
+buildSignature signatures (DFun name parms funType varPart stms) = do {
+                                                                        listSignParams <- checkListParams [] name parms;
+                                                                        return (addSignature signatures name funType listSignParams)
+                                                                      }
 
 checkListParams :: [SignParameter] -> Ident -> [Param] -> Err ([SignParameter])
 checkListParams sigParams name [] = return (sigParams);
@@ -71,6 +74,9 @@ checkParams (ParamRef (i:is) t) sigParams name = case lookup i sigParams of {
                                                        Nothing -> return ((i,(True,t)):sigParams) -- SE AGREGAR A LA LISTA sigParams
                                                     }
 
+addSignature :: Signatures -> Ident -> Type -> [SignParameter] -> Signatures
+addSignature signatures name t listSignParams = signatures
+
 
 buildContext :: VarPart -> Context -> Err (Context)
 buildContext VPartEmpty context = return (Map.empty)
@@ -83,14 +89,14 @@ buildContext (VPart (i:is)) context = do {
 chkAddContext :: VarDecl -> Context -> Err (Context)
 chkAddContext (VDecl [] t) context = return context
 chkAddContext (VDecl (i:is) t) context = case Map.lookup i context of
-                                              (Just a) -> fail ("Variable " ++ show(i) ++ " ya existente");
+                                              (Just a) -> fail ("Variable " ++ show(i) ++ " ya definida en el contexto");
                                                Nothing -> do {
                                                                chkAddContext (VDecl is t) (Map.insert i t context);
                                                              }
 
 
 chekBodyAndFunctions :: [Def] -> [Stm] -> Env -> Err ()
-chekBodyAndFunctions procFuns stms env = return () -- ACA SE DEBERIA TENER QUE EMPEZAR A LLAMAR AL checkStms
+chekBodyAndFunctions procFuns stms env = checkStms env stms
 
 checkStms :: Env -> [Stm] -> Err ()
 checkStms env stms = return ()
