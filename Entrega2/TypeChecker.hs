@@ -78,7 +78,7 @@ addParamToListSignParameters :: [Ident] -> [SignParameter] -> Ident -> Type -> E
 addParamToListSignParameters [] signParams name t = return (signParams)
 addParamToListSignParameters (i:is) signParams name t = case lookup i signParams of {
                                                                 (Just a) -> fail ("Variable " ++ show(i) ++ " ya se encuentra delacarada en la firma de " ++ show(name));
-                                                                Nothing -> addParamToListSignParameters is (((i,(False,t)):signParams)) name t
+                                                                 Nothing -> addParamToListSignParameters is (((i,(False,t)):signParams)) name t
                                                             }
 
 -- Realiza la carga de una signature Procedure en la tabla de signatures
@@ -113,8 +113,25 @@ chekBodyAndFunctions procFuns stms env = checkStms env stms
 
 -- Realiza el chequeo de una lista de statements
 checkStms :: Env -> [Stm] -> Err ()
-checkStms env stms = return ()
+checkStms env [] = return ()
+checkStms env (stm:stms) = do {
+                                checkStatement env stm;
+                                checkStms env stms
+                              }
 
---checkstatement :: Env -> Stm -> Err ()
+checkStatement :: Env -> Stm -> Err ()
+checkStatement env (SAss id exp) = return ()
+checkStatement env (SCall id []) = return ()
+checkStatement env (SCall id (e:es)) = return ()
+checkStatement (context,signatures) (SCallEmpty id) = return ()
+checkStatement env (SRepeat stm exp) = return ()
+checkStatement env (SWhile exp stm) = return ()
+checkStatement env (SBlock []) = return ()
+checkStatement env (SBlock (stm:stms)) = return ()
+checkStatement env (SFor id exp1 exp2 stm) = return ()
+checkStatement env (SIf exp stm1 stm2) = return ()
+checkStatement env (SEmpty) = return ()
+
+
 --checkExp :: Env -> Exp -> Type -> Err ()
 --inferExp :: Env -> Exp -> Err (Type)
