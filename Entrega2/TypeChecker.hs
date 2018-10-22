@@ -163,7 +163,13 @@ inferExp env (EIdent id) = do {
                                 searchIdentInContext env id
                               }
 
--- EEq Exp Exp
+inferExp env (EEq exp1 exp2) = do {
+                                    t1 <- inferExp env exp1;
+                                    t2 <- inferExp env exp2;
+                                    if (((t1 == Type_integer) || (t1 == Type_real)) && ((t2 == Type_integer) || (t2 == Type_real))) then
+                                      return (Type_bool);
+                                    else
+}
 -- EDiff Exp Exp
 -- ELe Exp Exp
 -- ELeq Exp Exp
@@ -183,48 +189,9 @@ inferExp env (EPlus exp1 exp2) = do {
                                           else
                                             return (Type_integer);
                                     }
-inferExp env (ESubst exp1 exp2) = do {
-                                       t1 <- inferExp env exp1;
-                                       t2 <- inferExp env exp2;
-                                       if not((t1 == Type_integer) || (t1 == Type_real)) then
-                                         fail ("El tipo de la expresión: " ++ show(exp1) ++ " debe ser " ++ show(Type_integer) ++ " o " ++ show(Type_real) ++ " y es de tipo: " ++ show(t1));
-                                       else
-                                         if not((t2 == Type_integer) || (t2 == Type_real)) then
-                                           fail ("El tipo de la expresión: " ++ show(exp2) ++ " debe ser " ++ show(Type_integer) ++ " o " ++ show(Type_real) ++ " y es de tipo: " ++ show(t2));
-                                         else
-                                           if (t1 == Type_real) || (t2 == Type_real) then
-                                             return (Type_real);
-                                           else
-                                             return (Type_integer);
-                                     }
-inferExp env (EMul exp1 exp2) = do {
-                                     t1 <- inferExp env exp1;
-                                     t2 <- inferExp env exp2;
-                                     if not((t1 == Type_integer) || (t1 == Type_real)) then
-                                       fail ("El tipo de la expresión: " ++ show(exp1) ++ " debe ser " ++ show(Type_integer) ++ " o " ++ show(Type_real) ++ " y es de tipo: " ++ show(t1));
-                                     else
-                                       if not((t2 == Type_integer) || (t2 == Type_real)) then
-                                         fail ("El tipo de la expresión: " ++ show(exp2) ++ " debe ser " ++ show(Type_integer) ++ " o " ++ show(Type_real) ++ " y es de tipo: " ++ show(t2));
-                                       else
-                                         if (t1 == Type_real) || (t2 == Type_real) then
-                                           return (Type_real);
-                                         else
-                                           return (Type_integer);
-                                   }
-inferExp env (EDiv exp1 exp2) = do {
-                                     t1 <- inferExp env exp1;
-                                     t2 <- inferExp env exp2;
-                                     if not((t1 == Type_integer) || (t1 == Type_real)) then
-                                       fail ("El tipo de la expresión: " ++ show(exp1) ++ " debe ser " ++ show(Type_integer) ++ " o " ++ show(Type_real) ++ " y es de tipo: " ++ show(t1));
-                                     else
-                                       if not((t2 == Type_integer) || (t2 == Type_real)) then
-                                         fail ("El tipo de la expresión: " ++ show(exp2) ++ " debe ser " ++ show(Type_integer) ++ " o " ++ show(Type_real) ++ " y es de tipo: " ++ show(t2));
-                                       else
-                                         if (t1 == Type_real) || (t2 == Type_real) then
-                                           return (Type_real);
-                                         else
-                                           return (Type_integer);
-                                   }
+inferExp env (ESubst exp1 exp2) = inferExp env (EPlus exp1 exp2)
+inferExp env (EMul exp1 exp2) = inferExp env (EPlus exp1 exp2)
+inferExp env (EDiv exp1 exp2) = inferExp env (EPlus exp1 exp2)
 inferExp env (EDiv2 exp1 exp2) = do {
                                       t1 <- inferExp env exp1;
                                       t2 <- inferExp env exp2;
@@ -236,17 +203,7 @@ inferExp env (EDiv2 exp1 exp2) = do {
                                         else
                                           return (Type_integer);
                                    }
-inferExp env (EMod exp1 exp2) = do {
-                                     t1 <- inferExp env exp1;
-                                     t2 <- inferExp env exp2;
-                                     if not(t1 == Type_integer) then
-                                       fail ("El tipo de la expresión: " ++ show(exp1) ++ " debe ser " ++ show(Type_integer) ++ " y es de tipo: " ++ show(t1));
-                                     else
-                                       if not(t2 == Type_integer) then
-                                         fail ("El tipo de la expresión: " ++ show(exp2) ++ " debe ser " ++ show(Type_integer) ++ " y es de tipo: " ++ show(t2));
-                                       else
-                                         return (Type_integer);
-                                   }
+inferExp env (EMod exp1 exp2) = inferExp env (EDiv2 exp1 exp2)
 inferExp env (EOr exp1 exp2) = do {
                                     t1 <- inferExp env exp1;
                                     t2 <- inferExp env exp2;
@@ -258,17 +215,7 @@ inferExp env (EOr exp1 exp2) = do {
                                       else
                                         return (Type_bool);
                                   }
-inferExp env (EAnd exp1 exp2) = do {
-                                     t1 <- inferExp env exp1;
-                                     t2 <- inferExp env exp2;
-                                     if not(t1 == Type_bool) then
-                                       fail ("El tipo de la expresión: " ++ show(exp1) ++ " debe ser " ++ show(Type_bool) ++ " y es de tipo: " ++ show(t1));
-                                     else
-                                       if not(t2 == Type_bool) then
-                                         fail ("El tipo de la expresión: " ++ show(exp2) ++ " debe ser " ++ show(Type_bool) ++ " y es de tipo: " ++ show(t2));
-                                       else
-                                         return (Type_bool);
-                                   }
+inferExp env (EAnd exp1 exp2) = inferExp env (EOr exp1 exp2)
 inferExp env (ENot exp) = do {
                                t <- inferExp env exp;
                                if not(t == Type_bool) then
@@ -276,7 +223,6 @@ inferExp env (ENot exp) = do {
                                else
                                  return (Type_bool);
                              }
-
 -- ECall Ident [Exp]
 -- ECallEmpty Ident
 -- ENegNum Exp
