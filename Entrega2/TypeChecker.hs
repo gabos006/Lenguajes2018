@@ -162,19 +162,25 @@ inferExp env (EStr s) = return (Type_string)
 inferExp env (EIdent id) = do {
                                 searchIdentInContext env id
                               }
-
 inferExp env (EEq exp1 exp2) = do {
                                     t1 <- inferExp env exp1;
                                     t2 <- inferExp env exp2;
-                                    if (((t1 == Type_integer) || (t1 == Type_real)) && ((t2 == Type_integer) || (t2 == Type_real))) then
-                                      return (Type_bool);
+                                    if ((t1 == Type_integer) || (t1 == Type_real)) then
+                                      if ((t2 == Type_integer) || (t2 == Type_real)) then
+                                        return (Type_bool);
+                                      else
+                                        fail ("ERROR: Se esperaba tipo: " ++ show(Type_integer) ++ " o " ++ show(Type_real));
                                     else
+                                      if ((t2 == Type_char) || (t2 == Type_bool) || (t2 == Type_string)) then
+                                        return (Type_bool);
+                                      else
+                                        fail ("ERROR: Se esperaba tipo: " ++ show(Type_bool) ++ ", " ++ show(Type_char) ++ " o " ++ show(Type_string));
 }
--- EDiff Exp Exp
--- ELe Exp Exp
--- ELeq Exp Exp
--- EGeq Exp Exp
--- EGe Exp Exp
+inferExp env (EDiff exp1 exp2) = inferExp env (EEq exp1 exp2)
+inferExp env (ELe exp1 exp2) = inferExp env (EEq exp1 exp2)
+inferExp env (ELeq exp1 exp2) = inferExp env (EEq exp1 exp2)
+inferExp env (EGeq exp1 exp2) = inferExp env (EEq exp1 exp2)
+inferExp env (EGe exp1 exp2) = inferExp env (EEq exp1 exp2)
 inferExp env (EPlus exp1 exp2) = do {
                                       t1 <- inferExp env exp1;
                                       t2 <- inferExp env exp2;
@@ -223,7 +229,14 @@ inferExp env (ENot exp) = do {
                                else
                                  return (Type_bool);
                              }
+inferExp env (ENegNum exp) = do {
+                                  t <- inferExp env exp;
+                                  if not((t == Type_real) || (t == Type_integer)) then
+                                    fail ("ERROR: Se esperaba tipo: " ++ show(Type_real) ++ " o " ++ show(Type_integer));
+                                  else
+                                    return (Type_bool);
+                                }
+inferExp env (EPlusNum exp) = inferExp env (ENegNum exp)
+
 -- ECall Ident [Exp]
 -- ECallEmpty Ident
--- ENegNum Exp
--- EPlusNum Exp
