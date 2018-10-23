@@ -78,7 +78,7 @@ checkParams (ParamRef (i:is) t) signParams name = addParamToListSignParameters (
 addParamToListSignParameters :: [Ident] -> [SignParameter] -> Ident -> Type -> Err ([SignParameter])
 addParamToListSignParameters [] signParams name t = return (signParams)
 addParamToListSignParameters (i:is) signParams name t = case lookup i signParams of {
-                                                                (Just a) -> fail ("Variable " ++ show(i) ++ " ya se encuentra delacarada en la firma de " ++ show(name));
+                                                                (Just a) -> fail ("ERROR: Parámetro " ++ show(i) ++ " ya delacarado en la firma de " ++ show(name));
                                                                  Nothing -> addParamToListSignParameters is (((i,(False,t)):signParams)) name t
                                                             }
 
@@ -88,7 +88,7 @@ checkAddSignature signatures (DProc name parms varPart stms) = case Map.lookup n
                                                                    (Just a) -> fail ("ERROR: El procedimiento: " ++ show(name) ++ " ya fue declarado");
                                                                     Nothing -> return()
 checkAddSignature signatures (DFun name parms funType varPart stms) = case Map.lookup name signatures of
-                                                                          (Just a) -> fail ("ERROR: La funcion: " ++ show(name) ++ " ya fue declarado");
+                                                                          (Just a) -> fail ("ERROR: La función: " ++ show(name) ++ " ya fue declarada");
                                                                            Nothing -> return()
 
 -- Realiza la carga de una signature Procedure en la tabla de signatures
@@ -112,7 +112,7 @@ buildContext (VPart (i:is)) context = do {
 chkAddContext :: VarDecl -> Context -> Err (Context)
 chkAddContext (VDecl [] t) context = return context
 chkAddContext (VDecl (i:is) t) context = case Map.lookup i context of
-                                              (Just a) -> fail ("Variable " ++ show(i) ++ " ya definida en el contexto");
+                                              (Just a) -> fail ("ERROR: Variable " ++ show(i) ++ " ya definida en el contexto");
                                                Nothing -> do {
                                                                chkAddContext (VDecl is t) (Map.insert i t context);
                                                              }
@@ -207,9 +207,7 @@ inferExp env (EChar c) = return (Type_char)
 inferExp env (EReal r) = return (Type_real)
 inferExp env (EInt i) = return (Type_integer)
 inferExp env (EStr s) = return (Type_string)
-inferExp env (EIdent id) = do {
-                                searchIdentInContext env id
-                              }
+inferExp env (EIdent id) = searchIdentInContext env id
 inferExp env (EEq exp1 exp2) = do {
                                     t1 <- inferExp env exp1;
                                     t2 <- inferExp env exp2;
@@ -223,7 +221,7 @@ inferExp env (EEq exp1 exp2) = do {
                                         return (Type_bool);
                                       else
                                         fail ("ERROR: Se esperaba tipo: " ++ show(Type_bool) ++ ", " ++ show(Type_char) ++ " o " ++ show(Type_string) ++ " en la expresión: " ++ show(exp2));
-}
+                                  }
 inferExp env (EDiff exp1 exp2) = inferExp env (EEq exp1 exp2)
 inferExp env (ELe exp1 exp2) = inferExp env (EEq exp1 exp2)
 inferExp env (ELeq exp1 exp2) = inferExp env (EEq exp1 exp2)
@@ -256,7 +254,7 @@ inferExp env (EDiv2 exp1 exp2) = do {
                                           fail ("ERROR: Se esperaba tipo: " ++ show(Type_integer) ++  " en la expresión: " ++ show(exp2));
                                         else
                                           return (Type_integer);
-                                   }
+                                    }
 inferExp env (EMod exp1 exp2) = inferExp env (EDiv2 exp1 exp2)
 inferExp env (EOr exp1 exp2) = do {
                                     t1 <- inferExp env exp1;
@@ -285,24 +283,18 @@ inferExp env (ENegNum exp) = do {
                                     return (Type_bool);
                                 }
 inferExp env (EPlusNum exp) = inferExp env (ENegNum exp)
---inferExp env (ECall id exps) = do {
---                                     t <- searchIdentInSignatures env id;
---                                     checkListExp env exps t
---                                  }
-
---checkListExp :: Env -> [Exp] -> Err()
---checkListExp env [] = return ()
---checkListExp env (exp:exps) = do {
---                                    t <- inferExp env exp;
---                                    checkExp env exp;
---                                    checkListExp env exps
---                                  }
--- ECallEmpty Ident -- que casos serian y si se debe controlar contra la lista de firmas
+inferExp (context,signatures) (ECallEmpty id) = getFunctionTypeSignature signatures id
+--inferExp env (ECall id exps) = 
 
 -- Chequea si una firma pertenece al conjunto de firmas
---searchIdentInSignatures :: Env -> Ident -> Err (Type)
---searchIdentInSignatures (context,signatures) id = case Map.lookup id signatures of
---                                                       (Just (sigsParms,maybet)) -> case maybet of
---                                                                                        (Just t) -> return (t);
---                                                                                         Nothing -> return (Type_bool); -- ver que devolver por si es un procedimiento no puede ser error
---                                                       Nothing -> fail ("ERROR: Funcion o procedimiento no declarado")
+checkIdentInSignatures :: Env -> Ident -> Err ()
+checkIdentInSignatures (context,signatures) id = case Map.lookup id signatures of
+                                                      (Just a) -> return ();
+                                                       Nothing -> fail ("ERROR: Función o procedimiento no declarado")
+
+getFunctionTypeSignature :: Signatures -> Ident -> Err (Type)
+getFunctionTypeSignature sigs name = case Map.lookup name sigs of
+                                          (Just (parms,maybet)) -> case maybet of
+                                                                       (Just t) -> return (t);
+                                                                        Nothing -> fail ("ERROR: Los procedimientos no tienen tipo de retorno")
+                                           -- Nothing -> fail ("ERROR: La función " ++ show(name) ++ " no se encuentra definida")
