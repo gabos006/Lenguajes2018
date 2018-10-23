@@ -119,7 +119,26 @@ chkAddContext (VDecl (i:is) t) context = case Map.lookup i context of
 
 -- Realiza el chequeo de las statement del body de las Function y/o Procedures y del body del program
 chekBodyAndFunctions :: [Def] -> [Stm] -> Env -> Err ()
-chekBodyAndFunctions procFuns stms env = checkStms env stms
+chekBodyAndFunctions procFuns stms env = do {
+                                              checkStmsProcFunc env procFuns;
+                                              checkStms env stms
+                                            }
+-- Chequea las statements de los procedimientos y funciones
+checkStmsProcFunc :: Env -> [Def] -> Err()
+checkStmsProcFunc env [] = return ()
+checkStmsProcFunc env (d:ds) = do {
+                                    checkStatementsProcFun env d;
+									checkStmsProcFunc env ds
+                                  }
+
+-- Chequea las statements de un procedimiento o funcion
+-- PARA AMBOS CASOS SE TIENE QUE GENERAR UN CONTEXT AUXILIAR EN EL CUAL SE DEBEN CARGAR LAS VARIABLES QUE ESTEN EN VAR DEL METODO
+-- LUEGO JUNTO CON EL CONTEXT GENERAL, EL CONTEXT AUXILIAR Y LA LISTA DE PARAMETROS ARMAR UN NUEVO CONTEXT CON TODO PARA CHEQUEAR LAS STMS
+-- LA DUDA VIENE DADA SOBRE QUE PASA CUANDO ME DEFINEN UNA VARIABLE LOCAL AL METODO QUE YA ES UNA VARIABLE GLOBAL
+-- PORQUE SI ARMO UN NUEVO CONTEXT CON TODO, ME QUEDARÍAN DOS VARIABLES CON EL MISMO IDENT Y DISTINTO TIPO, ENTONCES AL HACER EL LOOKUP PUEDE QUE ME TRAIGA EL TIPO DE LA QUE NO ES
+checkStatementsProcFun :: Env -> Def -> Err ()
+checkStatementsProcFun env (DProc name parms varPart stms) = return ()
+checkStatementsProcFun env (DFun name parms funType varPart stms) = return ()
 
 -- Realiza el chequeo de una lista de statements
 checkStms :: Env -> [Stm] -> Err ()
@@ -129,14 +148,12 @@ checkStms env (stm:stms) = do {
                                 checkStms env stms
                               }
 
+-- Realiza el chequeo de tipos de una statement
 checkStatement :: Env -> Stm -> Err ()
 checkStatement env (SAss id exp) = do {
                                         t <- searchIdentInContext env id;
                                         checkExp env exp t
                                       }
-checkStatement env (SCall id []) = return ()
-checkStatement env (SCall id (e:es)) = return ()
-checkStatement env (SCallEmpty id) = return ()
 checkStatement env (SRepeat stm exp) = do {
                                             checkExp env exp Type_bool;
                                             checkStatement env stm
@@ -153,8 +170,18 @@ checkStatement env (SFor id exp1 exp2 stm) = do {
                                                    checkExp env exp2 Type_integer;
                                                    checkStatement env stm
                                                 }
-checkStatement env (SIf exp stm1 stm2) = return ()
+checkStatement env (SIf exp stm1 stm2) = do {
+                                              t <- inferExp env exp;
+                                              checkExp env exp Type_bool;
+											  checkStatement env stm1;
+											  checkStatement env stm2
+                                            }
 checkStatement env (SEmpty) = return ()
+
+--TODO 
+checkStatement env (SCall id []) = return ()
+checkStatement env (SCall id (e:es)) = return ()
+checkStatement env (SCallEmpty id) = return ()
 
 -- Chequea el tipo de una variable en el context si existe
 searchIdentInContext :: Env -> Ident -> Err (Type)
