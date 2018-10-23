@@ -222,7 +222,8 @@ inferExp env (EStr s) = return (Type_string)
 inferExp env (EIdent id) = searchIdentInContext env id
 inferExp env (EEq exp1 exp2) = do {
                                     t1 <- inferExp env exp1;
-                                    checkExp env exp2 t1
+                                    checkExp env exp2 t1;
+                                    return (t1)
                                   }
 
 inferExp env (EDiff exp1 exp2) = inferExp env (EEq exp1 exp2)
@@ -232,19 +233,22 @@ inferExp env (EGeq exp1 exp2) = inferExp env (EEq exp1 exp2)
 inferExp env (EGe exp1 exp2) = inferExp env (EEq exp1 exp2)
 inferExp env (EPlus exp1 exp2) = do {
                                       t1 <- inferExp env exp1;
-                                      checkExp env exp2 t1
+                                      checkExp env exp2 t1;
+                                      return (t1)
                                     }
 inferExp env (ESubst exp1 exp2) = inferExp env (EPlus exp1 exp2)
 inferExp env (EMul exp1 exp2) = inferExp env (EPlus exp1 exp2)
 inferExp env (EDiv exp1 exp2) = inferExp env (EPlus exp1 exp2)
 inferExp env (EDiv2 exp1 exp2) = do {
                                       t1 <- inferExp env exp1;
-                                      checkExp env exp2 t1
+                                      checkExp env exp2 t1;
+                                      return (t1)
                                     }
 inferExp env (EMod exp1 exp2) = inferExp env (EDiv2 exp1 exp2)
 inferExp env (EOr exp1 exp2) = do {
                                     t1 <- inferExp env exp1;
-                                    checkExp env exp2 t1
+                                    checkExp env exp2 t1;
+                                    return (t1)
                                   }
 inferExp env (EAnd exp1 exp2) = inferExp env (EOr exp1 exp2)
 inferExp env (ENot exp) = do {
