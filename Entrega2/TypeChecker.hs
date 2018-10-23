@@ -110,12 +110,10 @@ buildContext (VPart (i:is)) context = do {
 
 -- Chequea si la variable ya no existe en el contexto, si no existe la agrega
 chkAddContext :: VarDecl -> Context -> Err (Context)
-chkAddContext (VDecl [] t) context = return context
+chkAddContext (VDecl [] t) context = return (context)
 chkAddContext (VDecl (i:is) t) context = case Map.lookup i context of
                                               (Just a) -> fail ("ERROR: Variable " ++ show(i) ++ " ya definida en el contexto");
-                                               Nothing -> do {
-                                                               chkAddContext (VDecl is t) (Map.insert i t context);
-                                                             }
+                                               Nothing -> chkAddContext (VDecl is t) (Map.insert i t context);
 
 -- Realiza el chequeo de las statement del body de las Function y/o Procedures y del body del program
 chekBodyAndFunctions :: [Def] -> [Stm] -> Env -> Err ()
@@ -128,7 +126,7 @@ checkStmsProcFunc :: Env -> [Def] -> Err()
 checkStmsProcFunc env [] = return ()
 checkStmsProcFunc env (d:ds) = do {
                                     checkStatementsProcFun env d;
-									checkStmsProcFunc env ds
+									                  checkStmsProcFunc env ds
                                   }
 
 -- Chequea las statements de un procedimiento o funcion
@@ -173,12 +171,12 @@ checkStatement env (SFor id exp1 exp2 stm) = do {
 checkStatement env (SIf exp stm1 stm2) = do {
                                               t <- inferExp env exp;
                                               checkExp env exp Type_bool;
-											  checkStatement env stm1;
-											  checkStatement env stm2
+											                        checkStatement env stm1;
+											                        checkStatement env stm2
                                             }
 checkStatement env (SEmpty) = return ()
 
---TODO 
+--TODO
 checkStatement env (SCall id []) = return ()
 checkStatement env (SCall id (e:es)) = return ()
 checkStatement env (SCallEmpty id) = return ()
@@ -193,11 +191,22 @@ searchIdentInContext (context,signatures) id = case Map.lookup id context of
 checkExp :: Env -> Exp -> Type -> Err ()
 checkExp env exp t1 = do {
                            t2 <- inferExp env exp;
+                           --checkTypesError
                            if (t1 < t2)  then
                              fail ("ERROR: El tipo de la expresión: " ++ show(exp) ++ " no coincide con el tipo: " ++ show(t1));
                            else
                              return ();
                          }
+
+checkTypesError :: Type -> Type -> Err ()
+checkTypesError Type_char Type_char = return ()
+checkTypesError Type_char _ = fail ("ERROR: Se esperaba tipo: " ++ show(Type_char))
+checkTypesError Type_bool Type_bool = return ()
+checkTypesError Type_bool _ = fail ("ERROR: Se esperaba tipo: " ++ show(Type_bool))
+checkTypesError Type_string Type_string = return ()
+checkTypesError Type_string _ = fail ("ERROR: Se esperaba tipo: " ++ show(Type_string))
+
+
 
 -- Obtiene el tipo de una expresion o un error
 inferExp :: Env -> Exp -> Err (Type)
@@ -284,7 +293,7 @@ inferExp env (ENegNum exp) = do {
                                 }
 inferExp env (EPlusNum exp) = inferExp env (ENegNum exp)
 inferExp (context,signatures) (ECallEmpty id) = getFunctionTypeSignature signatures id
---inferExp env (ECall id exps) = 
+--inferExp env (ECall id exps) =
 
 -- Chequea si una firma pertenece al conjunto de firmas
 checkIdentInSignatures :: Env -> Ident -> Err ()
