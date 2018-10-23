@@ -43,6 +43,7 @@ buildSignatures :: [Def] -> Signatures -> Err (Signatures)
 buildSignatures [] signatures = return (signatures)
 buildSignatures (d:ds) signatures = do {
                                          resultSignatures <- buildSignature signatures d;
+                                         checkAddSignature signatures d;
                                          buildSignatures ds resultSignatures
                                        }
 
@@ -80,6 +81,15 @@ addParamToListSignParameters (i:is) signParams name t = case lookup i signParams
                                                                 (Just a) -> fail ("Variable " ++ show(i) ++ " ya se encuentra delacarada en la firma de " ++ show(name));
                                                                  Nothing -> addParamToListSignParameters is (((i,(False,t)):signParams)) name t
                                                             }
+
+-- Chequea si un metodo ya fue declarado anteriormente
+checkAddSignature :: Signatures -> Def -> Err ()
+checkAddSignature signatures (DProc name parms varPart stms) = case Map.lookup name signatures of
+                                                                   (Just a) -> fail ("ERROR: El procedimiento: " ++ show(name) ++ " ya fue declarado");
+                                                                    Nothing -> return()
+checkAddSignature signatures (DFun name parms funType varPart stms) = case Map.lookup name signatures of
+                                                                          (Just a) -> fail ("ERROR: La funcion: " ++ show(name) ++ " ya fue declarado");
+                                                                           Nothing -> return()
 
 -- Realiza la carga de una signature Procedure en la tabla de signatures
 addSignatureProc :: Signatures -> Ident -> [SignParameter] -> Signatures
@@ -126,12 +136,23 @@ checkStatement env (SAss id exp) = do {
                                       }
 checkStatement env (SCall id []) = return ()
 checkStatement env (SCall id (e:es)) = return ()
-checkStatement (context,signatures) (SCallEmpty id) = return ()
-checkStatement env (SRepeat stm exp) = return ()
-checkStatement env (SWhile exp stm) = return ()
+checkStatement env (SCallEmpty id) = return ()
+checkStatement env (SRepeat stm exp) = do {
+                                            checkExp env exp Type_bool;
+                                            checkStatement env stm
+                                          }
+checkStatement env (SWhile exp stm) = do {
+                                           checkExp env exp Type_bool;
+                                           checkStatement env stm
+                                         }
 checkStatement env (SBlock []) = return ()
-checkStatement env (SBlock (stm:stms)) = return ()
-checkStatement env (SFor id exp1 exp2 stm) = return ()
+checkStatement env (SBlock stms) = checkStms env stms
+checkStatement env (SFor id exp1 exp2 stm) = do {
+                                                   t <- searchIdentInContext env id;
+                                                   checkExp env exp1 Type_integer;
+                                                   checkExp env exp2 Type_integer;
+                                                   checkStatement env stm
+                                                }
 checkStatement env (SIf exp stm1 stm2) = return ()
 checkStatement env (SEmpty) = return ()
 
@@ -139,14 +160,14 @@ checkStatement env (SEmpty) = return ()
 searchIdentInContext :: Env -> Ident -> Err (Type)
 searchIdentInContext (context,signatures) id = case Map.lookup id context of
                                                   (Just t) -> return (t);
-                                                   Nothing -> fail ("Variable " ++ show(id) ++ " no definida en el contexto")
+                                                   Nothing -> fail ("ERROR: Variable " ++ show(id) ++ " no definida en el contexto")
 
 -- Chequea una expresion contra un tipo
 checkExp :: Env -> Exp -> Type -> Err ()
 checkExp env exp t1 = do {
                            t2 <- inferExp env exp;
-                           if (t1 /= t2) then
-                             fail ("El tipo de la expresión: " ++ show(exp) ++ " no coincide con el tipo: " ++ show(t1));
+                           if (t1 < t2)  then
+                             fail ("ERROR: El tipo de la expresión: " ++ show(exp) ++ " no coincide con el tipo: " ++ show(t1));
                            else
                              return ();
                          }
@@ -169,12 +190,12 @@ inferExp env (EEq exp1 exp2) = do {
                                       if ((t2 == Type_integer) || (t2 == Type_real)) then
                                         return (Type_bool);
                                       else
-                                        fail ("ERROR: Se esperaba tipo: " ++ show(Type_integer) ++ " o " ++ show(Type_real));
+                                        fail ("ERROR: Se esperaba tipo: " ++ show(Type_integer) ++ " o " ++ show(Type_real) ++ " en la expresión: " ++ show(exp2));
                                     else
                                       if ((t2 == Type_char) || (t2 == Type_bool) || (t2 == Type_string)) then
                                         return (Type_bool);
                                       else
-                                        fail ("ERROR: Se esperaba tipo: " ++ show(Type_bool) ++ ", " ++ show(Type_char) ++ " o " ++ show(Type_string));
+                                        fail ("ERROR: Se esperaba tipo: " ++ show(Type_bool) ++ ", " ++ show(Type_char) ++ " o " ++ show(Type_string) ++ " en la expresión: " ++ show(exp2));
 }
 inferExp env (EDiff exp1 exp2) = inferExp env (EEq exp1 exp2)
 inferExp env (ELe exp1 exp2) = inferExp env (EEq exp1 exp2)
@@ -185,10 +206,10 @@ inferExp env (EPlus exp1 exp2) = do {
                                       t1 <- inferExp env exp1;
                                       t2 <- inferExp env exp2;
                                       if not((t1 == Type_integer) || (t1 == Type_real)) then
-                                        fail ("El tipo de la expresión: " ++ show(exp1) ++ " debe ser " ++ show(Type_integer) ++ " o " ++ show(Type_real) ++ " y es de tipo: " ++ show(t1));
+                                        fail ("ERROR: Se esperaba tipo: " ++ show(Type_integer) ++ " o " ++ show(Type_real)  ++ " en la expresión: " ++ show(exp1));
                                       else
                                         if not((t2 == Type_integer) || (t2 == Type_real)) then
-                                          fail ("El tipo de la expresión: " ++ show(exp2) ++ " debe ser " ++ show(Type_integer) ++ " o " ++ show(Type_real) ++ " y es de tipo: " ++ show(t2));
+                                          fail ("ERROR: Se esperaba tipo: " ++ show(Type_integer) ++ " o " ++ show(Type_real)  ++ " en la expresión: " ++ show(exp2));
                                         else
                                           if (t1 == Type_real) || (t2 == Type_real) then
                                             return (Type_real);
@@ -202,10 +223,10 @@ inferExp env (EDiv2 exp1 exp2) = do {
                                       t1 <- inferExp env exp1;
                                       t2 <- inferExp env exp2;
                                       if not(t1 == Type_integer) then
-                                        fail ("El tipo de la expresión: " ++ show(exp1) ++ " debe ser " ++ show(Type_integer) ++ " y es de tipo: " ++ show(t1));
+                                        fail ("ERROR: Se esperaba tipo: " ++ show(Type_integer) ++ " en la expresión: " ++ show(exp1));
                                       else
                                         if not(t2 == Type_integer) then
-                                          fail ("El tipo de la expresión: " ++ show(exp2) ++ " debe ser " ++ show(Type_integer) ++ " y es de tipo: " ++ show(t2));
+                                          fail ("ERROR: Se esperaba tipo: " ++ show(Type_integer) ++  " en la expresión: " ++ show(exp2));
                                         else
                                           return (Type_integer);
                                    }
@@ -214,10 +235,10 @@ inferExp env (EOr exp1 exp2) = do {
                                     t1 <- inferExp env exp1;
                                     t2 <- inferExp env exp2;
                                     if not(t1 == Type_bool) then
-                                      fail ("El tipo de la expresión: " ++ show(exp1) ++ " debe ser " ++ show(Type_bool) ++ " y es de tipo: " ++ show(t1));
+                                      fail ("ERROR: Se esperaba tipo: " ++ show(Type_bool) ++ " en la expresión: " ++ show(exp1));
                                     else
                                       if not(t2 == Type_bool) then
-                                        fail ("El tipo de la expresión: " ++ show(exp2) ++ " debe ser " ++ show(Type_bool) ++ " y es de tipo: " ++ show(t2));
+                                        fail ("ERROR: Se esperaba tipo: " ++ show(Type_bool) ++ " en la expresión: " ++ show(exp2));
                                       else
                                         return (Type_bool);
                                   }
@@ -225,7 +246,7 @@ inferExp env (EAnd exp1 exp2) = inferExp env (EOr exp1 exp2)
 inferExp env (ENot exp) = do {
                                t <- inferExp env exp;
                                if not(t == Type_bool) then
-                                 fail ("El tipo de la expresión: " ++ show(exp) ++ " debe ser " ++ show(Type_bool) ++ " y es de tipo: " ++ show(t));
+                                 fail ("ERROR: Se esperaba tipo: " ++ show(Type_bool) ++ " en la expresión: " ++ show(exp));
                                else
                                  return (Type_bool);
                              }
@@ -237,24 +258,24 @@ inferExp env (ENegNum exp) = do {
                                     return (Type_bool);
                                 }
 inferExp env (EPlusNum exp) = inferExp env (ENegNum exp)
-inferExp env (ECall id exps) = do {
-                                     t <- searchIdentInSignatures env id;
-                                     checkListExp env exps t
-                                  }
+--inferExp env (ECall id exps) = do {
+--                                     t <- searchIdentInSignatures env id;
+--                                     checkListExp env exps t
+--                                  }
 
-checkListExp :: Env -> [Exp] -> Err()
-checkListExp env [] = return ()
-checkListExp env (exp:exps) = do {
-                                    t <- inferExp env exp;
-                                    checkExp env exp;
-                                    checkListExp env exps
-                                  }
+--checkListExp :: Env -> [Exp] -> Err()
+--checkListExp env [] = return ()
+--checkListExp env (exp:exps) = do {
+--                                    t <- inferExp env exp;
+--                                    checkExp env exp;
+--                                    checkListExp env exps
+--                                  }
 -- ECallEmpty Ident -- que casos serian y si se debe controlar contra la lista de firmas
 
 -- Chequea si una firma pertenece al conjunto de firmas
-searchIdentInSignatures :: Env -> Ident -> Err (Type)
-searchIdentInSignatures (context,signatures) id = case Map.lookup id signatures of
-                                                       (Just (sigsParms,maybet)) -> case maybet of
-                                                                                        (Just t) -> return (t);
-                                                                                         Nothing -> return (Type_bool); -- ver que devolver por si es un procedimiento no puede ser error
-                                                       Nothing -> fail ("ERROR: Funcion o procedimiento no declarado")
+--searchIdentInSignatures :: Env -> Ident -> Err (Type)
+--searchIdentInSignatures (context,signatures) id = case Map.lookup id signatures of
+--                                                       (Just (sigsParms,maybet)) -> case maybet of
+--                                                                                        (Just t) -> return (t);
+--                                                                                         Nothing -> return (Type_bool); -- ver que devolver por si es un procedimiento no puede ser error
+--                                                       Nothing -> fail ("ERROR: Funcion o procedimiento no declarado")
