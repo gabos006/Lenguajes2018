@@ -223,7 +223,7 @@ inferExp env (EIdent id) = searchIdentInContext env id
 inferExp env (EEq exp1 exp2) = do {
                                     t1 <- inferExp env exp1;
                                     checkExp env exp2 t1;
-                                    return (t1)
+                                    return (Type_bool)
                                   }
 
 inferExp env (EDiff exp1 exp2) = inferExp env (EEq exp1 exp2)
@@ -233,8 +233,12 @@ inferExp env (EGeq exp1 exp2) = inferExp env (EEq exp1 exp2)
 inferExp env (EGe exp1 exp2) = inferExp env (EEq exp1 exp2)
 inferExp env (EPlus exp1 exp2) = do {
                                       t1 <- inferExp env exp1;
+                                      t2 <- inferExp env exp2;
                                       checkExp env exp2 t1;
-                                      return (t1)
+                                      if (t1 == Type_real) || (t2 == Type_real) then
+                                        return (Type_real);
+                                      else
+                                        return (Type_integer);
                                     }
 inferExp env (ESubst exp1 exp2) = inferExp env (EPlus exp1 exp2)
 inferExp env (EMul exp1 exp2) = inferExp env (EPlus exp1 exp2)
@@ -242,13 +246,13 @@ inferExp env (EDiv exp1 exp2) = inferExp env (EPlus exp1 exp2)
 inferExp env (EDiv2 exp1 exp2) = do {
                                       t1 <- inferExp env exp1;
                                       checkExp env exp2 t1;
-                                      return (t1)
+                                      return (Type_integer)
                                     }
 inferExp env (EMod exp1 exp2) = inferExp env (EDiv2 exp1 exp2)
 inferExp env (EOr exp1 exp2) = do {
                                     t1 <- inferExp env exp1;
                                     checkExp env exp2 t1;
-                                    return (t1)
+                                    return (Type_bool)
                                   }
 inferExp env (EAnd exp1 exp2) = inferExp env (EOr exp1 exp2)
 inferExp env (ENot exp) = do {
@@ -267,12 +271,51 @@ inferExp env (ENegNum exp) = do {
                                 }
 inferExp env (EPlusNum exp) = inferExp env (ENegNum exp)
 inferExp (context,signatures) (ECallEmpty id) = getFunctionTypeSignature signatures id
---inferExp env (ECall id exps) =
+inferExp env (ECall id exps) = do {
+                                    (parms,t) <- checkIdentInSignatures env id;
+                                    chkSizes exps parms;
+                                    chkArgumentsTypes env exps parms;
+                                    chkRefArguments env exps parms;
+                                    case t of
+                                      (Just t) -> return (t)
+                                  }
+
+-- Chequea que los parametros que son por referencia sean variables y pertenezcan al contexto
+chkRefArguments :: Env -> [Exp] -> [SignParameter] -> Err ()
+chkRefArguments env [] [] = return ()
+chkRefArguments env (e:es) ((id,(ref,t2)):ps) = do {
+                                                     case ref of
+                                                       True -> do {
+                                                                    t <- chkExpIsVariable env e;
+                                                                    chkRefArguments env es ps
+                                                                  };
+                                                       False -> chkRefArguments env es ps
+                                                   }
+
+-- Chequea si una expresion es una variable y si pertenece al contexto
+chkExpIsVariable :: Env -> Exp -> Err (Type)
+chkExpIsVariable env (EIdent id) = searchIdentInContext env id
+chkExpIsVariable env _ = fail ("ERROR: Los parametros por referencia deben ser una variable")
+
+-- Chequea que el tipo de cada expresion sea igual al tipo del parametro que corresponde
+chkArgumentsTypes :: Env -> [Exp] -> [SignParameter] -> Err ()
+chkArgumentsTypes env [] [] = return ()
+chkArgumentsTypes env (e:es) ((id,(ref,t2)):ps) = do {
+                                                       t1 <- inferExp env e;
+                                                       checkTypesError t1 t2;
+                                                       chkArgumentsTypes env es ps
+                                                     }
+-- Chequea el largo de la lista de expresiones de una llamada a una funcion y el largo de la lista de parametros que esta recibe
+chkSizes :: [Exp] -> [SignParameter] -> Err ()
+chkSizes exps parms = if (length(exps) == length(parms)) then
+                        return ()
+                      else
+                        fail ("ERROR: Llamada con cantidad de parametros incorrecta")
 
 -- Chequea si una firma pertenece al conjunto de firmas
-checkIdentInSignatures :: Env -> Ident -> Err ()
+checkIdentInSignatures :: Env -> Ident -> Err (ValSig)
 checkIdentInSignatures (context,signatures) id = case Map.lookup id signatures of
-                                                      (Just a) -> return ();
+                                                      (Just a) -> return (a);
                                                        Nothing -> fail ("ERROR: Función o procedimiento no declarado")
 
 getFunctionTypeSignature :: Signatures -> Ident -> Err (Type)
@@ -280,4 +323,3 @@ getFunctionTypeSignature sigs name = case Map.lookup name sigs of
                                           (Just (parms,maybet)) -> case maybet of
                                                                        (Just t) -> return (t);
                                                                         Nothing -> fail ("ERROR: Los procedimientos no tienen tipo de retorno")
-                                           -- Nothing -> fail ("ERROR: La función " ++ show(name) ++ " no se encuentra definida")
