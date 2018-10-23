@@ -237,6 +237,24 @@ inferExp env (ENegNum exp) = do {
                                     return (Type_bool);
                                 }
 inferExp env (EPlusNum exp) = inferExp env (ENegNum exp)
+inferExp env (ECall id exps) = do {
+                                     t <- searchIdentInSignatures env id;
+                                     checkListExp env exps t
+                                  }
 
--- ECall Ident [Exp]
--- ECallEmpty Ident
+checkListExp :: Env -> [Exp] -> Err()
+checkListExp env [] = return ()
+checkListExp env (exp:exps) = do {
+                                    t <- inferExp env exp;
+                                    checkExp env exp;
+                                    checkListExp env exps
+                                  }
+-- ECallEmpty Ident -- que casos serian y si se debe controlar contra la lista de firmas
+
+-- Chequea si una firma pertenece al conjunto de firmas
+searchIdentInSignatures :: Env -> Ident -> Err (Type)
+searchIdentInSignatures (context,signatures) id = case Map.lookup id signatures of
+                                                       (Just (sigsParms,maybet)) -> case maybet of
+                                                                                        (Just t) -> return (t);
+                                                                                         Nothing -> return (Type_bool); -- ver que devolver por si es un procedimiento no puede ser error
+                                                       Nothing -> fail ("ERROR: Funcion o procedimiento no declarado")
