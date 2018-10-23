@@ -191,11 +191,7 @@ searchIdentInContext (context,signatures) id = case Map.lookup id context of
 checkExp :: Env -> Exp -> Type -> Err ()
 checkExp env exp t1 = do {
                            t2 <- inferExp env exp;
-                           --checkTypesError
-                           if (t1 < t2)  then
-                             fail ("ERROR: El tipo de la expresión: " ++ show(exp) ++ " no coincide con el tipo: " ++ show(t1));
-                           else
-                             return ();
+                           checkTypesError t1 t2
                          }
 
 checkTypesError :: Type -> Type -> Err ()
@@ -205,7 +201,14 @@ checkTypesError Type_bool Type_bool = return ()
 checkTypesError Type_bool _ = fail ("ERROR: Se esperaba tipo: " ++ show(Type_bool))
 checkTypesError Type_string Type_string = return ()
 checkTypesError Type_string _ = fail ("ERROR: Se esperaba tipo: " ++ show(Type_string))
+checkTypesError Type_integer Type_integer = return ()
+checkTypesError Type_integer Type_real = return ()
+checkTypesError Type_integer _ = fail ("ERROR: Se esperaba tipo: " ++ show(Type_integer) ++ " o " ++ show(Type_real))
+checkTypesError Type_real Type_real = return ()
+checkTypesError Type_real Type_integer = return ()
+checkTypesError Type_real _ = fail ("ERROR: Se esperaba tipo: " ++ show(Type_real) ++ " o " ++ show(Type_integer))
 
+-- Gabo puto
 
 
 -- Obtiene el tipo de una expresion o un error
@@ -219,18 +222,9 @@ inferExp env (EStr s) = return (Type_string)
 inferExp env (EIdent id) = searchIdentInContext env id
 inferExp env (EEq exp1 exp2) = do {
                                     t1 <- inferExp env exp1;
-                                    t2 <- inferExp env exp2;
-                                    if ((t1 == Type_integer) || (t1 == Type_real)) then
-                                      if ((t2 == Type_integer) || (t2 == Type_real)) then
-                                        return (Type_bool);
-                                      else
-                                        fail ("ERROR: Se esperaba tipo: " ++ show(Type_integer) ++ " o " ++ show(Type_real) ++ " en la expresión: " ++ show(exp2));
-                                    else
-                                      if ((t2 == Type_char) || (t2 == Type_bool) || (t2 == Type_string)) then
-                                        return (Type_bool);
-                                      else
-                                        fail ("ERROR: Se esperaba tipo: " ++ show(Type_bool) ++ ", " ++ show(Type_char) ++ " o " ++ show(Type_string) ++ " en la expresión: " ++ show(exp2));
+                                    checkExp env exp2 t1
                                   }
+
 inferExp env (EDiff exp1 exp2) = inferExp env (EEq exp1 exp2)
 inferExp env (ELe exp1 exp2) = inferExp env (EEq exp1 exp2)
 inferExp env (ELeq exp1 exp2) = inferExp env (EEq exp1 exp2)
@@ -238,43 +232,19 @@ inferExp env (EGeq exp1 exp2) = inferExp env (EEq exp1 exp2)
 inferExp env (EGe exp1 exp2) = inferExp env (EEq exp1 exp2)
 inferExp env (EPlus exp1 exp2) = do {
                                       t1 <- inferExp env exp1;
-                                      t2 <- inferExp env exp2;
-                                      if not((t1 == Type_integer) || (t1 == Type_real)) then
-                                        fail ("ERROR: Se esperaba tipo: " ++ show(Type_integer) ++ " o " ++ show(Type_real)  ++ " en la expresión: " ++ show(exp1));
-                                      else
-                                        if not((t2 == Type_integer) || (t2 == Type_real)) then
-                                          fail ("ERROR: Se esperaba tipo: " ++ show(Type_integer) ++ " o " ++ show(Type_real)  ++ " en la expresión: " ++ show(exp2));
-                                        else
-                                          if (t1 == Type_real) || (t2 == Type_real) then
-                                            return (Type_real);
-                                          else
-                                            return (Type_integer);
+                                      checkExp env exp2 t1
                                     }
 inferExp env (ESubst exp1 exp2) = inferExp env (EPlus exp1 exp2)
 inferExp env (EMul exp1 exp2) = inferExp env (EPlus exp1 exp2)
 inferExp env (EDiv exp1 exp2) = inferExp env (EPlus exp1 exp2)
 inferExp env (EDiv2 exp1 exp2) = do {
                                       t1 <- inferExp env exp1;
-                                      t2 <- inferExp env exp2;
-                                      if not(t1 == Type_integer) then
-                                        fail ("ERROR: Se esperaba tipo: " ++ show(Type_integer) ++ " en la expresión: " ++ show(exp1));
-                                      else
-                                        if not(t2 == Type_integer) then
-                                          fail ("ERROR: Se esperaba tipo: " ++ show(Type_integer) ++  " en la expresión: " ++ show(exp2));
-                                        else
-                                          return (Type_integer);
+                                      checkExp env exp2 t1
                                     }
 inferExp env (EMod exp1 exp2) = inferExp env (EDiv2 exp1 exp2)
 inferExp env (EOr exp1 exp2) = do {
                                     t1 <- inferExp env exp1;
-                                    t2 <- inferExp env exp2;
-                                    if not(t1 == Type_bool) then
-                                      fail ("ERROR: Se esperaba tipo: " ++ show(Type_bool) ++ " en la expresión: " ++ show(exp1));
-                                    else
-                                      if not(t2 == Type_bool) then
-                                        fail ("ERROR: Se esperaba tipo: " ++ show(Type_bool) ++ " en la expresión: " ++ show(exp2));
-                                      else
-                                        return (Type_bool);
+                                    checkExp env exp2 t1
                                   }
 inferExp env (EAnd exp1 exp2) = inferExp env (EOr exp1 exp2)
 inferExp env (ENot exp) = do {
