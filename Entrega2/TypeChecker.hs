@@ -125,18 +125,28 @@ chekBodyAndFunctions procFuns stms env = do {
 checkStmsProcFunc :: Env -> [Def] -> Err()
 checkStmsProcFunc env [] = return ()
 checkStmsProcFunc env (d:ds) = do {
-                                    checkStatementsProcFun env d;
-									                  checkStmsProcFunc env ds
+                                    checkStatementProcFun env d;
+									checkStmsProcFunc env ds
                                   }
 
 -- Chequea las statements de un procedimiento o funcion
--- PARA AMBOS CASOS SE TIENE QUE GENERAR UN CONTEXT AUXILIAR EN EL CUAL SE DEBEN CARGAR LAS VARIABLES QUE ESTEN EN VAR DEL METODO
--- LUEGO JUNTO CON EL CONTEXT GENERAL, EL CONTEXT AUXILIAR Y LA LISTA DE PARAMETROS ARMAR UN NUEVO CONTEXT CON TODO PARA CHEQUEAR LAS STMS
--- LA DUDA VIENE DADA SOBRE QUE PASA CUANDO ME DEFINEN UNA VARIABLE LOCAL AL METODO QUE YA ES UNA VARIABLE GLOBAL
--- PORQUE SI ARMO UN NUEVO CONTEXT CON TODO, ME QUEDARÍAN DOS VARIABLES CON EL MISMO IDENT Y DISTINTO TIPO, ENTONCES AL HACER EL LOOKUP PUEDE QUE ME TRAIGA EL TIPO DE LA QUE NO ES
-checkStatementsProcFun :: Env -> Def -> Err ()
-checkStatementsProcFun env (DProc name parms varPart stms) = return ()
-checkStatementsProcFun env (DFun name parms funType varPart stms) = return ()
+checkStatementProcFun :: Env -> Def -> Err ()
+checkStatementProcFun (context,signatures) (DProc name parms varPart stms) = do {
+                                                                                  -- obtengo el contexto auxiliar con las var del procedimiento
+                                                                                  auxContext <- buildContext varPart Map.empty;
+                                                                                  -- obtengo la lista de parametros con sus tipos
+                                                                                  (parms,maybet) <- checkIdentInSignatures (context,signatures) name;
+                                                                                  -- agrego los parametros al contexto auxiliar y devuelvo el nuevo contexto
+                                                                                  newContext <- addParmsIntoContext auxContext parms;
+                                                                                  -- chequeo las statements con el nuevo contexto
+                                                                                  checkStms (newContext,signatures) stms
+                                                                                }
+checkStatementProcFun env (DFun name parms funType varPart stms) = return ()
+
+-- Agrega los parametros y sus tipos a un contexto, verificando si ya no pertenecen
+addParmsIntoContext :: Context -> [SignParameter] -> Err (Context)
+addParmsIntoContext context [] = return (context)
+addParmsIntoContext context ((id,(ref,t)):ps) = return (context)
 
 -- Realiza el chequeo de una lista de statements
 checkStms :: Env -> [Stm] -> Err ()
