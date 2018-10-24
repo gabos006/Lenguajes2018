@@ -175,11 +175,21 @@ checkStatement env (SIf exp stm1 stm2) = do {
 											                        checkStatement env stm2
                                             }
 checkStatement env (SEmpty) = return ()
-
---TODO
-checkStatement env (SCall id []) = return ()
-checkStatement env (SCall id (e:es)) = return ()
-checkStatement env (SCallEmpty id) = return ()
+checkStatement env (SCall id []) = do {
+                                        (parms,maybet) <- checkIdentInSignatures env id;
+										chkSizes [] parms;
+                                      }
+checkStatement env (SCall id exps) = do {
+                                          (parms,maybet) <- checkIdentInSignatures env id;
+                                          chkSizes exps parms;
+                                          chkArgumentsTypes env exps parms;
+                                          chkRefArguments env exps parms;
+                                          return ()
+                                        }
+checkStatement env (SCallEmpty id) = do {
+                                          (parms,maybet) <- checkIdentInSignatures env id;
+                                          return ()
+										}
 
 -- Chequea el tipo de una variable en el context si existe
 searchIdentInContext :: Env -> Ident -> Err (Type)
@@ -194,6 +204,7 @@ checkExp env exp t1 = do {
                            checkTypesError t1 t2
                          }
 
+-- Chequea tipos de error
 checkTypesError :: Type -> Type -> Err ()
 checkTypesError Type_char Type_char = return ()
 checkTypesError Type_char _ = fail ("ERROR: Se esperaba tipo: " ++ show(Type_char))
@@ -207,9 +218,6 @@ checkTypesError Type_integer _ = fail ("ERROR: Se esperaba tipo: " ++ show(Type_
 checkTypesError Type_real Type_real = return ()
 checkTypesError Type_real Type_integer = return ()
 checkTypesError Type_real _ = fail ("ERROR: Se esperaba tipo: " ++ show(Type_real) ++ " o " ++ show(Type_integer))
-
--- Gabo puto
-
 
 -- Obtiene el tipo de una expresion o un error
 inferExp :: Env -> Exp -> Err (Type)
@@ -225,7 +233,6 @@ inferExp env (EEq exp1 exp2) = do {
                                     checkExp env exp2 t1;
                                     return (Type_bool)
                                   }
-
 inferExp env (EDiff exp1 exp2) = inferExp env (EEq exp1 exp2)
 inferExp env (ELe exp1 exp2) = inferExp env (EEq exp1 exp2)
 inferExp env (ELeq exp1 exp2) = inferExp env (EEq exp1 exp2)
@@ -270,13 +277,18 @@ inferExp env (ENegNum exp) = do {
                                     return (Type_bool);
                                 }
 inferExp env (EPlusNum exp) = inferExp env (ENegNum exp)
-inferExp (context,signatures) (ECallEmpty id) = getFunctionTypeSignature signatures id
+inferExp env (ECallEmpty id) = do {
+                                    (parms,maybet) <- checkIdentInSignatures env id;
+                                    case maybet of
+                                    (Just t) -> return (t);
+                                     Nothing -> fail ("ERROR: El identificador: " ++ show(id) ++ " corresponde a un procedimiento y debería tener que ser una función")
+                                  }
 inferExp env (ECall id exps) = do {
-                                    (parms,t) <- checkIdentInSignatures env id;
+                                    (parms,maybet) <- checkIdentInSignatures env id;
                                     chkSizes exps parms;
                                     chkArgumentsTypes env exps parms;
                                     chkRefArguments env exps parms;
-                                    case t of
+                                    case maybet of
                                       (Just t) -> return (t)
                                   }
 
@@ -302,7 +314,7 @@ chkArgumentsTypes :: Env -> [Exp] -> [SignParameter] -> Err ()
 chkArgumentsTypes env [] [] = return ()
 chkArgumentsTypes env (e:es) ((id,(ref,t2)):ps) = do {
                                                        t1 <- inferExp env e;
-                                                       checkTypesError t1 t2;
+                                                       checkTypesError t2 t1;
                                                        chkArgumentsTypes env es ps
                                                      }
 -- Chequea el largo de la lista de expresiones de una llamada a una funcion y el largo de la lista de parametros que esta recibe
@@ -316,10 +328,4 @@ chkSizes exps parms = if (length(exps) == length(parms)) then
 checkIdentInSignatures :: Env -> Ident -> Err (ValSig)
 checkIdentInSignatures (context,signatures) id = case Map.lookup id signatures of
                                                       (Just a) -> return (a);
-                                                       Nothing -> fail ("ERROR: Función o procedimiento no declarado")
-
-getFunctionTypeSignature :: Signatures -> Ident -> Err (Type)
-getFunctionTypeSignature sigs name = case Map.lookup name sigs of
-                                          (Just (parms,maybet)) -> case maybet of
-                                                                       (Just t) -> return (t);
-                                                                        Nothing -> fail ("ERROR: Los procedimientos no tienen tipo de retorno")
+                                                       Nothing -> fail ("ERROR: Función o Procedimiento: " ++ show(id) ++ " no declarado")
