@@ -131,22 +131,45 @@ checkStmsProcFunc env (d:ds) = do {
 
 -- Chequea las statements de un procedimiento o funcion
 checkStatementProcFun :: Env -> Def -> Err ()
-checkStatementProcFun (context,signatures) (DProc name parms varPart stms) = do {
-                                                                                  -- obtengo el contexto auxiliar con las var del procedimiento
-                                                                                  auxContext <- buildContext varPart Map.empty;
-                                                                                  -- obtengo la lista de parametros con sus tipos
-                                                                                  (parms,maybet) <- checkIdentInSignatures (context,signatures) name;
-                                                                                  -- agrego los parametros al contexto auxiliar y devuelvo el nuevo contexto
-                                                                                  newContext <- addParmsIntoContext auxContext parms;
-                                                                                  -- chequeo las statements con el nuevo contexto
-                                                                                  checkStms (newContext,signatures) stms
-                                                                                }
-checkStatementProcFun env (DFun name parms funType varPart stms) = return ()
+checkStatementProcFun env (DProc name parms varPart stms) = do {
+                                                                 metContext <- getMethodContext env name varPart;
+                                                                 checkStms (unionContexts env metContext) stms
+                                                               }
+
+checkStatementProcFun env (DFun name parms funType varPart stms) = do {
+                                                                        metContext <- getMethodContext env name varPart;
+                                                                        newContext <- chkAddIdentMethodInContext name funType metContext;
+																		checkStms (unionContexts env newContext) stms
+                                                                      }
+
+-- Obtiene el context de un metodo particular
+getMethodContext :: Env -> Ident -> VarPart -> Err (Context)
+getMethodContext (context,signatures) name varPart = do {
+                                                           -- obtengo el contexto auxiliar con las var del procedimiento
+                                                           auxContext <- buildContext varPart Map.empty;
+                                                           -- obtengo la lista de parametros con sus tipos
+                                                           (parms,maybet) <- checkIdentInSignatures (context,signatures) name;
+                                                           -- agrego los parametros al contexto auxiliar y devuelvo el nuevo contexto
+                                                           addParmsIntoContext auxContext parms name
+                                                        }
 
 -- Agrega los parametros y sus tipos a un contexto, verificando si ya no pertenecen
-addParmsIntoContext :: Context -> [SignParameter] -> Err (Context)
-addParmsIntoContext context [] = return (context)
-addParmsIntoContext context ((id,(ref,t)):ps) = return (context)
+addParmsIntoContext :: Context -> [SignParameter] -> Ident -> Err (Context)
+addParmsIntoContext context [] name = return (context)
+addParmsIntoContext context ((id,(ref,t)):ps) name = case Map.lookup id context of
+                                                       (Just a) -> fail ("ERROR: Existen variables ya definidas como parametros en: " ++ show(name));
+                                                        Nothing -> addParmsIntoContext (Map.insert id t context) ps name;
+
+-- Chequea si el identificador de una funcion esta como parametro o variable de ella, sino lo agrega al contexto
+chkAddIdentMethodInContext :: Ident -> Type -> Context -> Err (Context)
+chkAddIdentMethodInContext name t context = case Map.lookup name context of
+                                              (Just a) -> fail ("ERROR: El identificador de la función no puede ser variable o parametro en: " ++ show(name));
+                                               Nothing -> return (Map.insert name t context)
+ 
+-- Realiza la union de dos contextos
+unionContexts :: Env -> Context -> Env
+unionContexts (context,signatures) auxContext = ((Map.union auxContext context),signatures)
+
 
 -- Realiza el chequeo de una lista de statements
 checkStms :: Env -> [Stm] -> Err ()
