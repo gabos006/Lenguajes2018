@@ -70,16 +70,16 @@ checkListParams sigParams name (p:ps) = do {
 -- Se distingue segun el tipo de parametro si es por referencia o no
 checkParams :: Param -> [SignParameter] -> Ident -> Err ([SignParameter])
 checkParams (ParamSingle [] t) signParams name = return (signParams)
-checkParams (ParamSingle (i:is) t) signParams name = addParamToListSignParameters (i:is) signParams name t
+checkParams (ParamSingle (i:is) t) signParams name = addParamToListSignParameters (i:is) signParams name t False
 checkParams (ParamRef [] t) signParams name = return (signParams)
-checkParams (ParamRef (i:is) t) signParams name = addParamToListSignParameters (i:is) signParams name t
+checkParams (ParamRef (i:is) t) signParams name = addParamToListSignParameters (i:is) signParams name t True
 
 -- Realiza la carga de un parametro en la lista de parametros de la signature
-addParamToListSignParameters :: [Ident] -> [SignParameter] -> Ident -> Type -> Err ([SignParameter])
-addParamToListSignParameters [] signParams name t = return (signParams)
-addParamToListSignParameters (i:is) signParams name t = case lookup i signParams of {
+addParamToListSignParameters :: [Ident] -> [SignParameter] -> Ident -> Type -> Bool -> Err ([SignParameter])
+addParamToListSignParameters [] signParams name t ref = return (signParams)
+addParamToListSignParameters (i:is) signParams name t ref = case lookup i signParams of {
                                                                 (Just a) -> fail ("ERROR: Parámetro " ++ show(i) ++ " ya delacarado en la firma de " ++ show(name));
-                                                                 Nothing -> addParamToListSignParameters is (((i,(False,t)):signParams)) name t
+                                                                 Nothing -> addParamToListSignParameters is (((i,(ref,t)):signParams)) name t ref
                                                             }
 
 -- Chequea si un metodo ya fue declarado anteriormente
@@ -112,7 +112,7 @@ buildContext (VPart (i:is)) context = do {
 chkAddContext :: VarDecl -> Context -> Err (Context)
 chkAddContext (VDecl [] t) context = return (context)
 chkAddContext (VDecl (i:is) t) context = case Map.lookup i context of
-                                              (Just a) -> fail ("ERROR: Variable " ++ show(i) ++ " ya definida en el contexto");
+                                              (Just a) -> fail ("ERROR: Variable " ++ show(i) ++ " ya definida");
                                                Nothing -> chkAddContext (VDecl is t) (Map.insert i t context);
 
 -- Realiza el chequeo de las statement del body de las Function y/o Procedures y del body del program
@@ -210,11 +210,11 @@ checkStatement env (SIf exp stm1 stm2) = do {
 checkStatement env (SEmpty) = return ()
 checkStatement env (SCall id []) = do {
                                         (parms,maybet) <- checkIdentInSignatures env id;
-										chkSizes [] parms;
+										chkSizes [] parms id;
                                       }
 checkStatement env (SCall id exps) = do {
                                           (parms,maybet) <- checkIdentInSignatures env id;
-                                          chkSizes exps parms;
+                                          chkSizes exps parms id;
                                           chkArgumentsTypes env exps parms;
                                           chkRefArguments env exps parms;
                                           return ()
@@ -318,7 +318,7 @@ inferExp env (ECallEmpty id) = do {
                                   }
 inferExp env (ECall id exps) = do {
                                     (parms,maybet) <- checkIdentInSignatures env id;
-                                    chkSizes exps parms;
+                                    chkSizes exps parms id;
                                     chkArgumentsTypes env exps parms;
                                     chkRefArguments env exps parms;
                                     case maybet of
@@ -351,11 +351,11 @@ chkArgumentsTypes env (e:es) ((id,(ref,t2)):ps) = do {
                                                        chkArgumentsTypes env es ps
                                                      }
 -- Chequea el largo de la lista de expresiones de una llamada a una funcion y el largo de la lista de parametros que esta recibe
-chkSizes :: [Exp] -> [SignParameter] -> Err ()
-chkSizes exps parms = if (length(exps) == length(parms)) then
-                        return ()
-                      else
-                        fail ("ERROR: Llamada con cantidad de parametros incorrecta")
+chkSizes :: [Exp] -> [SignParameter] -> Ident -> Err ()
+chkSizes exps parms name = if (length(exps) == length(parms)) then
+                             return ()
+                           else
+                             fail ("ERROR: Llamada a: " ++ show(name) ++ " con cantidad de parametros incorrecta")
 
 -- Chequea si una firma pertenece al conjunto de firmas
 checkIdentInSignatures :: Env -> Ident -> Err (ValSig)
