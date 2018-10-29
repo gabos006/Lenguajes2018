@@ -1,3 +1,6 @@
+-- 224435 - Gabriel Pereyra
+-- 168772 - Mario Souto
+
 module TypeChecker where
 
 import AbsPascal
@@ -79,7 +82,7 @@ addParamToListSignParameters :: [Ident] -> [SignParameter] -> Ident -> Type -> B
 addParamToListSignParameters [] signParams name t ref = return (signParams)
 addParamToListSignParameters (i:is) signParams name t ref = case lookup i signParams of {
                                                                 (Just a) -> fail ("ERROR: Parámetro " ++ show(i) ++ " ya delacarado en la firma de " ++ show(name));
-                                                                 Nothing -> addParamToListSignParameters is (((i,(ref,t)):signParams)) name t ref
+                                                                 Nothing -> addParamToListSignParameters is (signParams ++ [(i,(ref,t))]) name t ref
                                                             }
 
 -- Chequea si un metodo ya fue declarado anteriormente
@@ -126,7 +129,7 @@ checkStmsProcFunc :: Env -> [Def] -> Err()
 checkStmsProcFunc env [] = return ()
 checkStmsProcFunc env (d:ds) = do {
                                     checkStatementProcFun env d;
-									checkStmsProcFunc env ds
+                                    checkStmsProcFunc env ds
                                   }
 
 -- Chequea las statements de un procedimiento o funcion
@@ -139,7 +142,7 @@ checkStatementProcFun env (DProc name parms varPart stms) = do {
 checkStatementProcFun env (DFun name parms funType varPart stms) = do {
                                                                         metContext <- getMethodContext env name varPart;
                                                                         newContext <- chkAddIdentMethodInContext name funType metContext;
-																		checkStms (unionContexts env newContext) stms
+                                                                        checkStms (unionContexts env newContext) stms
                                                                       }
 
 -- Obtiene el context de un metodo particular
@@ -209,17 +212,17 @@ checkStatement env (SFor id exp1 exp2 stm) = do {
 checkStatement env (SIf exp stm1 stm2) = do {
                                               t <- inferExp env exp;
                                               checkExp env exp Type_bool;
-											  checkStatement env stm1;
-											  checkStatement env stm2
+                                              checkStatement env stm1;
+                                              checkStatement env stm2
                                             }
 checkStatement env (SEmpty) = return ()
 checkStatement env (SCall id []) = do {
                                         (parms,maybet) <- checkIdentInSignatures env id;
-										chkSizes [] parms id;
+                                        chkSizes [] parms id;
                                       }
 checkStatement env (SCall id exps) = do {
                                           (parms,maybet) <- checkIdentInSignatures env id;
-										  case maybet of 
+                                          case maybet of 
                                              Nothing -> do {
                                                              chkSizes exps parms id;
                                                              chkArgumentsTypes env exps parms;
@@ -231,7 +234,7 @@ checkStatement env (SCall id exps) = do {
 checkStatement env (SCallEmpty id) = do {
                                           (parms,maybet) <- checkIdentInSignatures env id;
                                           return ()
-										}
+                                        }
 
 -- Chequea el tipo de una variable en el context si existe
 searchIdentInContext :: Env -> Ident -> Err (Type)
@@ -271,10 +274,9 @@ inferExp env (EStr s) = return (Type_string)
 inferExp env (EIdent id) = searchIdentInContext env id
 inferExp env (EEq exp1 exp2) = do {
                                     t1 <- inferExp env exp1;
-                                    -- checkExp env exp2 t1;
                                     if (t1 == Type_integer) || (t1 == Type_real) then
                                       checkExp env exp2 Type_real
-									else
+                                    else
                                       checkExp env exp2 t1;
                                     return (Type_bool)
                                   }
@@ -326,8 +328,8 @@ inferExp env (EPlusNum exp) = inferExp env (ENegNum exp)
 inferExp env (ECallEmpty id) = do {
                                     (parms,maybet) <- checkIdentInSignatures env id;
                                     case maybet of
-                                    (Just t) -> return (t);
-                                     Nothing -> fail ("ERROR: El identificador: " ++ show(id) ++ " corresponde a un procedimiento y debería tener que ser una función")
+                                      (Just t) -> return (t);
+                                       Nothing -> fail ("ERROR: El identificador: " ++ show(id) ++ " corresponde a un procedimiento y debería tener que ser una función")
                                   }
 inferExp env (ECall id exps) = do {
                                     (parms,maybet) <- checkIdentInSignatures env id;
