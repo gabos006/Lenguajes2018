@@ -197,15 +197,20 @@ checkStatement env (SBlock []) = return ()
 checkStatement env (SBlock stms) = checkStms env stms
 checkStatement env (SFor id exp1 exp2 stm) = do {
                                                    t <- searchIdentInContext env id;
-                                                   checkExp env exp1 Type_integer;
-                                                   checkExp env exp2 Type_integer;
-                                                   checkStatement env stm
+                                                   if (t == Type_integer) then
+                                                     do {
+                                                          checkExp env exp1 Type_integer;
+                                                          checkExp env exp2 Type_integer;
+                                                          checkStatement env stm
+                                                        }
+                                                   else
+                                                     fail ("ERROR: Se esperaba tipo: " ++ show(Type_integer))
                                                 }
 checkStatement env (SIf exp stm1 stm2) = do {
                                               t <- inferExp env exp;
                                               checkExp env exp Type_bool;
-											                        checkStatement env stm1;
-											                        checkStatement env stm2
+											  checkStatement env stm1;
+											  checkStatement env stm2
                                             }
 checkStatement env (SEmpty) = return ()
 checkStatement env (SCall id []) = do {
@@ -214,10 +219,14 @@ checkStatement env (SCall id []) = do {
                                       }
 checkStatement env (SCall id exps) = do {
                                           (parms,maybet) <- checkIdentInSignatures env id;
-                                          chkSizes exps parms id;
-                                          chkArgumentsTypes env exps parms;
-                                          chkRefArguments env exps parms;
-                                          return ()
+										  case maybet of 
+                                             Nothing -> do {
+                                                             chkSizes exps parms id;
+                                                             chkArgumentsTypes env exps parms;
+                                                             chkRefArguments env exps parms;
+                                                             return ()
+                                                           }
+                                             Just t -> fail ("ERROR: La función: " ++ show(id) ++ " tiene tipo de retorno y no se esta asignando")
                                         }
 checkStatement env (SCallEmpty id) = do {
                                           (parms,maybet) <- checkIdentInSignatures env id;
@@ -246,7 +255,6 @@ checkTypesError Type_bool _ = fail ("ERROR: Se esperaba tipo: " ++ show(Type_boo
 checkTypesError Type_string Type_string = return ()
 checkTypesError Type_string _ = fail ("ERROR: Se esperaba tipo: " ++ show(Type_string))
 checkTypesError Type_integer Type_integer = return ()
-checkTypesError Type_integer Type_real = return ()
 checkTypesError Type_integer _ = fail ("ERROR: Se esperaba tipo: " ++ show(Type_integer) ++ " o " ++ show(Type_real))
 checkTypesError Type_real Type_real = return ()
 checkTypesError Type_real Type_integer = return ()
@@ -263,7 +271,11 @@ inferExp env (EStr s) = return (Type_string)
 inferExp env (EIdent id) = searchIdentInContext env id
 inferExp env (EEq exp1 exp2) = do {
                                     t1 <- inferExp env exp1;
-                                    checkExp env exp2 t1;
+                                    -- checkExp env exp2 t1;
+                                    if (t1 == Type_integer) || (t1 == Type_real) then
+                                      checkExp env exp2 Type_real
+									else
+                                      checkExp env exp2 t1;
                                     return (Type_bool)
                                   }
 inferExp env (EDiff exp1 exp2) = inferExp env (EEq exp1 exp2)
@@ -274,7 +286,8 @@ inferExp env (EGe exp1 exp2) = inferExp env (EEq exp1 exp2)
 inferExp env (EPlus exp1 exp2) = do {
                                       t1 <- inferExp env exp1;
                                       t2 <- inferExp env exp2;
-                                      checkExp env exp2 t1;
+                                      checkExp env exp2 Type_real;
+                                      checkExp env exp2 Type_real;
                                       if (t1 == Type_real) || (t2 == Type_real) then
                                         return (Type_real);
                                       else
@@ -307,7 +320,7 @@ inferExp env (ENegNum exp) = do {
                                   if not((t == Type_real) || (t == Type_integer)) then
                                     fail ("ERROR: Se esperaba tipo: " ++ show(Type_real) ++ " o " ++ show(Type_integer));
                                   else
-                                    return (Type_bool);
+                                    return (t);
                                 }
 inferExp env (EPlusNum exp) = inferExp env (ENegNum exp)
 inferExp env (ECallEmpty id) = do {
