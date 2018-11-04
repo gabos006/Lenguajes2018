@@ -168,7 +168,7 @@ chkAddIdentMethodInContext :: Ident -> Type -> Context -> Err (Context)
 chkAddIdentMethodInContext name t context = case Map.lookup name context of
                                               (Just a) -> fail ("ERROR: El identificador de la función no puede ser variable o parametro en: " ++ show(name));
                                                Nothing -> return (Map.insert name t context)
- 
+
 -- Realiza la union de dos contextos
 unionContexts :: Env -> Context -> Env
 unionContexts (context,signatures) auxContext = ((Map.union auxContext context),signatures)
@@ -222,7 +222,7 @@ checkStatement env (SCall id []) = do {
                                       }
 checkStatement env (SCall id exps) = do {
                                           (parms,maybet) <- checkIdentInSignatures env id;
-                                          case maybet of 
+                                          case maybet of
                                              Nothing -> do {
                                                              chkSizes exps parms id;
                                                              chkArgumentsTypes env exps parms;
@@ -233,7 +233,9 @@ checkStatement env (SCall id exps) = do {
                                         }
 checkStatement env (SCallEmpty id) = do {
                                           (parms,maybet) <- checkIdentInSignatures env id;
-                                          return ()
+                                          case maybet of
+                                             Nothing -> return ();
+                                             Just t -> fail ("ERROR: La función: " ++ show(id) ++ " tiene tipo de retorno y no se esta asignando")
                                         }
 
 -- Chequea el tipo de una variable en el context si existe
@@ -337,7 +339,8 @@ inferExp env (ECall id exps) = do {
                                     chkArgumentsTypes env exps parms;
                                     chkRefArguments env exps parms;
                                     case maybet of
-                                      (Just t) -> return (t)
+                                      (Just t) -> return (t);
+                                      Nothing -> fail ("ERROR: El identificador: " ++ show(id) ++ " corresponde a un procedimiento y debería tener que ser una función")
                                   }
 
 -- Chequea que los parametros que son por referencia sean variables y pertenezcan al contexto
