@@ -90,15 +90,15 @@ compileProg (PBlock (Ident name) varPart stms) = do
   emit ""
 
 compileStm :: Stm -> State Env ()
-compileStm (SAss id exp) = error $ "Caso de instruccion sin implementar = " ++ show stm
-compileStm (SCall id lexp) = error $ "Caso de instruccion sin implementar = " ++ show stm
-compileStm (SCallEmpty id) = error $ "Caso de instruccion sin implementar = " ++ show stm
-compileStm (SRepeat stm exp) = error $ "Caso de instruccion sin implementar = " ++ show stm
-compileStm (SWhile exp stm) = error $ "Caso de instruccion sin implementar = " ++ show stm
-compileStm (SBlock lstm) = error $ "Caso de instruccion sin implementar = " ++ show stm
-compileStm (SFor id exp2 exp1 stm) = error $ "Caso de instruccion sin implementar = " ++ show stm
-compileStm (SIf exp stm1 stm2) = error $ "Caso de instruccion sin implementar = " ++ show stm
-compileStm (SEmpty) = error $ "Caso de instruccion sin implementar = " ++ show stm
+compileStm (SAss id exp) = error $ "Caso de instruccion sin implementar = "
+compileStm (SCall id lexp) = error $ "Caso de instruccion sin implementar = "
+compileStm (SCallEmpty id) = error $ "Caso de instruccion sin implementar = "
+compileStm (SRepeat stm exp) = error $ "Caso de instruccion sin implementar = "
+compileStm (SWhile exp stm) = error $ "Caso de instruccion sin implementar = "
+compileStm (SBlock lstm) = error $ "Caso de instruccion sin implementar = "
+compileStm (SFor id exp2 exp1 stm) = error $ "Caso de instruccion sin implementar = "
+compileStm (SIf exp stm1 stm2) = error $ "Caso de instruccion sin implementar = "
+compileStm (SEmpty) = error $ "Caso de instruccion sin implementar = "
 
 
 data Cmp = CEq | CDiff | CLe | CLeq | CGeq | CGt
@@ -146,33 +146,83 @@ showOpBinBool And = "ifne "
 showOpBinBool Or  = "ifeq "
 
 compileExp :: Exp -> State Env ()
-compileExp (ETyped exp t) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (EConv exp) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (EEq exp1 exp2) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (EDiff exp1 exp2) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (ELe exp1 exp2) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (ELeq exp1 exp2) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (EGeq exp1 exp2) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (EGe exp1 exp2) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (EPlus exp1 exp2) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (ESubst exp1 exp2) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (EOr exp1 exp2) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (EMul exp1 exp2) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (EDiv exp1 exp2) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (EAnd exp1 exp2) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (EMod exp1 exp2) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (EDiv2 exp1 exp2) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (ECall id lexp) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (ECallEmpty id) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (ENot exp) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (ENegNum exp) = error $ "Caso de expresion sin implementar = " ++ show e
-compileExp (EPlusNum exp) = do{
-                                compileExp exp;
-                                emit("iadd")
-                              }
-compileExp (EIdent id) = emit(show(id))
-compileExp (EStr s) = emit("ldc " ++ )
-compileExp (EInt i) = emit("ldc " ++ show(i))
-compileExp (EReal d) = emit("ldc2 " ++ show(d))
-compileExp (EFalse) = emit("ldc 0")
-compileExp (ETrue) = emit("ldc 1")
+compileExp (ETyped (EConv exp) t) = error $ "Caso de expresion sin implementar = "
+compileExp (ETyped (EEq exp1 exp2) t) = error $ "Caso de expresion sin implementar = "
+compileExp (ETyped (EDiff exp1 exp2) t) = error $ "Caso de expresion sin implementar = "
+compileExp (ETyped (ELe exp1 exp2) t) = error $ "Caso de expresion sin implementar = "
+compileExp (ETyped (ELeq exp1 exp2) t) = error $ "Caso de expresion sin implementar = "
+compileExp (ETyped (EGeq exp1 exp2) t) = error $ "Caso de expresion sin implementar = "
+compileExp (ETyped (EGe exp1 exp2) t) = error $ "Caso de expresion sin implementar = "
+compileExp (ETyped (EOr exp1 exp2) t) = error $ "Caso de expresion sin implementar = "
+compileExp (ETyped (EAnd exp1 exp2) t) = error $ "Caso de expresion sin implementar = "
+compileExp (ETyped (EPlus exp1 exp2) t) = do {
+                                               compileExp exp1;
+                                               compileExp exp2;
+                                               case t of {
+                                                           Type_real -> emit(showOpBinReal Plus);
+                                                           Type_integer -> emit(showOpBinInt Plus)
+                                                         }
+                                            }
+compileExp (ETyped (ESubst exp1 exp2) t) = do {
+                                               compileExp exp1;
+                                               compileExp exp2;
+                                               case t of {
+                                                           Type_real -> emit(showOpBinReal Subst);
+                                                           Type_integer -> emit(showOpBinInt Subst)
+                                                         }
+                                            }
+compileExp (ETyped (EMul exp1 exp2) t) = do {
+                                               compileExp exp1;
+                                               compileExp exp2;
+                                               case t of {
+                                                           Type_real -> emit(showOpBinReal Mul);
+                                                           Type_integer -> emit(showOpBinInt Mul)
+                                                         }
+                                            }
+compileExp (ETyped (EDiv exp1 exp2) t) = do {
+                                               compileExp exp1;
+                                               compileExp exp2;
+                                               case t of {
+                                                           Type_real -> emit(showOpBinReal Div);
+                                                           Type_integer -> emit(showOpBinInt Div)
+                                                         }
+                                            }
+compileExp (ETyped (EMod exp1 exp2) t) = do {
+                                               compileExp exp1;
+                                               compileExp exp2;
+                                               case t of {
+                                                           Type_real -> emit(showOpBinReal Mod);
+                                                           Type_integer -> emit(showOpBinInt Mod)
+                                                         }
+                                            }
+compileExp (ETyped (EDiv2 exp1 exp2) t) = do {
+                                               compileExp exp1;
+                                               compileExp exp2;
+                                               case t of {
+                                                           Type_real -> emit(showOpBinReal Div2);
+                                                           Type_integer -> emit(showOpBinInt Div2)
+                                                         }
+                                             }
+compileExp (ETyped (ECall id lexp) t) = error $ "Caso de expresion sin implementar = "
+compileExp (ETyped (ECallEmpty id) t) = error $ "Caso de expresion sin implementar = "
+compileExp (ETyped (ENot exp) t) = error $ "Caso de expresion sin implementar = "
+compileExp (ETyped (ENegNum exp) t) = do {
+                                           compileExp exp;
+                                           case t of {
+                                                       Type_real -> emit(showOpBinReal Subst);
+                                                       Type_integer -> emit(showOpBinInt Subst)
+                                                     }
+                                         }
+compileExp (ETyped (EPlusNum exp) t) = do {
+                                            compileExp exp;
+                                            case t of {
+                                                        Type_real -> emit(showOpBinReal Plus);
+                                                        Type_integer -> emit(showOpBinInt Plus)
+                                                      }
+                                          }
+compileExp (ETyped (EIdent id) t) = error $ "Caso de expresion sin implementar = "
+compileExp (ETyped (EStr s) t) = emit("ldc " ++ show('"') ++ s ++ show('"'))
+compileExp (ETyped (EInt i) t) = emit("ldc " ++ show(i))
+compileExp (ETyped (EReal d) t) = emit("ldc2_w " ++ show(d))
+compileExp (ETyped (EFalse) t) = emit("ldc 0")
+compileExp (ETyped (ETrue) t) = emit("ldc 1")
