@@ -90,15 +90,19 @@ compileProg (PBlock (Ident name) varPart stms) = do
   emit ""
 
 compileStm :: Stm -> State Env ()
-compileStm (SAss id exp) = error $ "Caso de instruccion sin implementar = "
-compileStm (SCall id lexp) = error $ "Caso de instruccion sin implementar = "
-compileStm (SCallEmpty id) = error $ "Caso de instruccion sin implementar = "
-compileStm (SRepeat stm exp) = error $ "Caso de instruccion sin implementar = "
-compileStm (SWhile exp stm) = error $ "Caso de instruccion sin implementar = "
-compileStm (SBlock lstm) = error $ "Caso de instruccion sin implementar = "
-compileStm (SFor id exp2 exp1 stm) = error $ "Caso de instruccion sin implementar = "
-compileStm (SIf exp stm1 stm2) = error $ "Caso de instruccion sin implementar = "
-compileStm (SEmpty) = error $ "Caso de instruccion sin implementar = "
+compileStm (SAss id exp) = error $ "ERROR SAss"
+compileStm (SCall (Ident s) lexp) = do{
+                                 compileListExp lexp;
+								 emit("ldc " ++ show(s));
+								 emit("invokestatic")
+                               }
+compileStm (SCallEmpty id) = error $ "ERROR SCallEmpty"
+compileStm (SRepeat stm exp) = error $ "ERROR SRepeat"
+compileStm (SWhile exp stm) = error $ "ERROR SWhile"
+compileStm (SBlock lstm) = error $ "ERROR SBlock"
+compileStm (SFor id exp2 exp1 stm) = error $ "ERROR SFor"
+compileStm (SIf exp stm1 stm2) = error $ "ERROR SIf"
+compileStm (SEmpty) = emit("")
 
 
 data Cmp = CEq | CDiff | CLe | CLeq | CGeq | CGt
@@ -145,16 +149,24 @@ showOpBinBool :: OpBinBool -> String
 showOpBinBool And = "ifne "
 showOpBinBool Or  = "ifeq "
 
+
+compileListExp :: [Exp] -> State Env ()
+compileListExp [] = return()
+compileListExp (e:es) = do {
+                             compileExp e;  
+                             compileListExp es
+                           }
+
 compileExp :: Exp -> State Env ()
-compileExp (ETyped (EConv exp) t) = error $ "Caso de expresion sin implementar = "
-compileExp (ETyped (EEq exp1 exp2) t) = error $ "Caso de expresion sin implementar = "
-compileExp (ETyped (EDiff exp1 exp2) t) = error $ "Caso de expresion sin implementar = "
-compileExp (ETyped (ELe exp1 exp2) t) = error $ "Caso de expresion sin implementar = "
-compileExp (ETyped (ELeq exp1 exp2) t) = error $ "Caso de expresion sin implementar = "
-compileExp (ETyped (EGeq exp1 exp2) t) = error $ "Caso de expresion sin implementar = "
-compileExp (ETyped (EGe exp1 exp2) t) = error $ "Caso de expresion sin implementar = "
-compileExp (ETyped (EOr exp1 exp2) t) = error $ "Caso de expresion sin implementar = "
-compileExp (ETyped (EAnd exp1 exp2) t) = error $ "Caso de expresion sin implementar = "
+compileExp (ETyped (EConv exp) t) = error $ "ERROR EConv"
+compileExp (ETyped (EEq exp1 exp2) t) = error $ "ERROR EEq"
+compileExp (ETyped (EDiff exp1 exp2) t) = error $ "ERROR EDiff"
+compileExp (ETyped (ELe exp1 exp2) t) = error $ "ERROR ELe"
+compileExp (ETyped (ELeq exp1 exp2) t) = error $ "ERROR ELeq"
+compileExp (ETyped (EGeq exp1 exp2) t) = error $ "ERROR EGeq"
+compileExp (ETyped (EGe exp1 exp2) t) = error $ "ERROR EGe"
+compileExp (ETyped (EOr exp1 exp2) t) = error $ "ERROR EOr"
+compileExp (ETyped (EAnd exp1 exp2) t) = error $ "ERROR EAnd"
 compileExp (ETyped (EPlus exp1 exp2) t) = do {
                                                compileExp exp1;
                                                compileExp exp2;
@@ -203,9 +215,12 @@ compileExp (ETyped (EDiv2 exp1 exp2) t) = do {
                                                            Type_integer -> emit(showOpBinInt Div2)
                                                          }
                                              }
-compileExp (ETyped (ECall id lexp) t) = error $ "Caso de expresion sin implementar = "
-compileExp (ETyped (ECallEmpty id) t) = error $ "Caso de expresion sin implementar = "
-compileExp (ETyped (ENot exp) t) = error $ "Caso de expresion sin implementar = "
+compileExp (ETyped (ECall id lexp) t) = error $ "ERROR ECall"
+compileExp (ETyped (ECallEmpty id) t) = error $ "ERROR ECallEmpty"
+compileExp (ETyped (ENot exp) t) = do {
+                                        compileExp exp;
+                                        emit("ineg")
+                                      }
 compileExp (ETyped (ENegNum exp) t) = do {
                                            compileExp exp;
                                            case t of {
@@ -220,8 +235,8 @@ compileExp (ETyped (EPlusNum exp) t) = do {
                                                         Type_integer -> emit(showOpBinInt Plus)
                                                       }
                                           }
-compileExp (ETyped (EIdent id) t) = error $ "Caso de expresion sin implementar = "
-compileExp (ETyped (EStr s) t) = emit("ldc " ++ show('"') ++ s ++ show('"'))
+compileExp (ETyped (EIdent id) t) = error $ "ERROR EIdent"
+compileExp (ETyped (EStr s) t) = emit("ldc " ++ show(s))
 compileExp (ETyped (EInt i) t) = emit("ldc " ++ show(i))
 compileExp (ETyped (EReal d) t) = emit("ldc2_w " ++ show(d))
 compileExp (ETyped (EFalse) t) = emit("ldc 0")

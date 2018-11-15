@@ -122,7 +122,7 @@ testBackendProg prog f = do
     javaClassFileCreated <- doesFileExist expectedJavaClassFilePath
     if javaClassFileCreated then do
       -- Run code
-      let javaCommand = "java -noverify -cp .:" ++ takeDirectory f ++ " " ++ takeBaseName f
+      let javaCommand = "java -noverify -cp .;" ++ takeDirectory f ++ " " ++ takeBaseName f
       (javaOut, javaErr, javaRet) <- runCommandStrWait javaCommand input
       if isExitFailure javaRet then do
         reportError javaCommand "non-zero exit code" f input javaOut javaErr
