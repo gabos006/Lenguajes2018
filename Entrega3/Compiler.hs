@@ -90,19 +90,47 @@ compileProg (PBlock (Ident name) varPart stms) = do
   emit ""
 
 compileStm :: Stm -> State Env ()
-compileStm (SAss id exp) = error $ "ERROR SAss"
+compileStm (SAss id (ETyped exp t)) = do {
+                                            dirMem <- lookupVar id;
+                                            compileExp (ETyped exp t);
+                                            case t of {
+                                               Type_real -> emit $ "dstore " ++ dirMem;
+                                               Type_bool -> emit $ "istore " ++ dirMem;
+                                               Type_string -> emit $ "astore " ++ dirMem;
+                                               Type_integer -> emit $ "istore " ++ dirMem;
+                                            }
+                                          }
 compileStm (SCall id lexp) = do {
-                                         funT <- lookupFun id;
-                                         compileListExp lexp;
-                                         emit funT
-                                       }
-compileStm (SCallEmpty id) = error $ "ERROR SCallEmpty"
+                                  funT <- lookupFun id;
+                                  compileListExp lexp;
+                                  emit funT
+                                }
+compileStm (SCallEmpty id) = do {
+                                  funT <- lookupFun id;
+                                  emit funT
+                                 }
 compileStm (SRepeat stm exp) = error $ "ERROR SRepeat"
-compileStm (SWhile exp stm) = error $ "ERROR SWhile"
-compileStm (SBlock lstm) = error $ "ERROR SBlock"
+compileStm (SWhile exp stm) = do {
+                                    lTest <- newLabel;
+                                    lEnd <- newLabel;
+                                    emit $ lTest ++ ":";
+                                    compileExp exp;
+                                    emit $ "ifeq " ++ lEnd;
+                                    compileStm stm;
+                                    emit $ "goto " ++ lTest;
+                                    emit $ lEnd ++ ":"
+                                  }
+compileStm (SBlock lstm) = compileListStm lstm
 compileStm (SFor id exp2 exp1 stm) = error $ "ERROR SFor"
 compileStm (SIf exp stm1 stm2) = error $ "ERROR SIf"
 compileStm (SEmpty) = return()
+
+compileListStm :: [Stm] -> State Env ()
+compileListStm [] = return();
+compileListStm (s:xs) = do {
+                             compileStm s;
+                             compileListStm xs
+                           }
 
 
 data Cmp = CEq | CDiff | CLe | CLeq | CGeq | CGt
@@ -149,14 +177,6 @@ showOpBinBool :: OpBinBool -> String
 showOpBinBool And = "ifne "
 showOpBinBool Or  = "ifeq "
 
-
-compileListExp :: [Exp] -> State Env ()
-compileListExp [] = return()
-compileListExp (e:es) = do {
-                             compileExp e;
-                             compileListExp es
-                           }
-
 compileExp :: Exp -> State Env ()
 compileExp (ETyped (EConv exp) t) = error $ "ERROR EConv"
 compileExp (ETyped (EEq exp1 exp2) t) = error $ "ERROR EEq"
@@ -174,7 +194,7 @@ compileExp (ETyped (EPlus exp1 exp2) t) = do {
                                                            Type_real -> emit(showOpBinReal Plus);
                                                            Type_integer -> emit(showOpBinInt Plus)
                                                          }
-                                            }
+                                             }
 compileExp (ETyped (ESubst exp1 exp2) t) = do {
                                                compileExp exp1;
                                                compileExp exp2;
@@ -245,9 +265,35 @@ compileExp (ETyped (ENegNum exp) t) = do {
 compileExp (ETyped (EPlusNum exp) t) = do {
                                             compileExp exp;
                                           }
-compileExp (ETyped (EIdent id) t) = error $ "ERROR EIdent"
+compileExp (ETyped (EIdent id) t) = do {
+                                         dirMem <- lookupVar id;
+                                         case t of {
+                                            Type_real -> emit $ "dload " ++ dirMem;
+                                            Type_bool -> emit $ "iload " ++ dirMem;
+                                            Type_string -> emit $ "aload " ++ dirMem;
+                                            Type_integer -> emit $ "iload " ++ dirMem;
+                                          }
+                                        }
 compileExp (ETyped (EStr s) t) = emit("ldc " ++ show(s))
 compileExp (ETyped (EInt i) t) = emit("ldc " ++ show(i))
 compileExp (ETyped (EReal d) t) = emit("ldc2_w " ++ show(d))
 compileExp (ETyped (EFalse) t) = emit("ldc 0")
 compileExp (ETyped (ETrue) t) = emit("ldc 1")
+
+compileListExp :: [Exp] -> State Env ()
+compileListExp [] = return()
+compileListExp (e:es) = do {
+                             compileExp e;
+                             compileListExp es
+                           }
+
+--compileExpCmp :: Exp -> Exp -> Cmp -> State Env ()
+--compileExpCmp (ETyped e1 t1) e2 cmp =
+--do {
+--     compileExp (ETyped e1 t1);
+--     compileExp e2;
+--     if (t1 == Type_integer) then do
+--
+--     else do
+--
+--}
