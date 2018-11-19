@@ -4,7 +4,6 @@
 .method public static main([Ljava/lang/String;)V
 .limit locals 1
 .limit stack  1000
-
 return
 .end method
 

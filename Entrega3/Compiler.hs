@@ -91,18 +91,18 @@ compileProg (PBlock (Ident name) varPart stms) = do
 
 compileStm :: Stm -> State Env ()
 compileStm (SAss id exp) = error $ "ERROR SAss"
-compileStm (SCall (Ident s) lexp) = do{
-                                 compileListExp lexp;
-								 emit("ldc " ++ show(s));
-								 emit("invokestatic")
-                               }
+compileStm (SCall id lexp) = do {
+                                         funT <- lookupFun id;
+                                         compileListExp lexp;
+                                         emit funT
+                                       }
 compileStm (SCallEmpty id) = error $ "ERROR SCallEmpty"
 compileStm (SRepeat stm exp) = error $ "ERROR SRepeat"
 compileStm (SWhile exp stm) = error $ "ERROR SWhile"
 compileStm (SBlock lstm) = error $ "ERROR SBlock"
 compileStm (SFor id exp2 exp1 stm) = error $ "ERROR SFor"
 compileStm (SIf exp stm1 stm2) = error $ "ERROR SIf"
-compileStm (SEmpty) = emit("")
+compileStm (SEmpty) = return()
 
 
 data Cmp = CEq | CDiff | CLe | CLeq | CGeq | CGt
@@ -153,7 +153,7 @@ showOpBinBool Or  = "ifeq "
 compileListExp :: [Exp] -> State Env ()
 compileListExp [] = return()
 compileListExp (e:es) = do {
-                             compileExp e;  
+                             compileExp e;
                              compileListExp es
                            }
 
@@ -215,25 +215,35 @@ compileExp (ETyped (EDiv2 exp1 exp2) t) = do {
                                                            Type_integer -> emit(showOpBinInt Div2)
                                                          }
                                              }
-compileExp (ETyped (ECall id lexp) t) = error $ "ERROR ECall"
-compileExp (ETyped (ECallEmpty id) t) = error $ "ERROR ECallEmpty"
+compileExp (ETyped (ECall id lexp) t) = do {
+                                             funT <- lookupFun id;
+                                             compileListExp lexp;
+                                             emit funT
+                                           }
+compileExp (ETyped (ECallEmpty id) t) = do {
+                                             funT <- lookupFun id;
+                                             emit funT
+                                           }
 compileExp (ETyped (ENot exp) t) = do {
+                                        lFalse <- newLabel;
+                                        lEnd <- newLabel;
                                         compileExp exp;
-                                        emit("ineg")
+                                        emit $ "ifeq " ++ lFalse;
+                                        emit $ "ldc 0";
+                                        emit $ "goto " ++ lEnd;
+                                        emit $ lFalse ++ ":";
+                                        emit $ "ldc 1";
+                                        emit $ lEnd ++ ":"
                                       }
 compileExp (ETyped (ENegNum exp) t) = do {
                                            compileExp exp;
                                            case t of {
-                                                       Type_real -> emit(showOpBinReal Subst);
-                                                       Type_integer -> emit(showOpBinInt Subst)
+                                                       Type_real -> emit "dneg ";
+                                                       Type_integer -> emit "ineg "
                                                      }
                                          }
 compileExp (ETyped (EPlusNum exp) t) = do {
                                             compileExp exp;
-                                            case t of {
-                                                        Type_real -> emit(showOpBinReal Plus);
-                                                        Type_integer -> emit(showOpBinInt Plus)
-                                                      }
                                           }
 compileExp (ETyped (EIdent id) t) = error $ "ERROR EIdent"
 compileExp (ETyped (EStr s) t) = emit("ldc " ++ show(s))

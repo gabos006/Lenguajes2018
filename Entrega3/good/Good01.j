@@ -5,8 +5,7 @@
 .limit locals 1
 .limit stack  1000
 ldc "Hello World!"
-ldc "writeStr"
-invokestatic
+invokestatic Runtime/writeStr(Ljava/lang/String;)V
 return
 .end method
 
