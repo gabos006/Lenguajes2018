@@ -109,19 +109,48 @@ compileStm (SCallEmpty id) = do {
                                   funT <- lookupFun id;
                                   emit funT
                                  }
-compileStm (SRepeat stm exp) = error $ "ERROR SRepeat"
+compileStm (SRepeat stm exp) = do {
+                                     lCond <- newLabel;
+                                     emit $ lCond ++ ":";
+                                     compileStm stm;
+                                     compileExp exp;
+                                     emit $ "ifeq " ++ lCond;
+                                  }
 compileStm (SWhile exp stm) = do {
-                                    lTest <- newLabel;
+                                    lCond <- newLabel;
                                     lEnd <- newLabel;
-                                    emit $ lTest ++ ":";
+                                    emit $ lCond ++ ":";
                                     compileExp exp;
                                     emit $ "ifeq " ++ lEnd;
                                     compileStm stm;
-                                    emit $ "goto " ++ lTest;
+                                    emit $ "goto " ++ lCond;
                                     emit $ lEnd ++ ":"
                                   }
 compileStm (SBlock lstm) = compileListStm lstm
-compileStm (SFor id exp2 exp1 stm) = error $ "ERROR SFor"
+compileStm (SFor id exp1 exp2 stm) = do {
+                                          -- creo labels
+                                          lCond <- newLabel;
+                                          lEnd <- newLabel;
+                                          dirMem <- lookupVar id;
+                                          compileExp exp1;
+                                          emit $ "istore " ++ dirMem;
+                                          -- cargo en el stack para chequear condicion
+                                          emit $ lCond ++ ":";
+                                          emit $ "iload " ++ dirMem;
+                                          compileExp exp2;
+                                          -- ejecuto la condicion, si es mayor termino, sino sigo
+                                          emit $ "if_icmpgt " ++ lEnd;
+                                          compileStm stm;
+                                          -- traigo al stack el valor de la variable e incremento (agrego un 1 y sumo)
+                                          emit $ "iload " ++ dirMem;
+                                          emit $ "ldc 1";
+                                          emit $ "iadd ";
+                                          emit $ "istore " ++ dirMem;
+                                          -- voy de nuevo a chequear la condicion
+                                          emit $ "goto " ++ lCond;
+                                          -- me voy
+                                          emit $ lEnd ++ ":"
+                                        }
 compileStm (SIf exp stm1 stm2) = do {
                                       lFalse <- newLabel;
                                       lEnd <- newLabel;
