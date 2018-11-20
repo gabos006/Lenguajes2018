@@ -195,8 +195,39 @@ compileExp (ETyped (ELe exp1 exp2) t) = compileExpCmp exp1 exp2 CLe
 compileExp (ETyped (ELeq exp1 exp2) t) = compileExpCmp exp1 exp2 CLeq
 compileExp (ETyped (EGeq exp1 exp2) t) = compileExpCmp exp1 exp2 CGeq
 compileExp (ETyped (EGe exp1 exp2) t) = compileExpCmp exp1 exp2 CGt
-compileExp (ETyped (EOr exp1 exp2) t) = error $ "ERROR EOr"
-compileExp (ETyped (EAnd exp1 exp2) t) = error $ "ERROR EAnd"
+compileExp (ETyped (EOr exp1 exp2) t) = do {
+                                               lFalse1 <- newLabel;
+                                               lFalse2 <- newLabel;
+                                               lEnd <- newLabel;
+                                               compileExp exp1;
+                                               compileExp exp2;
+                                               emit $ "ifeq " ++ lFalse1;
+                                               emit $ "ldc 1";
+                                               emit $ "goto " ++ lEnd;
+                                               emit $ lFalse1 ++ ":";
+                                               emit $ "ifeq " ++ lFalse2;
+                                               emit $ "ldc 1";
+                                               emit $ "goto " ++ lEnd;
+                                               emit $ lFalse2 ++ ":";
+                                               emit $ "ldc 0";
+                                               emit $ lEnd ++ ":"
+                                            }
+compileExp (ETyped (EAnd exp1 exp2) t) = do {
+                                               lFalse1 <- newLabel;
+                                               lFalse2 <- newLabel;
+                                               lEnd <- newLabel;
+                                               compileExp exp1;
+                                               compileExp exp2;
+                                               emit $ "ifeq " ++ lFalse1;
+                                               emit $ "ifeq " ++ lFalse2;
+                                               emit $ "ldc 1";
+                                               emit $ "goto " ++ lEnd;
+                                               emit $ lFalse1 ++ ":";
+                                               emit $ "ldc 0";
+                                               emit $ lFalse2 ++ ":";
+                                               emit $ "ldc 0";
+                                               emit $ lEnd ++ ":"
+                                            }
 compileExp (ETyped (EPlus exp1 exp2) t) = do {
                                                compileExp exp1;
                                                compileExp exp2;
