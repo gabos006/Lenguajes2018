@@ -122,7 +122,17 @@ compileStm (SWhile exp stm) = do {
                                   }
 compileStm (SBlock lstm) = compileListStm lstm
 compileStm (SFor id exp2 exp1 stm) = error $ "ERROR SFor"
-compileStm (SIf exp stm1 stm2) = error $ "ERROR SIf"
+compileStm (SIf exp stm1 stm2) = do {
+                                      lFalse <- newLabel;
+                                      lEnd <- newLabel;
+                                      compileExp exp;
+                                      emit $ "ifeq " ++ lFalse;
+                                      compileStm stm1;
+                                      emit $ "goto " ++ lEnd;
+                                      emit $ lFalse ++ ":";
+                                      compileStm stm2;
+                                      emit $ lEnd ++ ":"
+                                    }
 compileStm (SEmpty) = return()
 
 compileListStm :: [Stm] -> State Env ()
