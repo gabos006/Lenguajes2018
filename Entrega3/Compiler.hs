@@ -200,11 +200,11 @@ compileExp (ETyped (EOr exp1 exp2) t) = do {
                                                lFalse2 <- newLabel;
                                                lEnd <- newLabel;
                                                compileExp exp1;
-                                               compileExp exp2;
                                                emit $ "ifeq " ++ lFalse1;
                                                emit $ "ldc 1";
                                                emit $ "goto " ++ lEnd;
                                                emit $ lFalse1 ++ ":";
+                                               compileExp exp2;
                                                emit $ "ifeq " ++ lFalse2;
                                                emit $ "ldc 1";
                                                emit $ "goto " ++ lEnd;
@@ -217,8 +217,8 @@ compileExp (ETyped (EAnd exp1 exp2) t) = do {
                                                lFalse2 <- newLabel;
                                                lEnd <- newLabel;
                                                compileExp exp1;
-                                               compileExp exp2;
                                                emit $ "ifeq " ++ lFalse1;
+                                               compileExp exp2;
                                                emit $ "ifeq " ++ lFalse2;
                                                emit $ "ldc 1";
                                                emit $ "goto " ++ lEnd;
