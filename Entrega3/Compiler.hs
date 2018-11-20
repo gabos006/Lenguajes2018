@@ -179,12 +179,12 @@ showOpBinBool Or  = "ifeq "
 
 compileExp :: Exp -> State Env ()
 compileExp (ETyped (EConv exp) t) = error $ "ERROR EConv"
-compileExp (ETyped (EEq exp1 exp2) t) = error $ "ERROR EEq"
-compileExp (ETyped (EDiff exp1 exp2) t) = error $ "ERROR EDiff"
-compileExp (ETyped (ELe exp1 exp2) t) = error $ "ERROR ELe"
-compileExp (ETyped (ELeq exp1 exp2) t) = error $ "ERROR ELeq"
-compileExp (ETyped (EGeq exp1 exp2) t) = error $ "ERROR EGeq"
-compileExp (ETyped (EGe exp1 exp2) t) = error $ "ERROR EGe"
+compileExp (ETyped (EEq exp1 exp2) t) = compileExpCmp exp1 exp2 CEq
+compileExp (ETyped (EDiff exp1 exp2) t) = compileExpCmp exp1 exp2 CDiff
+compileExp (ETyped (ELe exp1 exp2) t) = compileExpCmp exp1 exp2 CLe
+compileExp (ETyped (ELeq exp1 exp2) t) = compileExpCmp exp1 exp2 CLeq
+compileExp (ETyped (EGeq exp1 exp2) t) = compileExpCmp exp1 exp2 CGeq
+compileExp (ETyped (EGe exp1 exp2) t) = compileExpCmp exp1 exp2 CGt
 compileExp (ETyped (EOr exp1 exp2) t) = error $ "ERROR EOr"
 compileExp (ETyped (EAnd exp1 exp2) t) = error $ "ERROR EAnd"
 compileExp (ETyped (EPlus exp1 exp2) t) = do {
@@ -287,13 +287,23 @@ compileListExp (e:es) = do {
                              compileListExp es
                            }
 
---compileExpCmp :: Exp -> Exp -> Cmp -> State Env ()
---compileExpCmp (ETyped e1 t1) e2 cmp =
---do {
---     compileExp (ETyped e1 t1);
---     compileExp e2;
---     if (t1 == Type_integer) then do
---
---     else do
---
---}
+compileExpCmp :: Exp -> Exp -> Cmp -> State Env ()
+compileExpCmp (ETyped e1 t1) e2 cmp = do {
+                                            lTrue <- newLabel;
+                                            lEnd <- newLabel;
+                                            compileExp (ETyped e1 t1);
+                                            compileExp e2;
+                                            if (t1 == Type_integer) then
+                                              do {
+                                                   emit $ (showCmpInt cmp) ++ lTrue
+                                                 };
+                                            else
+                                              do {
+                                                   emit $ (showCmpReal cmp) ++ lTrue
+                                                 };
+                                            emit $ "ldc 0";
+                                            emit $ "goto " ++ lEnd;
+                                            emit $ lTrue ++ ":";
+                                            emit $ "ldc 1";
+                                            emit $ lEnd ++ ":"
+                                         }
