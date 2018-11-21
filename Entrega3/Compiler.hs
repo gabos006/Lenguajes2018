@@ -217,7 +217,10 @@ showOpBinBool And = "ifne "
 showOpBinBool Or  = "ifeq "
 
 compileExp :: Exp -> State Env ()
-compileExp (ETyped (EConv exp) t) = error $ "ERROR EConv"
+compileExp (ETyped (EConv exp) t) = do {
+                                         compileExp exp;
+                                         emit $ "i2d "
+                                       }
 compileExp (ETyped (EEq exp1 exp2) t) = compileExpCmp exp1 exp2 CEq
 compileExp (ETyped (EDiff exp1 exp2) t) = compileExpCmp exp1 exp2 CDiff
 compileExp (ETyped (ELe exp1 exp2) t) = compileExpCmp exp1 exp2 CLe
@@ -358,22 +361,70 @@ compileListExp (e:es) = do {
                            }
 
 compileExpCmp :: Exp -> Exp -> Cmp -> State Env ()
-compileExpCmp (ETyped e1 t1) e2 cmp = do {
+-- compileExpCmp (ETyped e1 t1) (ETyped e2 t2) cmp = do {
+                                            -- lTrue <- newLabel;
+                                            -- lEnd <- newLabel;
+											-- lComp <- newLabel;
+                                            -- if (t1 == Type_integer) then
+                                              -- if (t2 == Type_integer) then
+                                                -- do {
+                                                     -- compileExp (ETyped e1 t1);
+                                                     -- compileExp (ETyped e2 t2);
+                                                     -- emit $ (showCmpInt cmp) ++ lTrue;
+													 -- emit $ "ldc 0";
+                                                     -- emit $ "goto " ++ lEnd;
+                                                     -- emit $ lTrue ++ ":";
+                                                     -- emit $ "ldc 1";
+                                                     -- emit $ lEnd ++ ":"
+                                                   -- }
+                                              -- else
+                                                -- do {
+                                                     -- compileExp (ETyped (EConv (ETyped e1 t1)) t2);
+                                                     -- compileExp (ETyped e2 t2);
+                                                     -- emit $ "dcmpg ";
+                                                   -- }
+                                            -- else
+                                              -- if (t2 == Type_integer) then
+                                                -- do {
+                                                     -- compileExp (ETyped e1 t1);
+                                                     -- compileExp (ETyped (EConv (ETyped e2 t2)) t1);
+                                                     -- emit $ "dcmpg ";
+                                                   -- }
+                                              -- else
+                                                -- do {
+                                                     -- compileExp (ETyped e1 t1);
+                                                     -- compileExp (ETyped e2 t2);
+                                                     -- emit $ "dcmpg ";
+                                                   -- }
+                                         -- }
+compileExpCmp (ETyped e1 t1) (ETyped e2 t2) cmp = do {
                                             lTrue <- newLabel;
                                             lEnd <- newLabel;
-                                            compileExp (ETyped e1 t1);
-                                            compileExp e2;
+											lComp <- newLabel;
                                             if (t1 == Type_integer) then
-                                              do {
-                                                   emit $ (showCmpInt cmp) ++ lTrue
-                                                 };
+                                              if (t2 == Type_integer) then
+                                                do {
+                                                     compileExp (ETyped (EConv (ETyped e1 t1)) Type_real);
+                                                     compileExp (ETyped (EConv (ETyped e2 t2)) Type_real);
+                                                     emit $ "dcmpg ";
+                                                   }
+                                              else
+                                                do {
+                                                     compileExp (ETyped (EConv (ETyped e1 t1)) t2);
+                                                     compileExp (ETyped e2 t2);
+                                                     emit $ "dcmpg ";
+                                                   }
                                             else
-                                              do {
-                                                   emit $ (showCmpReal cmp) ++ lTrue
-                                                 };
-                                            emit $ "ldc 0";
-                                            emit $ "goto " ++ lEnd;
-                                            emit $ lTrue ++ ":";
-                                            emit $ "ldc 1";
-                                            emit $ lEnd ++ ":"
+                                              if (t2 == Type_integer) then
+                                                do {
+                                                     compileExp (ETyped e1 t1);
+                                                     compileExp (ETyped (EConv (ETyped e2 t2)) t1);
+                                                     emit $ "dcmpg ";
+                                                   }
+                                              else
+                                                do {
+                                                     compileExp (ETyped e1 t1);
+                                                     compileExp (ETyped e2 t2);
+                                                     emit $ "dcmpg ";
+                                                   }
                                          }
