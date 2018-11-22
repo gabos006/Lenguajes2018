@@ -26,18 +26,18 @@ iload 2
 idiv
 imul
 iload 1
-if_icmpeq label6
+if_icmpeq label7
 ldc 0
-goto label7
-label6:
-ldc 1
+goto label8
 label7:
-ifeq label4
+ldc 1
+label8:
+ifeq label5
 iload 2
 invokestatic Runtime/writeInt(I)V
-goto label5
-label4:
+goto label6
 label5:
+label6:
 iload 2
 ldc 1
 isub

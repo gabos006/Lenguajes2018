@@ -33,12 +33,12 @@ label1:
 label2:
 iload 3
 ldc 0
-if_icmpeq label5
+if_icmpeq label6
 ldc 0
-goto label6
-label5:
-ldc 1
+goto label7
 label6:
+ldc 1
+label7:
 ifeq label0
 iload 1
 iload 2
