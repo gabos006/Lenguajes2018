@@ -6,6 +6,7 @@
 .limit stack  1000
 ldc2_w 2.23
 ldc2_w 1.4
+dcmpg 
 iflt label2
 ldc 0
 goto label3

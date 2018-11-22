@@ -11,7 +11,7 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import System.FilePath
 import Control.Monad.State
- 
+
 import TypeChecker
 import Compiler
 

@@ -361,70 +361,31 @@ compileListExp (e:es) = do {
                            }
 
 compileExpCmp :: Exp -> Exp -> Cmp -> State Env ()
--- compileExpCmp (ETyped e1 t1) (ETyped e2 t2) cmp = do {
-                                            -- lTrue <- newLabel;
-                                            -- lEnd <- newLabel;
-											-- lComp <- newLabel;
-                                            -- if (t1 == Type_integer) then
-                                              -- if (t2 == Type_integer) then
-                                                -- do {
-                                                     -- compileExp (ETyped e1 t1);
-                                                     -- compileExp (ETyped e2 t2);
-                                                     -- emit $ (showCmpInt cmp) ++ lTrue;
-													 -- emit $ "ldc 0";
-                                                     -- emit $ "goto " ++ lEnd;
-                                                     -- emit $ lTrue ++ ":";
-                                                     -- emit $ "ldc 1";
-                                                     -- emit $ lEnd ++ ":"
-                                                   -- }
-                                              -- else
-                                                -- do {
-                                                     -- compileExp (ETyped (EConv (ETyped e1 t1)) t2);
-                                                     -- compileExp (ETyped e2 t2);
-                                                     -- emit $ "dcmpg ";
-                                                   -- }
-                                            -- else
-                                              -- if (t2 == Type_integer) then
-                                                -- do {
-                                                     -- compileExp (ETyped e1 t1);
-                                                     -- compileExp (ETyped (EConv (ETyped e2 t2)) t1);
-                                                     -- emit $ "dcmpg ";
-                                                   -- }
-                                              -- else
-                                                -- do {
-                                                     -- compileExp (ETyped e1 t1);
-                                                     -- compileExp (ETyped e2 t2);
-                                                     -- emit $ "dcmpg ";
-                                                   -- }
-                                         -- }
 compileExpCmp (ETyped e1 t1) (ETyped e2 t2) cmp = do {
                                             lTrue <- newLabel;
                                             lEnd <- newLabel;
-											lComp <- newLabel;
+                                            lComp <- newLabel;
                                             if (t1 == Type_integer) then
-                                              if (t2 == Type_integer) then
-                                                do {
-                                                     compileExp (ETyped (EConv (ETyped e1 t1)) Type_real);
-                                                     compileExp (ETyped (EConv (ETyped e2 t2)) Type_real);
-                                                     emit $ "dcmpg ";
-                                                   }
-                                              else
-                                                do {
-                                                     compileExp (ETyped (EConv (ETyped e1 t1)) t2);
-                                                     compileExp (ETyped e2 t2);
-                                                     emit $ "dcmpg ";
-                                                   }
+                                              do {
+                                                   compileExp (ETyped e1 t1);
+                                                   compileExp (ETyped e2 t2);
+                                                   emit $ (showCmpInt cmp) ++ lTrue;
+                                                   emit $ "ldc 0";
+                                                   emit $ "goto " ++ lEnd;
+                                                   emit $ lTrue ++ ":";
+                                                   emit $ "ldc 1";
+                                                   emit $ lEnd ++ ":"
+                                                 }
                                             else
-                                              if (t2 == Type_integer) then
-                                                do {
-                                                     compileExp (ETyped e1 t1);
-                                                     compileExp (ETyped (EConv (ETyped e2 t2)) t1);
-                                                     emit $ "dcmpg ";
-                                                   }
-                                              else
-                                                do {
-                                                     compileExp (ETyped e1 t1);
-                                                     compileExp (ETyped e2 t2);
-                                                     emit $ "dcmpg ";
-                                                   }
+                                              do {
+                                                   compileExp (ETyped e1 t1);
+                                                   compileExp (ETyped e2 t2);
+                                                   emit $ "dcmpg ";
+                                                   emit $ (showCmpReal cmp) ++ lTrue;
+                                                   emit $ "ldc 0";
+                                                   emit $ "goto " ++ lEnd;
+                                                   emit $ lTrue ++ ":";
+                                                   emit $ "ldc 1";
+                                                   emit $ lEnd ++ ":"
+                                                 }
                                          }
