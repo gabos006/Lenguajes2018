@@ -364,13 +364,13 @@ compileExpCmp :: Exp -> Exp -> Cmp -> State Env ()
 compileExpCmp (ETyped e1 t1) (ETyped e2 t2) cmp = do {
                                             lTrue <- newLabel;
                                             lEnd <- newLabel;
-											                      lComp <- newLabel;
+                                            lComp <- newLabel;
                                             if (t1 == Type_integer) then
                                               do {
                                                    compileExp (ETyped e1 t1);
                                                    compileExp (ETyped e2 t2);
                                                    emit $ (showCmpInt cmp) ++ lTrue;
-													                         emit $ "ldc 0";
+                                                   emit $ "ldc 0";
                                                    emit $ "goto " ++ lEnd;
                                                    emit $ lTrue ++ ":";
                                                    emit $ "ldc 1";
