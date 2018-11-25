@@ -1,3 +1,6 @@
+-- 224435 - Gabriel Pereyra
+-- 168772 - Mario Souto
+
 module Compiler where
 
 import AbsPascal
